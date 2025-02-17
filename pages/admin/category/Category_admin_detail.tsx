@@ -1,23 +1,16 @@
 import * as React from 'react';
-import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
-import ListItemText from '@mui/material/ListItemText';
-import ListItem from '@mui/material/ListItem';
-import List from '@mui/material/List';
-import Divider from '@mui/material/Divider';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import CloseIcon from '@mui/icons-material/Close';
-import { Stack } from '@mui/system';
 import { Alert, TextField } from '@mui/material';
-import SaveIcon from '@mui/icons-material/Save';
-import axios from 'axios';
-import { useRouter } from 'next/router';
 import { SubmitHandler, useForm } from 'react-hook-form';
 // import { creat } from '../../../api/category';
 import useCategory from '../../../hook/useCategory'
+import toastr from "toastr";
+import "toastr/build/toastr.min.css";
 
 function Category_admin_detail(props: any, ref: any) {
     const [open, setOpen] = React.useState(false);
@@ -59,33 +52,18 @@ function Category_admin_detail(props: any, ref: any) {
     const themsp: SubmitHandler<any> = (data: any) => {
         if (refMode.current == "CREATE") {
             setLoading(false)
-            const file = data.image[0]
-            const formData = new FormData()
-
-            formData.append('file', file)
-            formData.append("upload_preset", "hzeskmhn")
-
-            axios({
-                url: 'https://api.cloudinary.com/v1_1/dkhutgvlb/image/upload',
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/x-www-formendcoded",
-
-                }, data: formData,
-            }).then((res) => {
-                data.image = res.data.url
-                try {
-                    create(data).then(() => {
-                        <Alert variant="filled" severity="success">
-                            This is a success alert — check it out!
-                        </Alert>
-                        setLoading(true)
-                        handleClose()
-                    }
-                    )
-                } catch (error) {
+            try {
+                create(data).then(() => {
+                    <Alert variant="filled" severity="success">
+                        This is a success alert — check it out!
+                    </Alert>
+                    setLoading(true)
+                    handleClose()
+                    toastr.success("Thêm thành công")
                 }
-            })
+                )
+            } catch (error) {
+            }
         }
         else {
             alert('cc')

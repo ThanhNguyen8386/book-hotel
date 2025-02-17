@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import * as React from 'react';
-// import { DataGrid, GridActionsCellItem } from '@mui/x-data-grid';
+import { DataGrid, GridActionsCellItem } from '@mui/x-data-grid';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
@@ -11,7 +11,6 @@ import useCategory from '../../../hook/useCategory';
 import Head from 'next/head';
 import Swal from 'sweetalert2'
 import ShowForPermission from '../../../components/Private/showForPermission';
-import StickyHeadTable from '../../../components/Table';
 function CategoryAdmin() {
     const e = useCategory();
 
@@ -64,47 +63,46 @@ function CategoryAdmin() {
         [],
     )
 
-    // const columns = React.useMemo(
-    //     () => [
-    //         { field: '_id', type: 'string', width: 150, headerName: "#" },
-    //         { field: 'name', type: 'number' },
-    //         {
-    //             field: 'actions',
-    //             type: 'actions',
-    //             width: 150,
-    //             getActions: (params: any) => [
-    //                 <ShowForPermission key={1}>
-    //                     <GridActionsCellItem
-    //                         icon={
-    //                             <Tooltip title="Edit">
-    //                                 <IconButton>
-    //                                     <EditIcon />
-    //                                 </IconButton>
-    //                             </Tooltip>}
-    //                         label="Edit"
-    //                         onClick={() => actionCrud.update(params.row, params)}
-    //                     />
-    //                 </ShowForPermission>,
-    //                 <ShowForPermission key={2}>
-    //                     <GridActionsCellItem
-    //                         icon={
-    //                             <Tooltip title="Delete">
-    //                                 <IconButton>
-    //                                     <DeleteIcon />
-    //                                 </IconButton>
-    //                             </Tooltip>}
-    //                         label="Delete"
-    //                         onClick={() => actionCrud.remove(params.id)}
-    //                     />
-    //                 </ShowForPermission>
-    //             ],
-    //         },
-    //     ],
-    //     [deleteUser],
-    // );
+    const columns = React.useMemo(
+        () => [
+            { field: '_id', type: 'string', width: 150, headerName: "#" },
+            { field: 'name', type: 'number' },
+            {
+                field: 'actions',
+                type: 'actions',
+                width: 150,
+                getActions: (params: any) => [
+                    <ShowForPermission key={1}>
+                        <GridActionsCellItem
+                            icon={
+                                <Tooltip title="Edit">
+                                    <IconButton>
+                                        <EditIcon />
+                                    </IconButton>
+                                </Tooltip>}
+                            label="Edit"
+                            onClick={() => actionCrud.update(params.row, params)}
+                        />
+                    </ShowForPermission> ,
+                    <ShowForPermission key={2}>
+                        <GridActionsCellItem
+                            icon={
+                                <Tooltip title="Delete">
+                                    <IconButton>
+                                        <DeleteIcon />
+                                    </IconButton>
+                                </Tooltip>}
+                            label="Delete"
+                            onClick={() => actionCrud.remove(params.id)}
+                        />
+                    </ShowForPermission>
+                ],
+            },
+        ],
+        [deleteUser],
+    );
 
     return (
-
         <div style={{ width: '100%', padding: "15px" }}>
             <Head>
                 <title>
@@ -117,15 +115,14 @@ function CategoryAdmin() {
                     <AddIcon /> Thêm mới
                 </Button>
             </ShowForPermission>
-
+            
             <Category_admin_detail ref={refDetail} />
-            <StickyHeadTable data={rows} />
-            {/* <div className="h-[600px]">
+            <div className="h-[600px]">
                 <DataGrid
                     columns={columns}
                     rows={rows}
                     getRowId={(row) => row._id} />
-            </div> */}
+            </div>
         </div>
     );
 }
