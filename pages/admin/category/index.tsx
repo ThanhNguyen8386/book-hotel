@@ -57,7 +57,7 @@ function CategoryAdmin() {
     const deleteUser = React.useCallback(
         (id: any) => () => {
             setTimeout(() => {
-                setRows((prevRows) => prevRows.filter((row) => row.id !== id));
+                setRows((prevRows) => prevRows.filter((row) => row?._id !== id));
             });
         },
         [],
@@ -65,12 +65,13 @@ function CategoryAdmin() {
 
     const columns = React.useMemo(
         () => [
-            { field: '_id', type: 'string', width: 150, headerName: "#" },
-            { field: 'name', type: 'number' },
+            { field: '_id', type: 'string', headerName: "#", minWidth: 150, flex: 1 },
+            { field: 'name', type: 'number', minWidth: 150, flex: 1 },
             {
+                minWidth: 150,
                 field: 'actions',
                 type: 'actions',
-                width: 150,
+                flex: 1,
                 getActions: (params: any) => [
                     <ShowForPermission key={1}>
                         <GridActionsCellItem
@@ -81,9 +82,9 @@ function CategoryAdmin() {
                                     </IconButton>
                                 </Tooltip>}
                             label="Edit"
-                            onClick={() => actionCrud.update(params.row, params)}
+                            onClick={() =>actionCrud.update(params.row, params)}
                         />
-                    </ShowForPermission> ,
+                    </ShowForPermission>,
                     <ShowForPermission key={2}>
                         <GridActionsCellItem
                             icon={
@@ -115,7 +116,6 @@ function CategoryAdmin() {
                     <AddIcon /> Thêm mới
                 </Button>
             </ShowForPermission>
-            
             <Category_admin_detail ref={refDetail} />
             <div className="h-[600px]">
                 <DataGrid

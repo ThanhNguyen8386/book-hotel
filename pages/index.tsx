@@ -237,7 +237,6 @@ const Home = () => {
 
   return (
     <div className="">
-      {/* <StickyHeadTable/> */}
       <div className="w-[80%] mx-auto relative mb-[50px] z-10">
         <div className="flex justify-center h-[286px] bg-[url('https://res.cloudinary.com/dkhutgvlb/image/upload/v1669818180/33_1654843382_62a2e7f6b03fb_brxw7x.png')] bg-no-repeat bg-cover">
           <h1 className="text-5xl text-center font-semibold text-white mt-5 w-[65%]">

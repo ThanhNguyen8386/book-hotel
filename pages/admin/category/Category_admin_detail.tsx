@@ -5,28 +5,30 @@ import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import CloseIcon from '@mui/icons-material/Close';
-import { Alert, TextField } from '@mui/material';
+import { Alert, FormLabel } from '@mui/material';
 import { SubmitHandler, useForm } from 'react-hook-form';
 // import { creat } from '../../../api/category';
 import useCategory from '../../../hook/useCategory'
 import toastr from "toastr";
 import "toastr/build/toastr.min.css";
+import Input from '@mui/material/Input';
 
 function Category_admin_detail(props: any, ref: any) {
     const [open, setOpen] = React.useState(false);
+    const categoryDetail = {
+        name: ""
+    }
+    const [defaultCategory, setDefaultCategory] = React.useState(categoryDetail)
     const refMode = React.useRef(null);
-    const { register, handleSubmit, formState: { errors }, reset } = useForm();
+    const { register, handleSubmit, reset } = useForm({
+        defaultValues: defaultCategory
+    });
     const { create, data } = useCategory()
 
-    const categoryDetail = {
+    const defaultErrors = {
         name: null,
-        image: null,
-        overnight: null,
-        daytime: null,
-        dayprice: null,
-    }
-
-    const [defaultCategory, setDefaultCategory] = React.useState(categoryDetail)
+    };
+    const [errors, setErrors] = React.useState(defaultErrors);
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -34,6 +36,7 @@ function Category_admin_detail(props: any, ref: any) {
 
     const handleClose = () => {
         setOpen(false);
+        setDefaultCategory(categoryDetail)
     };
 
     React.useImperativeHandle(ref, () => ({
@@ -42,15 +45,72 @@ function Category_admin_detail(props: any, ref: any) {
             handleClickOpen()
         },
         update: (item: any, type: any) => {
+            setDefaultCategory(item)
             refMode.current = type
-            reset(item)
             handleClickOpen()
         }
     }))
 
+    const validate = (props: any, _planTask: any) => {
+        const _defaultCategory = { ...defaultCategory };
+        let result = { ...errors };
+
+        // validate all props
+        if (props.length === 0) {
+            for (const property in result) {
+                props.push(property);
+            }
+        }
+
+        // validate props
+        props.forEach((prop: any) => {
+            switch (prop) {
+                case "name":
+                    result[prop] = true;
+                    break;
+                default:
+                    break;
+            }
+        });
+
+        // set state
+        setErrors(result);
+        let errorList = _.uniq(Object.values(result).filter((f) => f));
+        return errorList;
+    };
+
+    const applyChange = (prop: any, val: any) => {
+        const _defaultCategory = { ...defaultCategory };
+        switch (prop) {
+            case "name":
+                _defaultCategory.name = val;
+                break;
+            default:
+                _defaultCategory[prop] = val;
+        }
+        setDefaultCategory(_defaultCategory);
+    }
+
     const [loading, setLoading] = React.useState(true)
     const themsp: SubmitHandler<any> = (data: any) => {
+
         if (refMode.current == "CREATE") {
+            setLoading(false)
+            try {
+                create(data).then(() => {
+                    <Alert variant="filled" severity="success">
+                        This is a success alert — check it out!
+                    </Alert>
+                    setLoading(true)
+                    handleClose()
+                    toastr.success("Thêm thành công")
+                    reset()
+                }
+                )
+            } catch (error) {
+            }
+        }
+        else {
             setLoading(false)
             try {
                 create(data).then(() => {
@@ -64,9 +124,6 @@ function Category_admin_detail(props: any, ref: any) {
                 )
             } catch (error) {
             }
-        }
-        else {
-            alert('cc')
         }
     }
 
@@ -100,13 +157,22 @@ function Category_admin_detail(props: any, ref: any) {
                                 <div className="overflow-hidden">
                                     <form action="" onSubmit={handleSubmit(themsp)} className='p-4'>
                                         <div className='pb-4'>
-                                            <label htmlFor="">Name</label> <br />
-                                            <input {...register('name', { required: true, minLength: 5 })} type="text" placeholder='Product name' className='border p-2 w-full' name="name" id="" />
-                                            {Object.keys(errors).length !== 0 && (
-                                                <div>
-                                                    {errors.name?.type === "required" && <p className='text-red-600'>Tên sản phẩm không được bỏ trống</p>}
-                                                </div>
-                                            )}
+                                            <div className="py-4">
+                                                <FormLabel>Name</FormLabel>
+                                                <Input
+                                                    fullWidth
+                                                    placeholder="Placeholder"
+                                                    value={defaultCategory.name}
+                                                    onChange={(e) => {
+                                                        applyChange("name", e.target.value)
+                                                    }}
+                                                />
+                                                {Object.keys(errors).length !== 0 && (
+                                                    <div>
+                                                        {errors.name === "required" && <p className='text-red-600'>Tên sản phẩm không được bỏ trống</p>}
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
                                         <div>
                                         </div>
