@@ -65,13 +65,14 @@ function CategoryAdmin() {
 
     const columns = React.useMemo(
         () => [
-            { field: '_id', type: 'string', headerName: "#", minWidth: 150, flex: 1 },
-            { field: 'name', type: 'number', minWidth: 150, flex: 1 },
+            { field: '_id', align: "left",type: 'string', headerName: "#", minWidth: 150, flex: 1 },
+            { field: 'name', align: "right",type: 'number', minWidth: 150, flex: 1 },
             {
                 minWidth: 150,
                 field: 'actions',
                 type: 'actions',
                 flex: 1,
+                align: "center",
                 getActions: (params: any) => [
                     <ShowForPermission key={1}>
                         <GridActionsCellItem

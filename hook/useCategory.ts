@@ -16,7 +16,7 @@ const useCategory = () => {
     }
 
     const edit = async (item: any) => {
-        await update(id, item);
+        await update(item?._id, item);
         mutate()
     }
 
