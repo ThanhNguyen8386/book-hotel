@@ -1,130 +1,174 @@
-import Link from 'next/link'
-import React from 'react'
+import * as React from 'react';
 import { DashboardLayout } from '../../../components/dashboard-layout'
-import layoutAdmin from '../../../components/Layout/layoutAdmin'
 import userUser from '../../../hook/use-user'
-import { Button, TablePagination, Tooltip } from '@mui/material'
+import { Avatar, Button, Dialog, DialogActions, DialogTitle, IconButton, LinearProgress, Switch, Tooltip } from '@mui/material'
 import ShowForPermission from '../../../components/Private/showForPermission'
-
+import { DataGrid, GridActionsCellItem } from '@mui/x-data-grid'
+import DeleteIcon from '@mui/icons-material/Delete';
+import Swal from 'sweetalert2';
 type Props = {}
 
 const UserAdmin = (props: Props) => {
-    const { data, error, dele } = userUser()
-    const [page, setPage] = React.useState(0);
-    const [rowsPerPage, setRowsPerPage] = React.useState(5);
+    const { data, dele, edit } = userUser()
+    const [rows, setRows] = React.useState([{ _id: 1, name: null, email: null, status }]);
+    const [openDialog, setOpenDialog] = React.useState(false)
+    const [loading, setLoading] = React.useState(true)
+    const defaultData = {
+        address: null,
+        avatar: null,
+        email: null,
+        gender: null,
+        name: null,
+        password: null,
+        phone: null,
+        role: null,
+        status: null,
+    }
+    const [userData, setUserData] = React.useState(defaultData)
 
-    const handleChangePage = (event: unknown, newPage: number) => {
-        setPage(newPage);
-    };
+    React.useEffect(() => {
+        if (data) {
+            setRows(data)
+            setLoading(false)
+        }
+    }, [data])
 
-    const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setRowsPerPage(+event.target.value);
-        setPage(0);
-    };
-    if (!data) return <div>Loading...</div>
-    if (error) return <div>Error</div>
+    const deleteUser = React.useCallback(
+        (id: any) => () => {
+            setTimeout(() => {
+                setRows((prevRows) => prevRows.filter((row) => row?._id !== id));
+            });
+        },
+        [],
+    )
 
-    const remove = (item: any) => {
-        const confirm = window.confirm(`Ban co muon xoa: ${item.name}`)
-        if (confirm) {
-            dele(`${item._id}`)
+    const handleCheckStatus = (e: any, userData: any) => {
+        const status = e.target.checked ? 1 : 0
+        const _userData = { ...userData, status }
+        setUserData(_userData);
+    }
+
+    const submit = () => {
+        try {
+            edit(userData).then(() => {
+                console.log("update oke");
+                handleClose()
+            })
+        } catch (error) {
+            console.log(error);
+
         }
     }
-    return (
-        <div>
-            <div className="container w-[100%] p-2">
-                <div className="container w-[100%] p-2">
-                    <div className="flex flex-row mb-1 sm:mb-0 justify-between min-w-full ">
-                        <h2 className="text-2xl leading-tight">
-                            Users
-                        </h2>
-                    </div>
-                    <div className="inline-block sm:min-w-full w-[900px] shadow-xl rounded-xl h-[600px] relative border">
-                        <div className="h-full  pb-[50px]">
-                            <table className="table-auto w-full border">
-                                <thead className='sticky top-0 shadow z-50'>
-                                    <tr>
-                                        <th scope="col" className="text-xs px-5 py-3 bg-white border-b border-gray-200 text-[#333] text-left uppercase">
 
-                                        </th>
-                                        <th scope="col" className="text-xs px-5 py-3 bg-white border-b border-gray-200 text-[#333] text-left uppercase">
-                                            Name
-                                        </th>
-                                        <th scope="col" className="text-xs px-5 py-3 bg-white border-b border-gray-200 text-[#333] text-left uppercase">
-                                            Email
-                                        </th>
-                                        <th scope="col" className="text-xs px-5 py-3 bg-white border-b border-gray-200 text-[#333] text-left uppercase">
-                                            status
-                                        </th>
-                                        <ShowForPermission>
-                                            <th scope="col" className="text-xs px-5 py-3 bg-white border-b border-gray-200 text-[#333] text-left uppercase">
-                                            </th>
-                                        </ShowForPermission>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {data?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((item: any, index: any) => (
-                                        <tr key={item._id} className="cursor-pointer select-none">
-                                            <td className="px-5 py-2 border-b border-gray-200 bg-white text-sm">
-                                                <p className="text-gray-900 whitespace-no-wrap">
-                                                    {index + 1}
-                                                </p>
-                                            </td>
-                                            <td className="px-5 py-2 border-b border-gray-200 bg-white text-sm">
-                                                <div className="flex items-center">
-                                                    <div className="flex-shrink-0">
-                                                        <a href="#" className="block relative">
-                                                            <img alt="profil" src={item.avatar} className="mx-auto object-cover rounded-full h-10 w-10 " />
-                                                        </a>
-                                                    </div>
-                                                    <div className="ml-3">
-                                                        <p className="text-gray-900 whitespace-no-wrap">
-                                                            {item.name}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                                <p className="text-gray-900 whitespace-no-wrap">
-                                                    {item.email}
-                                                </p>
-                                            </td>
-                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                                <span className="relative inline-block px-3 py-1 font-semibold text-green-900 leading-tight">
-                                                    <span aria-hidden="true" className="absolute inset-0 bg-green-200 opacity-50 rounded-full">
-                                                    </span>
-                                                    <span className="relative">
-                                                        active
-                                                    </span>
-                                                </span>
-                                            </td>
-                                            <ShowForPermission>
-                                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                                   
-                                                    <button className=' bg-red-600 text-white rounded hover:bg-red-800 mb-4 px-3 py-2  ' onClick={() => remove(item._id)} >Xóa</button> <br />
-                                                </td>
-                                            </ShowForPermission>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                              
-                            </table>
-                           
-                        </div>
-                        <div className="absolute bottom-0 bg-white w-full border-t border">
-                                    <TablePagination
-                                        rowsPerPageOptions={[]}
-                                        component="div"
-                                        count={data.length}
-                                        rowsPerPage={rowsPerPage}
-                                        page={page}
-                                        onPageChange={handleChangePage}
-                                        onRowsPerPageChange={handleChangeRowsPerPage}
-                                    />
-                                </div>
-                    </div>
-                </div>
+    const handleClose = () => {
+        setOpenDialog(false);
+        setUserData(defaultData);
+    };
+
+    return (
+        <div className='p-[15px]'>
+            {loading ? <LinearProgress className='fixed top-[65px] z-50 w-full' /> : <></>}
+            <div className="h-[600px]">
+                <DataGrid
+                    columns={React.useMemo(
+                        () => [
+                            {
+                                field: 'avatar',
+                                align: "left",
+                                type: 'string',
+                                headerName: "Ảnh",
+                                maxWidth: 50,
+                                renderCell: (params: any) => {
+                                    return (
+                                        <Avatar alt="Ảnh" src={params.row.avatar} />
+                                    );
+                                }
+                            },
+                            { field: 'name', align: "left", headerName: "Tên", type: 'string', minWidth: 150, flex: 1 },
+                            { field: 'email', align: "left", headerName: "Email", type: 'string', minWidth: 150, flex: 1 },
+                            {
+                                field: 'status',
+                                align: "center",
+                                headerName: "Trạng thái",
+                                type: 'number',
+                                minWidth: 100,
+                                renderCell: (params: any) => {
+                                    return (
+                                        <Switch
+                                            checked={params.row.status == 1 ? true : false}
+                                            color='success'
+                                            onChange={(e) => {
+                                                setOpenDialog(true)
+                                                handleCheckStatus(e, params.row);
+                                            }} />
+                                    );
+                                }
+                            },
+                            {
+                                minWidth: 100,
+                                field: 'actions',
+                                headerName: "Hành động",
+                                type: 'actions',
+                                // flex: 1,
+                                align: "center",
+                                getActions: (params: any) => [
+                                    <ShowForPermission key={2}>
+                                        <GridActionsCellItem
+                                            icon={<Tooltip title="Delete">
+                                                <IconButton>
+                                                    <DeleteIcon />
+                                                </IconButton>
+                                            </Tooltip>}
+                                            label="Delete"
+                                            onClick={() => {
+                                                try {
+                                                    Swal.fire({
+                                                        title: 'Are you sure?',
+                                                        text: "You won't be able to revert this!",
+                                                        icon: 'warning',
+                                                        showCancelButton: true,
+                                                        confirmButtonColor: '#3085d6',
+                                                        cancelButtonColor: '#d33',
+                                                        confirmButtonText: 'Yes, delete it!'
+                                                    }).then((result: any) => {
+                                                        if (result.isConfirmed) {
+                                                            dele(params.row._id)
+                                                                .then(() => {
+                                                                    Swal.fire(
+                                                                        'Deleted!',
+                                                                        'Your file has been deleted.',
+                                                                        'success'
+                                                                    )
+                                                                })
+                                                        }
+                                                    })
+                                                } catch (error) {
+                                                    console.log(error);
+
+                                                }
+                                            }}
+                                        />
+                                    </ShowForPermission>
+                                ],
+                            },
+                        ],
+                        [deleteUser]
+                    )}
+                    rows={rows}
+                    getRowId={(row) => row._id} />
             </div>
+            <Dialog
+                onClose={handleClose}
+                open={openDialog}
+            >
+                <DialogTitle id="alert-dialog-title">
+                    {"Chuyển trạng thái tài khoản này?"}
+                </DialogTitle>
+                <DialogActions>
+                    <Button onClick={handleClose}>Từ chối</Button>
+                    <Button onClick={submit}>Đồng ý</Button>
+                </DialogActions>
+            </Dialog>
         </div>
     )
 }

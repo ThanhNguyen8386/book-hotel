@@ -11,15 +11,17 @@ import useCategory from '../../../hook/useCategory';
 import Head from 'next/head';
 import Swal from 'sweetalert2'
 import ShowForPermission from '../../../components/Private/showForPermission';
+import LinearProgress from '@mui/material/LinearProgress';
 function CategoryAdmin() {
     const e = useCategory();
-
+    const [loading, setLoading] = React.useState(true)
     const [rows, setRows] = React.useState([{ _id: 1, name: null }]);
     const refDetail = React.useRef<any>();
 
     React.useEffect(() => {
         if (e.data) {
             setRows(e.data)
+            setLoading(false)
         }
     }, [e.data])
 
@@ -63,46 +65,6 @@ function CategoryAdmin() {
         [],
     )
 
-    const columns = React.useMemo(
-        () => [
-            { field: '_id', align: "left",type: 'string', headerName: "#", minWidth: 150, flex: 1 },
-            { field: 'name', align: "right",type: 'number', minWidth: 150, flex: 1 },
-            {
-                minWidth: 150,
-                field: 'actions',
-                type: 'actions',
-                flex: 1,
-                align: "center",
-                getActions: (params: any) => [
-                    <ShowForPermission key={1}>
-                        <GridActionsCellItem
-                            icon={
-                                <Tooltip title="Edit">
-                                    <IconButton>
-                                        <EditIcon />
-                                    </IconButton>
-                                </Tooltip>}
-                            label="Edit"
-                            onClick={() =>actionCrud.update(params.row, params)}
-                        />
-                    </ShowForPermission>,
-                    <ShowForPermission key={2}>
-                        <GridActionsCellItem
-                            icon={
-                                <Tooltip title="Delete">
-                                    <IconButton>
-                                        <DeleteIcon />
-                                    </IconButton>
-                                </Tooltip>}
-                            label="Delete"
-                            onClick={() => actionCrud.remove(params.id)}
-                        />
-                    </ShowForPermission>
-                ],
-            },
-        ],
-        [deleteUser],
-    );
 
     return (
         <div style={{ width: '100%', padding: "15px" }}>
@@ -111,6 +73,7 @@ function CategoryAdmin() {
                     Customers
                 </title>
             </Head>
+            {loading ? <LinearProgress className='fixed top-[65px] z-50 w-full' /> : <></>}
 
             <ShowForPermission>
                 <Button variant='text' sx={{ color: "orange" }} onClick={() => actionCrud.create(1, "CREATE")}>
@@ -120,7 +83,42 @@ function CategoryAdmin() {
             <Category_admin_detail ref={refDetail} />
             <div className="h-[600px]">
                 <DataGrid
-                    columns={columns}
+                    columns={React.useMemo(
+                        () => [
+                            { field: '_id', align: "left", type: 'string', headerName: "#", minWidth: 150, flex: 1 },
+                            { field: 'name', align: "left", type: 'string', minWidth: 150, flex: 1 },
+                            {
+                                minWidth: 150,
+                                field: 'actions',
+                                type: 'actions',
+                                flex: 1,
+                                align: "center",
+                                getActions: (params: any) => [
+                                    <ShowForPermission key={1}>
+                                        <GridActionsCellItem
+                                            icon={<Tooltip title="Edit">
+                                                <IconButton>
+                                                    <EditIcon />
+                                                </IconButton>
+                                            </Tooltip>}
+                                            label="Edit"
+                                            onClick={() => actionCrud.update(params.row, params)} />
+                                    </ShowForPermission>,
+                                    <ShowForPermission key={2}>
+                                        <GridActionsCellItem
+                                            icon={<Tooltip title="Delete">
+                                                <IconButton>
+                                                    <DeleteIcon />
+                                                </IconButton>
+                                            </Tooltip>}
+                                            label="Delete"
+                                            onClick={() => actionCrud.remove(params.id)} />
+                                    </ShowForPermission>
+                                ],
+                            },
+                        ],
+                        [deleteUser]
+                    )}
                     rows={rows}
                     getRowId={(row) => row._id} />
             </div>
