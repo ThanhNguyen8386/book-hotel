@@ -70,8 +70,8 @@ function Category_admin_detail(props: any, ref: any) {
 
         // set state
         setErrors(result);
-        // let errorList = _.uniq(Object.values(result).filter((f) => f));
-        // return errorList;
+        let errorList = _.uniq(Object.values(result).filter((f) => f));
+        return errorList;
     };
 
     const applyChange = (prop: any, val: any) => {
@@ -91,34 +91,38 @@ function Category_admin_detail(props: any, ref: any) {
 
     const submit = (e: any) => {
         e.preventDefault()
-        if (refMode.current == "CREATE") {
-            setLoading(false)
-            try {
-                create(defaultCategory).then(() => {
-                    <Alert variant="filled" severity="success">
-                        This is a success alert — check it out!
-                    </Alert>
-                    setLoading(true)
-                    handleClose()
-                    toastr.success("Thêm thành công")
+        const _defaultCategory = { ...defaultCategory };
+        const isValid = validate([], _defaultCategory);
+        if (isValid.length == 0) {
+            if (refMode.current == "CREATE") {
+                setLoading(false)
+                try {
+                    create(_defaultCategory).then(() => {
+                        <Alert variant="filled" severity="success">
+                            This is a success alert — check it out!
+                        </Alert>
+                        setLoading(true)
+                        handleClose()
+                        toastr.success("Thêm thành công")
+                    }
+                    )
+                } catch (error) {
                 }
-                )
-            } catch (error) {
             }
-        }
-        else {
-            setLoading(false)
-            try {
-                edit(defaultCategory).then(() => {
-                    <Alert variant="filled" severity="success">
-                        This is a success alert — check it out!
-                    </Alert>
-                    setLoading(true)
-                    handleClose()
-                    toastr.success("Sửa thành công")
+            else {
+                setLoading(false)
+                try {
+                    edit(_defaultCategory).then(() => {
+                        <Alert variant="filled" severity="success">
+                            This is a success alert — check it out!
+                        </Alert>
+                        setLoading(true)
+                        handleClose()
+                        toastr.success("Sửa thành công")
+                    }
+                    )
+                } catch (error) {
                 }
-                )
-            } catch (error) {
             }
         }
     }
@@ -167,7 +171,7 @@ function Category_admin_detail(props: any, ref: any) {
                                                 />
                                                 {Object.keys(errors).length !== 0 && (
                                                     <div>
-                                                        {errors.name === "required" && <p className='text-red-600'>Tên sản phẩm không được bỏ trống</p>}
+                                                        {errors.name && <p className='text-red-600'>Tên danh mục không được bỏ trống</p>}
                                                     </div>
                                                 )}
                                             </div>
