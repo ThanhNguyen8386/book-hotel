@@ -11,6 +11,8 @@ const userUser = () => {
 
     const dele = async (id: any) => {
         await remove(id);
+        console.log(data);
+        
         mutate(data.filter((item: { _id: any }) => item._id !== id));
     };
 

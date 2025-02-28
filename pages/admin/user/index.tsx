@@ -51,7 +51,6 @@ const UserAdmin = (props: Props) => {
     const submit = () => {
         try {
             edit(userData).then(() => {
-                console.log("update oke");
                 handleClose()
             })
         } catch (error) {

@@ -24,6 +24,9 @@ const Signin = (props: Props) => {
       toastr.success("chào mừng bạn quay trở lại")
       router.push('/')
     })
+      .catch((res) => {
+        toastr.error(res.response.data.message)
+      })
   }
 
 
@@ -39,7 +42,11 @@ const Signin = (props: Props) => {
             <div className="c absolute bottom-[-50px] left-[-20px] w-[196px] h-[187px] rounded-tr-[108px] rounded-br-[20px]  bg-[#fbf1cf]  ">b</div>
           </div>
           <div className='form mx-[auto] mb:w-[50%] mbs:w-[90%]'>
-            <Link className='text-right' href={'/'}><span className='flex justify-end'><button className='mbs:block mb:hidden border bg-[#fac26f] hover:bg-[#fed496] px-6 py-2 rounded-full text-white text-end'>Trở về</button></span></Link>
+            <Link className='text-right' href={'/'}>
+              <span className='flex justify-end'>
+                <button className='mbs:block mb:hidden border bg-[#fac26f] hover:bg-[#fed496] px-6 py-2 rounded-full text-white text-end'>Trở về</button>
+              </span>
+            </Link>
             <h3 className='text-5xl font-bold my-[40px]'>Sign In</h3>
             <form className="mt-8 space-y-6" action="#" method="POST" onSubmit={handleSubmit(onSubmit)}>
               <input type="hidden" name="remember" defaultValue="true" />
@@ -71,7 +78,12 @@ const Signin = (props: Props) => {
                   <label htmlFor="remember-me" className="ml-2 block text-sm text-[#FFA500]">Remember me</label>
                 </div>
                 <div className="text-sm">
-                  <a href="/signup" className="font-medium text-[#BDBDBD] hover:text-indigo-500">No account?  <span className='text-[#28CDBA]'>Sign Up</span></a>
+                  <Link href="/signup" className="font-medium text-[#BDBDBD] hover:text-indigo-500">
+                    <div>
+                      No account?
+                      <span className='text-[#28CDBA] cursor-pointer'>  Sign Up</span>
+                    </div>
+                  </Link>
                 </div>
               </div>
               <div>

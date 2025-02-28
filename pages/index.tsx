@@ -19,10 +19,13 @@ import Select from "@material-ui/core/Select";
 import { useRouter } from "next/router";
 import toastr from "toastr";
 import "toastr/build/toastr.min.css";
-import StickyHeadTable from "../components/Table";
 
 const Home = () => {
   const router = useRouter();
+  if (typeof window !== 'undefined') {
+    console.log(JSON.parse(localStorage.getItem('user') as string) !== null);    
+    
+  }
 
   const defaultSelectedDate = useMemo(() => {
     const currentDate = new Date();
