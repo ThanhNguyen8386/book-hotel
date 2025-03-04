@@ -4,6 +4,7 @@ import { API_URL } from "../constants";
 const instance = axios.create(
     {
         baseURL: API_URL,
+        // withCredentials: true,
         headers: {
             'Authorization': `Bearer ${typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') as string) !== null ? JSON.parse(localStorage.getItem('user') as string).token : "" : ""}`
         }
