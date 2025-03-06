@@ -144,13 +144,11 @@ const BookingDetail = () => {
   useEffect(() => {
     const getfacilities = async () => {
       await getOnefac(`${product?._id}`).then((res: any) => {
-        // console.log(res)
-        setfacilities(res);
+        setfacilities(res.data);
       });
     };
-    getfacilities();
-    console.log(facilities);
-  }, [product?._id]);
+    product && getfacilities();
+  }, [product]);
 
   useEffect(() => {
     const getUser = JSON.parse((localStorage.getItem("user") as string) || "{}");

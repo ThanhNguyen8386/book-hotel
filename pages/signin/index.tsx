@@ -6,6 +6,7 @@ import { signin } from '../../api/users';
 import AuthLayout from '../../components/Layout/AuthLayout';
 import toastr from "toastr"
 import 'toastr/build/toastr.min.css'
+import { Alert } from '@mui/material';
 
 type Props = {}
 type form = {
@@ -16,16 +17,24 @@ const Signin = (props: Props) => {
 
   const { register, handleSubmit, formState: { errors } } = useForm<form>();
   const router = useRouter();
-
+  const alert = (e: any, type: any) => {
+    return (
+      <Alert severity={type}>
+        {e}
+      </Alert>
+    )
+  }
   const onSubmit: SubmitHandler<any> = data => {
     // console.log(data)
     signin(data).then((res: any) => {
-      localStorage.setItem('user', JSON.stringify(res.user))
-      toastr.success("chào mừng bạn quay trở lại")
+      localStorage.setItem('user', JSON.stringify(res.data.user))
+      // toastr.success("chào mừng bạn quay trở lại")
+      alert("chào mừng bạn quay trở lại", "success")
       router.push('/')
     })
       .catch((res) => {
-        toastr.error(res.response.data.message)
+        // alert(res.response.data.message, "error")
+        // toastr.error(res.response.data.message)
       })
   }
 

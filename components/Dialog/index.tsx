@@ -14,7 +14,6 @@ import "toastr/build/toastr.min.css";
 const DialogConfirm = ({ data, datebooks, room }: any, ref: any) => {
   const [displayBasic2, setDisplayBasic2] = useState<any>(false);
   const router = useRouter();
-  console.log(data);
 
   const handleClose = () => {
     setDisplayBasic2(false);
