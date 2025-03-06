@@ -15,7 +15,7 @@ import LinearProgress from '@mui/material/LinearProgress';
 function CategoryAdmin() {
     const e = useCategory();
     const [loading, setLoading] = React.useState(true)
-    const [rows, setRows] = React.useState([{ _id: 1, name: null }]);
+    const [rows, setRows] = React.useState<any>([{ _id: 1, name: null }]);
     const refDetail = React.useRef<any>();
 
     React.useEffect(() => {
@@ -83,9 +83,17 @@ function CategoryAdmin() {
             <Category_admin_detail ref={refDetail} />
             <div className="h-[600px]">
                 <DataGrid
+                    rows={rows}
+                    getRowId={(row) => {
+                        if (row.data) {
+                            return row.data._id
+                        }
+                        return row._id
+
+                    }}
                     columns={React.useMemo(
                         () => [
-                            { field: '_id', align: "left", type: 'string', headerName: "#", minWidth: 150, flex: 1 },
+                            // { field: '_id', align: "left", type: 'string', headerName: "#", minWidth: 150, flex: 1 },
                             { field: 'name', align: "left", type: 'string', minWidth: 150, flex: 1 },
                             {
                                 minWidth: 150,
@@ -119,8 +127,7 @@ function CategoryAdmin() {
                         ],
                         [deleteUser]
                     )}
-                    rows={rows}
-                    getRowId={(row) => row._id} />
+                />
             </div>
         </div>
     );

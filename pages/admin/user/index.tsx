@@ -10,7 +10,7 @@ type Props = {}
 
 const UserAdmin = (props: Props) => {
     const { data, dele, edit } = userUser()
-    const [rows, setRows] = React.useState([{ _id: 1, name: null, email: null, status }]);
+    const [rows, setRows] = React.useState<any>([{ _id: 1, name: null, email: null, status }]);
     const [openDialog, setOpenDialog] = React.useState(false)
     const [loading, setLoading] = React.useState(true)
     const defaultData = {
@@ -24,7 +24,7 @@ const UserAdmin = (props: Props) => {
         role: null,
         status: null,
     }
-    const [userData, setUserData] = React.useState(defaultData)
+    const [userData, setUserData] = React.useState<any>(defaultData)
 
     React.useEffect(() => {
         if (data) {
@@ -36,7 +36,7 @@ const UserAdmin = (props: Props) => {
     const deleteUser = React.useCallback(
         (id: any) => () => {
             setTimeout(() => {
-                setRows((prevRows) => prevRows.filter((row) => row?._id !== id));
+                setRows((prevRows: any) => prevRows.filter((row: any) => row?._id !== id));
             });
         },
         [],
@@ -154,7 +154,14 @@ const UserAdmin = (props: Props) => {
                         [deleteUser]
                     )}
                     rows={rows}
-                    getRowId={(row) => row._id} />
+                    getRowId={(row) => {
+                        if (row.data) {
+                            return row.data._id
+                        }
+                        return row._id
+
+                    }}
+                />
             </div>
             <Dialog
                 onClose={handleClose}
