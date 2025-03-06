@@ -1,15 +1,12 @@
-import axios from "axios";
-import { useRouter } from "next/router";
 import useSWR from "swr";
-import { creat, remove, update } from "../api/blog";
 import { creatfac, removefac, updatefac } from "../api/facilities";
 import { API_URL } from "../constants";
-import { Blog } from "../types/blog";
 import { facilities } from "../types/fac";
+import { fetcher } from '../api/instance';
 
 const useFacilities = (id: any) => {
 
-    const fetcher = (args: string) => axios.get(args).then(res => res.data)
+    // const fetcher = (args: string) => axios.get(args).then(res => res.data)
     const { data, error, mutate } = useSWR(id ? `${API_URL}/facilities/${id}` : `${API_URL}/facilities`, fetcher);
 
     // create

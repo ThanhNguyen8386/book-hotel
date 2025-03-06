@@ -3,10 +3,11 @@ import useSWR from "swr";
 import { create, remove, update } from "../api/voucher";
 import { API_URL } from "../constants";
 import { Voucher } from "../types/voucher";
+import { fetcher } from '../api/instance';
 
 const useVoucher = (id?: string) => {
 
-    const fetcher = (args: string) => axios.get(args).then(res => res.data)
+    // const fetcher = (args: string) => axios.get(args).then(res => res.data)
     const { data, error, mutate } = useSWR(id ? `${API_URL}/voucher/${id}` : `${API_URL}/voucher`, fetcher);
 
     // create

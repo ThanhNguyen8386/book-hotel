@@ -2,10 +2,11 @@ import axios from "axios";
 import useSWR from "swr";
 import { creat, remove, update } from "../api/basic";
 import { API_URL } from "../constants";
+import { fetcher } from '../api/instance';
 
 const useBasic = (slug: any) => {
     
-    const fetcher = (args: string) => axios.get(args).then(res => res.data)
+    // const fetcher = (args: string) => axios.get(args).then(res => res.data)
     const { data, error, mutate } = useSWR(slug ? `${API_URL}/basic/${slug}` : `${API_URL}/basic`, fetcher);
 
     // create

@@ -411,7 +411,7 @@ const Header = (props: Props) => {
             <Link href="/">
               <span className='px-4 py-2 border border-black rounded-full cursor-pointer hover:opacity-50 duration-150'>Dành cho đối tác</span>
             </Link>
-            <div className='border-[1px] ml-[10px] rounded-full text-[#777]'>
+            <div className='px-4 py-2 border-[1px] ml-[10px] border-black rounded-full text-[#777]'>
               <Button
                 id="basic-button"
                 aria-controls={open ? 'basic-menu' : undefined}

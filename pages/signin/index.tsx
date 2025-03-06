@@ -28,13 +28,13 @@ const Signin = (props: Props) => {
     // console.log(data)
     signin(data).then((res: any) => {
       localStorage.setItem('user', JSON.stringify(res.data.user))
-      // toastr.success("chào mừng bạn quay trở lại")
+      toastr.success("chào mừng bạn quay trở lại")
       alert("chào mừng bạn quay trở lại", "success")
       router.push('/')
     })
       .catch((res) => {
         // alert(res.response.data.message, "error")
-        // toastr.error(res.response.data.message)
+        toastr.error(res.response.data.message)
       })
   }
 

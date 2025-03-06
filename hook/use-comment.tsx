@@ -3,10 +3,11 @@ import useSWR from "swr";
 import { create, remove } from "../api/comment";
 import { API_URL } from "../constants";
 import { CommentType } from "../types/comment";
+import { fetcher } from '../api/instance';
 
 const useComment = (roomId?: string) => {
     
-    const fetcher = (args: string) => axios.get(args).then(res => res.data)
+    // const fetcher = (args: string) => axios.get(args).then(res => res.data)
     const { data, error, mutate } = useSWR(roomId ? `${API_URL}/comments/${roomId}` : `${API_URL}/comments`, fetcher);
 
     // create

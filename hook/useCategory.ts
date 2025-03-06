@@ -3,11 +3,12 @@ import axios from "axios";
 import { useRouter } from "next/router"
 import useSWR from "swr";
 import { creat, remove, update } from "../api/category";
+import { fetcher } from '../api/instance';
 
 const useCategory = () => {
     const router = useRouter();
     const { id } = router.query
-    const fetcher = (url: any) => axios.get(url).then(res => res.data)
+    // const fetcher = (url: any) => axios.get(url).then(res => res.data)
     const { mutate, data, error } = useSWR(id ? `${API_URL}/categories` : `${API_URL}/categories`, fetcher)
 
     const create = async (item: any) => {

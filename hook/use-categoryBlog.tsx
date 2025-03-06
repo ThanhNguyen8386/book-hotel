@@ -3,10 +3,11 @@ import useSWR from "swr";
 import { create, remove, update } from "../api/categoryBlog";
 import { API_URL } from "../constants";
 import { CategoryBlog } from "../types/categoryBlog";
+import { fetcher } from '../api/instance';
 
 const useCategoryBlog = (slug?: string) => {
 
-    const fetcher = (args: string) => axios.get(args).then(res => res.data)
+    // const fetcher = (args: string) => axios.get(args).then(res => res.data)
     const { data, error, mutate } = useSWR(slug ? `${API_URL}/categoryblogs/${slug}` : `${API_URL}/categoryblogs`, fetcher);
 
     // create

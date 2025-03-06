@@ -1,5 +1,6 @@
 import axios, { AxiosRequestConfig } from "axios";
 import { API_URL } from "../constants";
+import { refresh } from "./refreshToken";
 
 const instance = axios.create(
     {
@@ -24,15 +25,16 @@ instance.interceptors.request.use(
 );
 const refreshToken = async () => {
     try {
-        const refreshToken = JSON.parse(localStorage.getItem('user') as string).token;
-        const response = await axios.post('/api/refresh-token', { refreshToken });
-
-        // Lưu token mới
-        localStorage.setItem('access_token', response.data.accessToken);
+        const refreshToken = JSON.parse(localStorage.getItem('user') as string).refreshToken;
+        const response = await refresh({ token: refreshToken });
+        const _newToken = response.data.accessToken;
+        const user = JSON.parse(localStorage.getItem('user') as string);
+        localStorage.removeItem('user');
+        localStorage.setItem('user', JSON.stringify({ ...user, token: _newToken }));
         return response.data.accessToken;
     } catch (error) {
         // Xử lý logout nếu refresh token thất bại
-        localStorage.removeItem('access_token');
+        localStorage.removeItem('user');
         window.location.href = '/signin';
     }
 };
@@ -48,7 +50,6 @@ instance.interceptors.response.use(
 
             try {
                 const newToken = await refreshToken();
-
                 // Cập nhật header Authorization với token mới
                 originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
 

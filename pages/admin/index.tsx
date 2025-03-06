@@ -559,18 +559,6 @@ function Page() {
               {conditionMonth.map((item: any, index: any) => {
                 return <MenuItem key={index} value={item + 1}>Tháng {item + 1}</MenuItem>
               })}
-              {/* <MenuItem value={1}>Tháng 1</MenuItem>
-              <MenuItem disabled={conditionBottomBar.month > 2} value={2}>Tháng 2</MenuItem>
-              <MenuItem disabled={conditionBottomBar.month > 3} value={3}>Tháng 3</MenuItem>
-              <MenuItem disabled={conditionBottomBar.month > 4} value={4}>Tháng 4</MenuItem>
-              <MenuItem disabled={conditionBottomBar.month > 5} value={5}>Tháng 5</MenuItem>
-              <MenuItem disabled={conditionBottomBar.month > 6} value={6}>Tháng 6</MenuItem>
-              <MenuItem disabled={conditionBottomBar.month > 7} value={7}>Tháng 7</MenuItem>
-              <MenuItem disabled={conditionBottomBar.month > 8} value={8}>Tháng 8</MenuItem>
-              <MenuItem disabled={conditionBottomBar.month > 9} value={9}>Tháng 9</MenuItem>
-              <MenuItem disabled={conditionBottomBar.month > 10} value={10}>Tháng 10</MenuItem>
-              <MenuItem disabled={conditionBottomBar.month > 11} value={11}>Tháng 11</MenuItem>
-              <MenuItem disabled={conditionBottomBar.month > 12} value={12}>Tháng 12</MenuItem> */}
             </Select>
           </FormControl>
           <div className="flex flex-col sm:flex-row">
