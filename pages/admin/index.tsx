@@ -24,6 +24,8 @@ import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { log } from 'console';
 import useSWR from 'swr';
+import { getMostUserRevenues, getOftenCancels, getRevenue, getRevenueByMonth, getRevenueByRoom } from '../../api/dashboard';
+import userUser from '../../hook/use-user';
 ChartJS.register(
   BarElement,
   CategoryScale,
@@ -33,6 +35,7 @@ ChartJS.register(
   Legend
 )
 function Page() {
+  const { data: user, error, mutate } = userUser()
   const [date, setDate] = useState("")
   const [loading, setLoading] = useState(false)
   const [dataDashBoard, setDataDashBoard] = useState([])
@@ -56,7 +59,9 @@ function Page() {
   const [condition, setCondition] = useState(defaultCondition);
   const [conditionBottomBar, setConditionBottomBar] = useState({ month: new Date().getMonth() + 1 });
   function numberWithCommas(x: any) {
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    if (x) {
+      return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+    }
   }
   useEffect(() => {
     if (time < 10) {
@@ -80,7 +85,7 @@ function Page() {
     load();
     const initMonth = () => {
       let arrMonth = [];
-      for (let i = 0; i < new Date().getMonth()+1; i++) {
+      for (let i = 0; i < new Date().getMonth() + 1; i++) {
         arrMonth.push(i)
       }
       setConditionMonth(arrMonth);
@@ -90,23 +95,22 @@ function Page() {
 
   const load = async () => {
     setLoading(true)
-    const revenue = await axios.post("http://localhost:4000/api/revenue", condition);
-    const user = await axios.get("http://localhost:4000/api/users");
-    const revenueByMonth = await axios.post("http://localhost:4000/api/revenueByMonth");
-    const revenueByRoom = await axios.post("http://localhost:4000/api/revenueByRoom", conditionBottomBar);
-    const getRoomRevenue = await axios.post("http://localhost:4000/api/getRoomRevenue", conditionBottomBar);
-    const getOftenCancels = await axios.post("http://localhost:4000/api/usersOftenCancel", conditionBottomBar);
-    const getMostUserRevenues = await axios.post("http://localhost:4000/api/mostUserRevenues", conditionBottomBar);
+    const revenue = await getRevenue(condition)
+    const revenueByMonth = await getRevenueByMonth();
+    const revenueByRoom = await getRevenueByRoom(conditionBottomBar);
+    const roomRevenue = await getRevenueByRoom(conditionBottomBar);
+    const oftenCancels = await getOftenCancels(conditionBottomBar);
+    const mostUserRevenues = await getMostUserRevenues(conditionBottomBar);
     setRevenueByMonth(revenueByMonth.data);
     setRevenueByRoom(revenueByRoom.data);
     setDataDashBoard(revenue.data);
-    setMostRoomRevenue(getRoomRevenue.data)
-    setUsersOftenCancels(getOftenCancels.data)
-    setMostUserRevenues(getMostUserRevenues.data)
-    setTotalUser(user.data.length);
+    setMostRoomRevenue(roomRevenue.data)
+    setUsersOftenCancels(oftenCancels.data)
+    setMostUserRevenues(mostUserRevenues.data)
+    setTotalUser(user?.length);
     setLoading(false)
   }
-  
+
   let year = new Date().getFullYear();
   const data = {
     labels: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12",],

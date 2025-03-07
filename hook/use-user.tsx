@@ -25,7 +25,8 @@ const userUser = () => {
         edit,
         dele,
         data,
-        error
+        error,
+        mutate
     };
 };
 
