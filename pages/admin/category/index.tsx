@@ -59,7 +59,7 @@ function CategoryAdmin() {
     const deleteUser = React.useCallback(
         (id: any) => () => {
             setTimeout(() => {
-                setRows((prevRows) => prevRows.filter((row) => row?._id !== id));
+                setRows((prevRows:any) => prevRows.filter((row:any) => row?._id !== id));
             });
         },
         [],
@@ -67,7 +67,7 @@ function CategoryAdmin() {
 
 
     return (
-        <div style={{ width: '100%', padding: "15px" }}>
+        <div className='h-full' style={{ width: '100%', padding: "15px" }}>
             <Head>
                 <title>
                     Customers
@@ -81,7 +81,7 @@ function CategoryAdmin() {
                 </Button>
             </ShowForPermission>
             <Category_admin_detail ref={refDetail} />
-            <div className="h-[600px]">
+            <div className="flex-col flex">
                 <DataGrid
                     rows={rows}
                     getRowId={(row) => {

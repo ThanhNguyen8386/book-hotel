@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
-import { Button, TablePagination, Tooltip } from '@mui/material'
+import { Avatar, AvatarGroup, Button, Dialog, DialogActions, DialogTitle, IconButton, LinearProgress, Switch, TablePagination, Tooltip } from '@mui/material'
 import Link from 'next/link'
-import React from 'react'
+import * as React from 'react';
 import { DashboardLayout } from '../../../components/dashboard-layout'
 import AddIcon from '@mui/icons-material/Add';
 import useProducts from '../../../hook/use-product'
@@ -12,24 +12,38 @@ import Head from 'next/head';
 import ShowForPermission from '../../../components/Private/showForPermission';
 import { update } from '../../../api/rooms';
 import { useRouter } from 'next/router';
+import { DataGrid, GridActionsCellItem } from '@mui/x-data-grid';
 
 type Props = {}
 
 const ProductsAdmin = (props: Props) => {
-    const { data, error, dele } = useProducts("")
-    const [page, setPage] = React.useState(0);
-    const [rowsPerPage, setRowsPerPage] = React.useState(8);
+    const { data, error, dele, edit } = useProducts("")
+    const [rows, setRows] = React.useState<any>([{ _id: 1, name: null }]);
+    const [loading, setLoading] = React.useState(true)
+    const [openDialog, setOpenDialog] = React.useState(false)
+    const defaultData = {
+        category: null,
+        createdAt:null,
+        description:null,
+        image:[],
+        listFacility:[],
+        name:null,
+        price:null,
+        ratingAvg:null,
+        ratings:null,
+        slug:null,
+        status:null
+    }
+    const [roomData, setRoomData] = React.useState<any>(defaultData)
     const router = useRouter()
-    const handleChangePage = (event: unknown, newPage: number) => {
-        setPage(newPage);
-    };
 
-    const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setRowsPerPage(+event.target.value);
-        setPage(0);
-    };
-    if (!data) return <div>Loading...</div>
-    if (error) return <div>Error</div>
+    React.useEffect(() => {
+        if (data) {
+            setRows(data)
+            setLoading(false)
+        }
+    }, [data])
+
     function remove(id: any) {
         return Swal.fire({
             title: 'Chắc chắn xóa?',
@@ -89,120 +103,204 @@ const ProductsAdmin = (props: Props) => {
             )
         }
     }
-    
+
+    const convertToPlainText = (html: any) => {
+        if (html) {
+            const withoutTags = html?.replace(/<[^>]*>/g, ' ');
+            const withoutEntities = withoutTags
+                .replace(/&nbsp;/g, ' ')
+                .replace(/&amp;/g, '&')
+                .replace(/&lt;/g, '<')
+                .replace(/&gt;/g, '>')
+                .replace(/\s+/g, ' ')
+                .trim();
+
+            return withoutEntities;
+        }
+    };
+    const deleteUser = React.useCallback(
+        (id: any) => () => {
+            setTimeout(() => {
+                setRows((prevRows: any) => prevRows.filter((row: any) => row?._id !== id));
+            });
+        },
+        [],
+    )
+
+    const handleCheckStatus = (e: any, userData: any) => {
+        console.log(e.target.checked, userData);
+
+        const status = e.target.checked ? true : false
+        const _userData = { ...userData, status }
+        setRoomData(_userData);
+    }
+
+    const submit = () => {
+        try {
+            edit(roomData).then(() => {
+                handleClose()
+            })
+        } catch (error) {
+            console.log(error);
+
+        }
+    }
+
+
+    const handleClose = () => {
+        setOpenDialog(false);
+        setRoomData(defaultData);
+    };
+
     return (
-        <div>
-            <div className="container w-[100%] p-2">
+        <div className="w-[100%]">
+            <Head>
+                <title>Rooms</title>
+            </Head>
+            <div className='h-full' style={{ width: '100%', padding: "15px" }}>
                 <Head>
                     <title>Rooms</title>
                 </Head>
-                <div className="">
-                    <ShowForPermission>
-                        <Link href={'/admin/room/add'}>
-                            <button type="button" className="text-white bg-[#111827] hover:bg-[#1118276b] focus:outline-none focus:ring-4 focus:ring-[#111827] font-medium rounded-xl text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:focus:ring-[#111827]">
-                                Tạo phòng mới <AddIcon />
-                            </button>
-                        </Link>
-                    </ShowForPermission>
-                    <div className="inline-block sm:min-w-full w-[900px] shadow-xl rounded-xl h-[600px] relative border">
-                        <div className="h-full overflow-y-auto overflow-x-auto pb-[50px]">
-                            <table className="table-auto w-full border">
-                                <thead className='sticky top-0 shadow z-50'>
-                                    <tr>
-                                        <th scope="col" className="text-xs px-5 py-3 bg-white border-b border-gray-200 text-[#333] text-left uppercase">
-                                            #
-                                        </th>
-                                        <th scope="col" className="text-xs px-5 py-3 bg-white border-b border-gray-200 text-[#333] text-left uppercase">
-                                            Name
-                                        </th>
+                {loading ? <LinearProgress className='fixed top-[65px] z-50 w-full' /> : <></>}
 
-                                        <th scope="col" className="text-xs px-5 py-3 bg-white border-b border-gray-200 text-[#333] text-left uppercase">
-                                            image
-                                        </th>
-                                        <th scope="col" className="text-xs px-5 py-3 bg-white border-b border-gray-200 text-[#333] text-left uppercase">
-                                            description
-                                        </th>
-                                        <th scope="col" className="text-xs px-5 py-3 bg-white border-b border-gray-200 text-[#333] text-left uppercase">
-                                            Status
-                                        </th>
-                                        <ShowForPermission>
-                                            <th scope="col" className="text-xs px-5 py-3 bg-white border-b border-gray-200 text-[#333] text-left uppercase">
-                                            </th>
+                <ShowForPermission>
+                    <Button
+                        variant='text'
+                        sx={{ color: "orange" }}
+                    // onClick={() => actionCrud.create(1, "CREATE")}
+                    >
+                        <AddIcon /> Thêm mới
+                    </Button>
+                </ShowForPermission>
+                {/* <Category_admin_detail ref={refDetail} /> */}
+                <div className="flex-col flex">
+                    <DataGrid
+                        rows={rows}
+                        getRowId={(row) => {
+                            if (row.data) {
+                                return row.data._id
+                            }
+                            return row._id
+
+                        }}
+                        columns={React.useMemo(
+                            () => [
+                                // { field: '_id', align: "left", type: 'string', headerName: "#", minWidth: 150, flex: 1 },
+                                { field: 'name', headerName: "Tên", align: "left", type: 'string', minWidth: 150, flex: 1 },
+                                {
+                                    field: 'image',
+                                    headerName: "Ảnh",
+                                    align: "left",
+                                    type: 'object',
+                                    minWidth: 150,
+                                    flex: 1,
+                                    renderCell: (params: any) => {
+                                        return (
+                                            <AvatarGroup max={3}>
+                                                {params.row.image?.map((item: any, index: any) => {
+                                                    return <Avatar key={index} alt="Ảnh" src={item} />
+                                                })}
+                                            </AvatarGroup>
+                                        );
+                                    }
+                                },
+                                {
+                                    field: 'price',
+                                    headerName: "Giá",
+                                    align: "left",
+                                    type: 'object',
+                                    minWidth: 150,
+                                    flex: 1,
+                                    renderCell: (params: any) => {
+                                        // return (
+                                        //     <AvatarGroup max={3}>
+                                        //         {params.row.image?.map((item: any, index: any) => {
+                                        //             return <Avatar key={index} alt="Ảnh" src={item} />
+                                        //         })}
+                                        //     </AvatarGroup>
+                                        // );
+                                    }
+                                },
+                                {
+                                    field: 'description',
+                                    headerName: "Mô tả",
+                                    align: "left",
+                                    type: 'string',
+                                    minWidth: 150,
+                                    flex: 1,
+                                    renderCell: (params: any) => {
+                                        return convertToPlainText(params.row.description)
+                                    }
+                                },
+                                {
+                                    field: 'status',
+                                    headerName: "Trạng thái",
+                                    align: "left",
+                                    type: 'string',
+                                    minWidth: 150,
+                                    flex: 1,
+                                    renderCell: (params: any) => {
+                                        return (
+                                            <Switch
+                                                checked={params.row.status}
+                                                color='success'
+                                                onChange={(e) => {
+                                                    setOpenDialog(true)
+                                                    handleCheckStatus(e, params.row);
+                                                }}
+                                            />
+                                        );
+                                    }
+                                },
+                                {
+                                    minWidth: 150,
+                                    field: 'actions',
+                                    type: 'actions',
+                                    flex: 1,
+                                    align: "center",
+                                    getActions: (params: any) => [
+                                        <ShowForPermission key={1}>
+                                            <GridActionsCellItem
+                                                icon={<Tooltip title="Edit">
+                                                    <IconButton>
+                                                        <EditIcon />
+                                                    </IconButton>
+                                                </Tooltip>}
+                                                label="Edit"
+                                            // onClick={() => actionCrud.update(params.row, params)} 
+                                            />
+                                        </ShowForPermission>,
+                                        <ShowForPermission key={2}>
+                                            <GridActionsCellItem
+                                                icon={<Tooltip title="Delete">
+                                                    <IconButton>
+                                                        <DeleteIcon />
+                                                    </IconButton>
+                                                </Tooltip>}
+                                                label="Delete"
+                                            // onClick={() => actionCrud.remove(params.id)} 
+                                            />
                                         </ShowForPermission>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {data?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((item: any, index: any) => (
-                                        <tr key={item._id} className="cursor-pointer select-none">
-                                            <td className="px-5 py-2 border-b border-gray-200 bg-white text-sm">
-                                                <p className="text-gray-900 whitespace-no-wrap">
-                                                    {index + 1}
-                                                </p>
-                                            </td>
-                                            <td className="px-5 py-2 border-b border-gray-200 bg-white text-sm">
-                                                <div className="flex items-center">
-                                                    <div className="ml-3">
-                                                        <p className="text-gray-900 whitespace-no-wrap">
-                                                            {item.name}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            {/* <p className="px-5 py-2 border-b border-gray-200 bg-white text-sm">
-                                                <p className="text-gray-900 whitespace-no-wrap">
-                                                    {item.price}
-                                                </p>
-                                            </p> */}
-                                            <td className="px-5 py-2 border-b border-gray-200 bg-white text-sm">
-                                                <div className="w-[50px] h-[50px] rounded-xl overflow-hidden shadow-xl">
-                                                    <img src={item.image[0] ? item?.image[0] : "https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=facearea&facepad=4&w=256&h=256&q=80"} className="w-[100px] h-[100px]" alt="" />
-                                                </div>
-                                            </td>
-                                            <td className="px-5 py-2 border-b border-gray-200 bg-white text-sm">
-                                                <p className="text-gray-900 whitespace-no-wrap">
-                                                    {item.description}
-                                                </p>
-                                            </td>
-                                            <td className="px-5 py-2 border-b border-gray-200 bg-white text-sm">
-                                                <p className="text-gray-900 whitespace-no-wrap">
-                                                    {status(item.status, item._id)}
-                                                </p>
-                                            </td>
-                                            <ShowForPermission>
-                                                <td className="px-5 py-2 border-b border-gray-200 bg-white text-sm">
-                                                    <Link href={`/admin/room/${item.slug}`}>
-                                                        <Tooltip title={`Chỉnh sửa ${item.name}`}>
-                                                            <Button className='text-[#111827]' variant="text" startIcon={<EditIcon />}>
-                                                                Edit
-                                                            </Button>
-                                                        </Tooltip>
-                                                    </Link>
-                                                    <Tooltip title={`Xóa ${item.name}`}>
-                                                        <Button onClick={() => { remove(item._id) }} className='text-[red]' variant="text" startIcon={<DeleteIcon />}>
-                                                            Delete
-                                                        </Button>
-                                                    </Tooltip>
-                                                </td>
-                                            </ShowForPermission>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                        <div className="absolute bottom-0 bg-white w-full border-t border">
-                            <TablePagination
-                                rowsPerPageOptions={[]}
-                                component="div"
-                                count={data.length}
-                                rowsPerPage={rowsPerPage}
-                                page={page}
-                                onPageChange={handleChangePage}
-                                onRowsPerPageChange={handleChangeRowsPerPage}
-                            />
-                        </div>
-                    </div>
+                                    ],
+                                },
+                            ],
+                            [deleteUser]
+                        )}
+                    />
                 </div>
             </div>
+            <Dialog
+                onClose={handleClose}
+                open={openDialog}
+            >
+                <DialogTitle id="alert-dialog-title">
+                    {"Chuyển trạng thái phòng này?"}
+                </DialogTitle>
+                <DialogActions>
+                    <Button onClick={handleClose}>Từ chối</Button>
+                    <Button onClick={submit}>Đồng ý</Button>
+                </DialogActions>
+            </Dialog>
         </div>
     )
 }
