@@ -13,26 +13,28 @@ import ShowForPermission from '../../../components/Private/showForPermission';
 import { update } from '../../../api/rooms';
 import { useRouter } from 'next/router';
 import { DataGrid, GridActionsCellItem } from '@mui/x-data-grid';
+import Room_admin_detail from './Room_admin_detail';
 
 type Props = {}
 
 const ProductsAdmin = (props: Props) => {
     const { data, error, dele, edit } = useProducts("")
+    const refDetail = React.useRef<any>();
     const [rows, setRows] = React.useState<any>([{ _id: 1, name: null }]);
     const [loading, setLoading] = React.useState(true)
     const [openDialog, setOpenDialog] = React.useState(false)
     const defaultData = {
         category: null,
-        createdAt:null,
-        description:null,
-        image:[],
-        listFacility:[],
-        name:null,
-        price:null,
-        ratingAvg:null,
-        ratings:null,
-        slug:null,
-        status:null
+        createdAt: null,
+        description: null,
+        image: [],
+        listFacility: [],
+        name: null,
+        price: null,
+        ratingAvg: null,
+        ratings: null,
+        slug: null,
+        status: null
     }
     const [roomData, setRoomData] = React.useState<any>(defaultData)
     const router = useRouter()
@@ -43,6 +45,37 @@ const ProductsAdmin = (props: Props) => {
             setLoading(false)
         }
     }, [data])
+
+    const actionCrud = {
+        create: (item: any, type: any) => {
+            refDetail.current.create(item, type)
+        },
+        update: (item: any, type: any) => {
+            refDetail.current.update(item, type)
+        },
+        remove: (item: any) => {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result: any) => {
+                if (result.isConfirmed) {
+                    dele(item)
+                        .then(() => {
+                            Swal.fire(
+                                'Deleted!',
+                                'Your file has been deleted.',
+                                'success'
+                            )
+                        })
+                }
+            })
+        }
+    }
 
     function remove(id: any) {
         return Swal.fire({
@@ -65,43 +98,6 @@ const ProductsAdmin = (props: Props) => {
                     })
             }
         })
-    }
-    const status = (value: any, id: any) => {
-        if (value == true) {
-            return (
-                <div className='flex'>
-                    <div className='bg-green-500 text-white text-center px-[10px] py-[5px] font-bold rounded-lg'>Active</div>
-                    <button onClick={() => {
-                        const product: any = {
-                            status: false,
-                            _id: id
-                        }
-                        update(product).then(() => {
-                            router.push('/admin').then(() => {
-                                router.push('/admin/room')
-                            })
-                        })
-                    }} className='bg-orange-200 text-slate-100 text-center px-[10px] py-[5px] font-bold rounded-lg'>Inactive</button>
-                </div>
-            )
-        } else if (value == false) {
-            return (
-                <div className='flex'>
-                    <div className='bg-orange-500 text-white text-center px-[10px] py-[5px] font-bold rounded-lg'>Inactive</div>
-                    <button onClick={() => {
-                        const product: any = {
-                            status: true,
-                            _id: id
-                        }
-                        update(product).then(() => {
-                            router.push('/admin').then(() => {
-                                router.push('/admin/room')
-                            })
-                        })
-                    }} className='bg-green-300 text-slate-100 text-center px-[10px] py-[5px] font-bold rounded-lg'>Active</button>
-                </div>
-            )
-        }
     }
 
     const convertToPlainText = (html: any) => {
@@ -128,8 +124,6 @@ const ProductsAdmin = (props: Props) => {
     )
 
     const handleCheckStatus = (e: any, userData: any) => {
-        console.log(e.target.checked, userData);
-
         const status = e.target.checked ? true : false
         const _userData = { ...userData, status }
         setRoomData(_userData);
@@ -167,12 +161,13 @@ const ProductsAdmin = (props: Props) => {
                     <Button
                         variant='text'
                         sx={{ color: "orange" }}
-                    // onClick={() => actionCrud.create(1, "CREATE")}
+                        onClick={() => actionCrud.create(1, "CREATE")}
                     >
                         <AddIcon /> Thêm mới
                     </Button>
                 </ShowForPermission>
-                {/* <Category_admin_detail ref={refDetail} /> */}
+                <Room_admin_detail ref={refDetail} />
+
                 <div className="flex-col flex">
                     <DataGrid
                         rows={rows}
@@ -192,11 +187,12 @@ const ProductsAdmin = (props: Props) => {
                                     headerName: "Ảnh",
                                     align: "left",
                                     type: 'object',
+                                    display: 'flex',
                                     minWidth: 150,
                                     flex: 1,
                                     renderCell: (params: any) => {
                                         return (
-                                            <AvatarGroup max={3}>
+                                            <AvatarGroup spacing="small" max={3}>
                                                 {params.row.image?.map((item: any, index: any) => {
                                                     return <Avatar key={index} alt="Ảnh" src={item} />
                                                 })}
@@ -212,13 +208,21 @@ const ProductsAdmin = (props: Props) => {
                                     minWidth: 150,
                                     flex: 1,
                                     renderCell: (params: any) => {
-                                        // return (
-                                        //     <AvatarGroup max={3}>
-                                        //         {params.row.image?.map((item: any, index: any) => {
-                                        //             return <Avatar key={index} alt="Ảnh" src={item} />
-                                        //         })}
-                                        //     </AvatarGroup>
-                                        // );
+                                        const arrPrice = params.row.price?.map((item: any, index: any) => item.value);
+                                        const arrPriceLenght = arrPrice?.length;
+
+                                        for (let i = 0; i < arrPriceLenght - 1; i++) {
+                                            for (let j = 0; j < arrPriceLenght - i - 1; j++) {
+                                                if (arrPrice[j] > arrPrice[j + 1]) {
+                                                    let temp = arrPrice[j];
+                                                    arrPrice[j] = arrPrice[j + 1];
+                                                    arrPrice[j + 1] = temp;
+                                                }
+                                            }
+                                        }
+                                        return (
+                                            arrPrice && <div><span className='font-bold text-xl'>{arrPrice[0]} - {arrPrice[arrPriceLenght - 1]}</span> VNĐ</div>
+                                        );
                                     }
                                 },
                                 {
@@ -226,7 +230,7 @@ const ProductsAdmin = (props: Props) => {
                                     headerName: "Mô tả",
                                     align: "left",
                                     type: 'string',
-                                    minWidth: 150,
+                                    minWidth: 350,
                                     flex: 1,
                                     renderCell: (params: any) => {
                                         return convertToPlainText(params.row.description)
@@ -237,8 +241,8 @@ const ProductsAdmin = (props: Props) => {
                                     headerName: "Trạng thái",
                                     align: "left",
                                     type: 'string',
-                                    minWidth: 150,
-                                    flex: 1,
+                                    minWidth: 100,
+                                    // flex: 1,
                                     renderCell: (params: any) => {
                                         return (
                                             <Switch
@@ -253,10 +257,10 @@ const ProductsAdmin = (props: Props) => {
                                     }
                                 },
                                 {
-                                    minWidth: 150,
+                                    minWidth: 100,
                                     field: 'actions',
                                     type: 'actions',
-                                    flex: 1,
+                                    // flex: 1,
                                     align: "center",
                                     getActions: (params: any) => [
                                         <ShowForPermission key={1}>
@@ -267,7 +271,7 @@ const ProductsAdmin = (props: Props) => {
                                                     </IconButton>
                                                 </Tooltip>}
                                                 label="Edit"
-                                            // onClick={() => actionCrud.update(params.row, params)} 
+                                                onClick={() => actionCrud.update(params.row, params)}
                                             />
                                         </ShowForPermission>,
                                         <ShowForPermission key={2}>
@@ -278,7 +282,7 @@ const ProductsAdmin = (props: Props) => {
                                                     </IconButton>
                                                 </Tooltip>}
                                                 label="Delete"
-                                            // onClick={() => actionCrud.remove(params.id)} 
+                                                onClick={() => actionCrud.remove(params.id)}
                                             />
                                         </ShowForPermission>
                                     ],
@@ -301,7 +305,7 @@ const ProductsAdmin = (props: Props) => {
                     <Button onClick={submit}>Đồng ý</Button>
                 </DialogActions>
             </Dialog>
-        </div>
+        </div >
     )
 }
 
