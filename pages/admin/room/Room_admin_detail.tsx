@@ -9,12 +9,19 @@ import { Alert, FormControl, InputLabel, MenuItem, Select, TextField } from '@mu
 import useCategory from '../../../hook/useCategory'
 import toastr from "toastr";
 import "toastr/build/toastr.min.css";
+import { useDropzone } from 'react-dropzone';
 
 function Room_admin_detail(props: any, ref: any) {
     var _ = require('lodash');
+    const category = useCategory()
+    const [files, setFiles] = React.useState([]);
     const [open, setOpen] = React.useState(false);
     const categoryDetail = {
-        name: ""
+        name: "",
+        dayPrice: "",
+        nightPrice: "",
+        hourPrice: "",
+        file: ""
     }
     const [defaultCategory, setDefaultCategory] = React.useState(categoryDetail)
     const refMode = React.useRef(null);
@@ -22,6 +29,10 @@ function Room_admin_detail(props: any, ref: any) {
 
     const defaultErrors = {
         name: false,
+        dayPrice: false,
+        nightPrice: false,
+        hourPrice: false,
+        file: false
     };
     const [errors, setErrors] = React.useState(defaultErrors);
 
@@ -32,7 +43,8 @@ function Room_admin_detail(props: any, ref: any) {
     const handleClose = () => {
         setOpen(false);
         setDefaultCategory(categoryDetail);
-        setErrors(defaultErrors)
+        setErrors(defaultErrors);
+        setFiles([])
     };
 
     React.useImperativeHandle(ref, () => ({
@@ -46,7 +58,22 @@ function Room_admin_detail(props: any, ref: any) {
             handleClickOpen()
         }
     }))
+    const onDrop = React.useCallback((acceptedFiles: any) => {
+        // Thêm các file mới vào state
+        setFiles((previousFiles: any) => {
+            return [...previousFiles, ...acceptedFiles];
+        });
+    }, []);
 
+    const { getRootProps, getInputProps } = useDropzone({ onDrop });
+    const removeFile = (fileToRemove:any) => {
+        setFiles(files.filter(file => file !== fileToRemove));
+    };
+
+    // Hàm xóa tất cả các file
+    const removeAllFiles = () => {
+        setFiles([]);
+    }
     const validate = (props: any, _planTask: any) => {
         const _defaultCategory = { ..._planTask };
         let result = { ...errors };
@@ -63,6 +90,15 @@ function Room_admin_detail(props: any, ref: any) {
                 case "name":
                     result[prop] = _defaultCategory.name.length <= 0;
                     break;
+                case "dayPrice":
+                    result[prop] = _defaultCategory.dayPrice.length <= 0;
+                    break;
+                case "nightPrice":
+                    result[prop] = _defaultCategory.nightPrice.length <= 0;
+                    break;
+                case "hourPrice":
+                    result[prop] = _defaultCategory.hourPrice.length <= 0;
+                    break;
                 default:
                     break;
             }
@@ -74,11 +110,32 @@ function Room_admin_detail(props: any, ref: any) {
         return errorList;
     };
 
+    const handleKeyPress = (e: any) => {
+        if (!/[0-9]/.test(e.key)) {
+            if (e.keyCode !== 8) {
+                e.preventDefault();
+            }
+        }
+    };
+    function numberWithCommas(x: any) {
+        // if (x) {
+        //     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+        // }
+        return x
+    }
     const applyChange = (prop: any, val: any) => {
         const _defaultCategory = { ...defaultCategory };
         switch (prop) {
             case "name":
                 _defaultCategory.name = val;
+                break;
+            case "dayPrice":
+                if (val?.length > 0 && /^[0-9]+$/.test(val)) {
+                    _defaultCategory.dayPrice = val;
+                }
+                else {
+                    _defaultCategory.dayPrice = "";
+                }
                 break;
             default:
                 _defaultCategory[prop] = val;
@@ -159,11 +216,11 @@ function Room_admin_detail(props: any, ref: any) {
                                         <div className='pb-4'>
                                             <div className="pb-4">
                                                 <TextField
+                                                    variant="standard"
                                                     fullWidth
                                                     error={errors.name}
                                                     id="outlined-basic"
-                                                    label="Tên"
-                                                    variant="outlined"
+                                                    label="Tên phòng"
                                                     value={defaultCategory.name}
                                                     onChange={(e) => {
                                                         applyChange("name", e.target.value)
@@ -175,58 +232,61 @@ function Room_admin_detail(props: any, ref: any) {
                                                     </div>
                                                 )}
                                             </div>
-                                            <div className="flex justify-between pb-4">
-                                                <div className="">
+                                            <div className="flex justify-between justify-items-stretch pb-4">
+                                                <div className="w-full">
                                                     <TextField
                                                         fullWidth
-                                                        error={errors.name}
+                                                        error={errors.dayPrice}
                                                         id="outlined-basic"
                                                         label="Giá theo ngày"
-                                                        variant="outlined"
-                                                        value={defaultCategory.name}
+                                                        variant="standard"
+                                                        onKeyDown={handleKeyPress}
+                                                        value={numberWithCommas(defaultCategory.dayPrice)}
                                                         onChange={(e) => {
-                                                            applyChange("name", e.target.value)
+                                                            applyChange("dayPrice", e.target.value)
                                                         }}
                                                     />
                                                     {Object.keys(errors).length !== 0 && (
                                                         <div>
-                                                            {errors.name && <p className='text-red-600'>Giá theo ngày không được bỏ trống</p>}
+                                                            {errors.dayPrice && <p className='text-red-600'>Giá theo ngày không được bỏ trống</p>}
                                                         </div>
                                                     )}
                                                 </div>
-                                                <div className="">
+                                                <div className="w-full">
                                                     <TextField
                                                         fullWidth
-                                                        error={errors.name}
+                                                        error={errors.nightPrice}
                                                         id="outlined-basic"
                                                         label="Giá qua đêm"
-                                                        variant="outlined"
-                                                        value={defaultCategory.name}
+                                                        variant="standard"
+                                                        onKeyDown={handleKeyPress}
+                                                        value={numberWithCommas(defaultCategory.nightPrice)}
                                                         onChange={(e) => {
-                                                            applyChange("name", e.target.value)
+                                                            applyChange("nightPrice", e.target.value)
                                                         }}
                                                     />
                                                     {Object.keys(errors).length !== 0 && (
                                                         <div>
-                                                            {errors.name && <p className='text-red-600'>Giá qua đêm không được bỏ trống</p>}
+                                                            {errors.nightPrice && <p className='text-red-600'>Giá qua đêm không được bỏ trống</p>}
                                                         </div>
                                                     )}
                                                 </div>
-                                                <div className="">
+                                                <div className="w-full">
                                                     <TextField
                                                         fullWidth
-                                                        error={errors.name}
+                                                        error={errors.hourPrice}
                                                         id="outlined-basic"
                                                         label="Giá theo giờ"
-                                                        variant="outlined"
-                                                        value={defaultCategory.name}
+                                                        variant="standard"
+                                                        onKeyDown={handleKeyPress}
+                                                        value={numberWithCommas(defaultCategory.hourPrice)}
                                                         onChange={(e) => {
-                                                            applyChange("name", e.target.value)
+                                                            applyChange("hourPrice", e.target.value)
                                                         }}
                                                     />
                                                     {Object.keys(errors).length !== 0 && (
                                                         <div>
-                                                            {errors.name && <p className='text-red-600'>Giá theo giờ không được bỏ trống</p>}
+                                                            {errors.hourPrice && <p className='text-red-600'>Giá theo giờ không được bỏ trống</p>}
                                                         </div>
                                                     )}
                                                 </div>
@@ -237,15 +297,18 @@ function Room_admin_detail(props: any, ref: any) {
                                                     <Select
                                                         labelId="demo-simple-select-label"
                                                         id="demo-simple-select"
-                                                        value={defaultCategory.name}
+                                                        value={defaultCategory.category}
                                                         label="Chọn một loại phòng"
+                                                        variant="standard"
                                                         onChange={(e) => {
-                                                            applyChange("name", e.target.value)
+                                                            applyChange("category", e.target.value)
                                                         }}
                                                     >
-                                                        <MenuItem value={10}>Ten</MenuItem>
-                                                        <MenuItem value={20}>Twenty</MenuItem>
-                                                        <MenuItem value={30}>Thirty</MenuItem>
+                                                        {category.data?.map((item: any, index: any) => {
+                                                            return (
+                                                                <MenuItem key={index} MenuItem value={item._id} > {item?.name}</MenuItem>
+                                                            )
+                                                        })}
                                                     </Select>
                                                     {Object.keys(errors).length !== 0 && (
                                                         <div>
@@ -254,6 +317,31 @@ function Room_admin_detail(props: any, ref: any) {
                                                     )}
                                                 </FormControl>
                                             </div>
+
+                                            <section>
+                                                <div {...getRootProps({ className: 'dropzone' })}>
+                                                    <input {...getInputProps()} />
+                                                    <p>Kéo và thả file vào đây, hoặc nhấp để chọn file</p>
+                                                </div>
+
+                                                <h4>Files</h4>
+                                                <ul>
+                                                    {files.map((file, index) => (
+                                                        <li key={file.name + index}>
+                                                            {file.name} - {file.size} bytes
+                                                            <button onClick={() => removeFile(file)}>
+                                                                Xóa
+                                                            </button>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+
+                                                {files.length > 0 && (
+                                                    <button onClick={removeAllFiles}>
+                                                        Xóa tất cả file
+                                                    </button>
+                                                )}
+                                            </section>
                                         </div>
                                         <div>
                                         </div>
@@ -274,9 +362,9 @@ function Room_admin_detail(props: any, ref: any) {
                             </div>
                         </div>
                     </div>
-                </div>
-            </Dialog>
-        </div>
+                </div >
+            </Dialog >
+        </div >
     );
 }
 

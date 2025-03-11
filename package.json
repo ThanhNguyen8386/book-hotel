@@ -18,6 +18,7 @@
     "@fortawesome/react-fontawesome": "^0.2.0",
     "@material-ui/core": "4.9.14",
     "@material-ui/pickers": "4.0.0-alpha.7",
+    "@mui/base": "^5.0.0-beta.69",
     "axios": "^1.1.2",
     "bootstrap": "^5.2.2",
     "chart.js": "^4.0.1",
