@@ -9,30 +9,40 @@ import { Alert, FormControl, InputLabel, MenuItem, Select, TextField } from '@mu
 import useCategory from '../../../hook/useCategory'
 import toastr from "toastr";
 import "toastr/build/toastr.min.css";
-import { useDropzone } from 'react-dropzone';
+import styles from './ImageUploader.module.css';
+import useProducts from '../../../hook/use-product';
+import Image from 'next/image';
+import { fi } from 'date-fns/locale';
 
 function Room_admin_detail(props: any, ref: any) {
     var _ = require('lodash');
     const category = useCategory()
-    const [files, setFiles] = React.useState([]);
+    const [previewImages, setPreviewImages] = React.useState(Array(9).fill(null));
+    const [loading, setLoading] = React.useState(true)
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const fileInputRefs = Array(9).fill(0).map(() => React.useRef(null));
     const [open, setOpen] = React.useState(false);
     const categoryDetail = {
         name: "",
         dayPrice: "",
         nightPrice: "",
         hourPrice: "",
-        file: ""
+        image: "",
+        category: "",
+        description: ""
     }
     const [defaultCategory, setDefaultCategory] = React.useState(categoryDetail)
     const refMode = React.useRef(null);
-    const { create, edit, data } = useCategory()
+    const { add, edit, data } = useProducts()
 
     const defaultErrors = {
         name: false,
         dayPrice: false,
         nightPrice: false,
         hourPrice: false,
-        file: false
+        image: false,
+        category: false,
+        description: false
     };
     const [errors, setErrors] = React.useState(defaultErrors);
 
@@ -44,7 +54,8 @@ function Room_admin_detail(props: any, ref: any) {
         setOpen(false);
         setDefaultCategory(categoryDetail);
         setErrors(defaultErrors);
-        setFiles([])
+        // setFiles([])
+        setPreviewImages(Array(9).fill(null))
     };
 
     React.useImperativeHandle(ref, () => ({
@@ -58,22 +69,7 @@ function Room_admin_detail(props: any, ref: any) {
             handleClickOpen()
         }
     }))
-    const onDrop = React.useCallback((acceptedFiles: any) => {
-        // Thêm các file mới vào state
-        setFiles((previousFiles: any) => {
-            return [...previousFiles, ...acceptedFiles];
-        });
-    }, []);
 
-    const { getRootProps, getInputProps } = useDropzone({ onDrop });
-    const removeFile = (fileToRemove:any) => {
-        setFiles(files.filter(file => file !== fileToRemove));
-    };
-
-    // Hàm xóa tất cả các file
-    const removeAllFiles = () => {
-        setFiles([]);
-    }
     const validate = (props: any, _planTask: any) => {
         const _defaultCategory = { ..._planTask };
         let result = { ...errors };
@@ -98,6 +94,12 @@ function Room_admin_detail(props: any, ref: any) {
                     break;
                 case "hourPrice":
                     result[prop] = _defaultCategory.hourPrice.length <= 0;
+                    break;
+                case "category":
+                    result[prop] = _defaultCategory.category.length <= 0;
+                    break;
+                case "description":
+                    result[prop] = _defaultCategory.description.length <= 0;
                     break;
                 default:
                     break;
@@ -129,6 +131,9 @@ function Room_admin_detail(props: any, ref: any) {
             case "name":
                 _defaultCategory.name = val;
                 break;
+            case "category":
+                _defaultCategory.category = val;
+                break;
             case "dayPrice":
                 if (val?.length > 0 && /^[0-9]+$/.test(val)) {
                     _defaultCategory.dayPrice = val;
@@ -144,17 +149,47 @@ function Room_admin_detail(props: any, ref: any) {
         setDefaultCategory(_defaultCategory);
     }
 
-    const [loading, setLoading] = React.useState(true)
+    const prepareToSubmit = (data: any) => {
+        const newdata: any = {
+            // ...data,
+            category: data.category,
+            description: data.description,
+            name: data.name,
+            status: true,
+            price: [
+                {
+                    brand: 0,
+                    title: "Giá theo ngày",
+                    value: data.dayPrice
+                },
+                {
+                    brand: 1,
+                    title: "Giá qua đêm",
+                    value: data.nightPrice
+                },
+                {
+                    brand: 2,
+                    title: "Giá theo giờ",
+                    value: data.hourPrice
+                },
+            ],
+        }
+        return newdata
+    }
 
     const submit = (e: any) => {
-        e.preventDefault()
         const _defaultCategory = { ...defaultCategory };
+        const files = getUploadedFiles();
+        console.log(files);
+        
+        e.preventDefault()
         const isValid = validate([], _defaultCategory);
-        if (isValid.length == 0) {
+        if (isValid.length == 0 || files.length !== 0) {
             if (refMode.current == "CREATE") {
                 setLoading(false)
                 try {
-                    create(_defaultCategory).then(() => {
+                    const data = prepareToSubmit(_defaultCategory)
+                    add(data).then(() => {
                         <Alert variant="filled" severity="success">
                             This is a success alert — check it out!
                         </Alert>
@@ -183,6 +218,74 @@ function Room_admin_detail(props: any, ref: any) {
             }
         }
     }
+
+    const handleFileSelect = (e: any, boxIndex: any) => {
+        const files = Array.from(e.target.files);
+        if (!files.length) return;
+
+        // Tìm các ô trống
+        const updatedPreviews = [...previewImages];
+        let emptyBoxes = [];
+
+        // Tìm tất cả các ô trống bắt đầu từ ô hiện tại
+        for (let i = boxIndex; i < 9; i++) {
+            if (!updatedPreviews[i]) {
+                emptyBoxes.push(i);
+            }
+        }
+
+        // Tìm thêm các ô trống trước ô hiện tại nếu cần
+        if (emptyBoxes.length < files.length) {
+            for (let i = 0; i < boxIndex; i++) {
+                if (!updatedPreviews[i]) {
+                    emptyBoxes.push(i);
+                    if (emptyBoxes.length === files.length) break;
+                }
+            }
+        }
+
+        // Giới hạn số lượng file theo số ô trống
+        const filesToProcess = files.slice(0, emptyBoxes.length);
+
+        // Hiển thị thông báo nếu không đủ ô trống
+        if (files.length > emptyBoxes.length) {
+            alert(`Chỉ có thể hiển thị ${emptyBoxes.length} ảnh. ${files.length - emptyBoxes.length} ảnh còn lại không được hiển thị do không đủ ô trống.`);
+        }
+
+        // Tạo URL và lưu thông tin file
+        filesToProcess.forEach((file, index) => {
+            const boxIdx = emptyBoxes[index];
+            updatedPreviews[boxIdx] = {
+                url: URL.createObjectURL(file),
+                file: file
+            };
+        });
+
+        setPreviewImages(updatedPreviews);
+
+        // Reset input file
+        e.target.value = '';
+    };
+
+    // Xóa ảnh
+    const handleDeleteImage = (index) => {
+        const updatedPreviews = [...previewImages];
+
+        // Giải phóng URL để tránh rò rỉ bộ nhớ
+        if (updatedPreviews[index]?.url) {
+            URL.revokeObjectURL(updatedPreviews[index].url);
+        }
+
+        updatedPreviews[index] = null;
+        setPreviewImages(updatedPreviews);
+    };
+
+    // Lấy tất cả các file đã upload
+    const getUploadedFiles = () => {
+        return previewImages
+            .filter(item => item !== null)
+            .map(item => item.file);
+    };
 
     return (
         <div>
@@ -232,65 +335,118 @@ function Room_admin_detail(props: any, ref: any) {
                                                     </div>
                                                 )}
                                             </div>
-                                            <div className="flex justify-between justify-items-stretch pb-4">
-                                                <div className="w-full">
-                                                    <TextField
-                                                        fullWidth
-                                                        error={errors.dayPrice}
-                                                        id="outlined-basic"
-                                                        label="Giá theo ngày"
-                                                        variant="standard"
-                                                        onKeyDown={handleKeyPress}
-                                                        value={numberWithCommas(defaultCategory.dayPrice)}
-                                                        onChange={(e) => {
-                                                            applyChange("dayPrice", e.target.value)
-                                                        }}
-                                                    />
-                                                    {Object.keys(errors).length !== 0 && (
-                                                        <div>
-                                                            {errors.dayPrice && <p className='text-red-600'>Giá theo ngày không được bỏ trống</p>}
+
+                                            <div className='py-4'>
+                                                <div className="grid grid-cols-4 gap-4">
+                                                    {Array(9).fill(0).map((_, index) => (
+                                                        <div
+                                                            key={index}
+                                                            className={` first:col-span-2 first:row-span-2 ${styles.uploadBox} ${previewImages[index] ? styles.hasImage : ''}`}
+                                                            onClick={(e) => {
+                                                                fileInputRefs[index].current?.click();
+                                                            }}
+                                                        >
+                                                            <input
+                                                                type="file"
+                                                                accept="image/*"
+                                                                multiple
+                                                                key={`file-input-${index}`}
+                                                                ref={fileInputRefs[index]}
+                                                                onChange={(e) => handleFileSelect(e, index)}
+                                                                className={styles.fileInput}
+                                                            />
+                                                            {previewImages[index] ? (
+                                                                <>
+                                                                    <div className={styles.imageWrapper}>
+                                                                        <Image
+                                                                            src={previewImages[index].url}
+                                                                            alt={`Preview ${index}`}
+                                                                            layout='fill'
+                                                                            style={{ objectFit: 'cover' }}
+                                                                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                                                        />
+                                                                    </div>
+                                                                    <button
+                                                                        type="button"
+                                                                        className={styles.deleteBtn}
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            handleDeleteImage(index);
+                                                                        }}
+                                                                    >
+                                                                        ×
+                                                                    </button>
+                                                                </>
+                                                            ) : (
+                                                                <div >+</div>
+                                                            )}
                                                         </div>
-                                                    )}
-                                                </div>
-                                                <div className="w-full">
-                                                    <TextField
-                                                        fullWidth
-                                                        error={errors.nightPrice}
-                                                        id="outlined-basic"
-                                                        label="Giá qua đêm"
-                                                        variant="standard"
-                                                        onKeyDown={handleKeyPress}
-                                                        value={numberWithCommas(defaultCategory.nightPrice)}
-                                                        onChange={(e) => {
-                                                            applyChange("nightPrice", e.target.value)
-                                                        }}
-                                                    />
-                                                    {Object.keys(errors).length !== 0 && (
-                                                        <div>
-                                                            {errors.nightPrice && <p className='text-red-600'>Giá qua đêm không được bỏ trống</p>}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                                <div className="w-full">
-                                                    <TextField
-                                                        fullWidth
-                                                        error={errors.hourPrice}
-                                                        id="outlined-basic"
-                                                        label="Giá theo giờ"
-                                                        variant="standard"
-                                                        onKeyDown={handleKeyPress}
-                                                        value={numberWithCommas(defaultCategory.hourPrice)}
-                                                        onChange={(e) => {
-                                                            applyChange("hourPrice", e.target.value)
-                                                        }}
-                                                    />
-                                                    {Object.keys(errors).length !== 0 && (
-                                                        <div>
-                                                            {errors.hourPrice && <p className='text-red-600'>Giá theo giờ không được bỏ trống</p>}
-                                                        </div>
-                                                    )}
+                                                    ))}
                                                 </div>
                                             </div>
+
+                                            <div className=' py-4'>
+                                                <div className="flex justify-between justify-items-stretch">
+                                                    <div className="w-full">
+                                                        <TextField
+                                                            fullWidth
+                                                            error={errors.dayPrice}
+                                                            id="outlined-basic"
+                                                            label="Giá theo ngày"
+                                                            variant="standard"
+                                                            onKeyDown={handleKeyPress}
+                                                            value={numberWithCommas(defaultCategory.dayPrice)}
+                                                            onChange={(e) => {
+                                                                applyChange("dayPrice", e.target.value)
+                                                            }}
+                                                        />
+                                                        {Object.keys(errors).length !== 0 && (
+                                                            <div>
+                                                                {errors.dayPrice && <p className='text-red-600'>Giá theo ngày không được bỏ trống</p>}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <div className="w-full">
+                                                        <TextField
+                                                            fullWidth
+                                                            error={errors.nightPrice}
+                                                            id="outlined-basic"
+                                                            label="Giá qua đêm"
+                                                            variant="standard"
+                                                            onKeyDown={handleKeyPress}
+                                                            value={numberWithCommas(defaultCategory.nightPrice)}
+                                                            onChange={(e) => {
+                                                                applyChange("nightPrice", e.target.value)
+                                                            }}
+                                                        />
+                                                        {Object.keys(errors).length !== 0 && (
+                                                            <div>
+                                                                {errors.nightPrice && <p className='text-red-600'>Giá qua đêm không được bỏ trống</p>}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <div className="w-full">
+                                                        <TextField
+                                                            fullWidth
+                                                            error={errors.hourPrice}
+                                                            id="outlined-basic"
+                                                            label="Giá theo giờ"
+                                                            variant="standard"
+                                                            onKeyDown={handleKeyPress}
+                                                            value={numberWithCommas(defaultCategory.hourPrice)}
+                                                            onChange={(e) => {
+                                                                applyChange("hourPrice", e.target.value)
+                                                            }}
+                                                        />
+                                                        {Object.keys(errors).length !== 0 && (
+                                                            <div>
+                                                                {errors.hourPrice && <p className='text-red-600'>Giá theo giờ không được bỏ trống</p>}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+
                                             <div className="pb-4">
                                                 <FormControl fullWidth>
                                                     <InputLabel id="demo-simple-select-label">Chọn một loại phòng</InputLabel>
@@ -312,36 +468,27 @@ function Room_admin_detail(props: any, ref: any) {
                                                     </Select>
                                                     {Object.keys(errors).length !== 0 && (
                                                         <div>
-                                                            {errors.name && <p className='text-red-600'>Giá theo ngày không được bỏ trống</p>}
+                                                            {errors.category && <p className='text-red-600'>Loại phòng không được bỏ trống</p>}
                                                         </div>
                                                     )}
                                                 </FormControl>
                                             </div>
 
-                                            <section>
-                                                <div {...getRootProps({ className: 'dropzone' })}>
-                                                    <input {...getInputProps()} />
-                                                    <p>Kéo và thả file vào đây, hoặc nhấp để chọn file</p>
-                                                </div>
-
-                                                <h4>Files</h4>
-                                                <ul>
-                                                    {files.map((file, index) => (
-                                                        <li key={file.name + index}>
-                                                            {file.name} - {file.size} bytes
-                                                            <button onClick={() => removeFile(file)}>
-                                                                Xóa
-                                                            </button>
-                                                        </li>
-                                                    ))}
-                                                </ul>
-
-                                                {files.length > 0 && (
-                                                    <button onClick={removeAllFiles}>
-                                                        Xóa tất cả file
-                                                    </button>
+                                            <div className="pb-4">
+                                                <textarea
+                                                    value={defaultCategory.description}
+                                                    onChange={(e) => {
+                                                        applyChange("description", e.target.value)
+                                                    }}
+                                                    id="message"
+                                                    rows="5"
+                                                    className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300" placeholder="Nhập mô tả..."></textarea>
+                                                {Object.keys(errors).length !== 0 && (
+                                                    <div>
+                                                        {errors.description && <p className='text-red-600'>Mô tả không được bỏ trống</p>}
+                                                    </div>
                                                 )}
-                                            </section>
+                                            </div>
                                         </div>
                                         <div>
                                         </div>
