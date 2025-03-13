@@ -12,7 +12,6 @@ import "toastr/build/toastr.min.css";
 import styles from './ImageUploader.module.css';
 import useProducts from '../../../hook/use-product';
 import Image from 'next/image';
-import { fi } from 'date-fns/locale';
 
 function Room_admin_detail(props: any, ref: any) {
     var _ = require('lodash');
@@ -33,7 +32,7 @@ function Room_admin_detail(props: any, ref: any) {
     }
     const [defaultCategory, setDefaultCategory] = React.useState(categoryDetail)
     const refMode = React.useRef(null);
-    const { add, edit, data } = useProducts()
+    const { add, edit, data } = useProducts("")
 
     const defaultErrors = {
         name: false,
@@ -54,9 +53,21 @@ function Room_admin_detail(props: any, ref: any) {
         setOpen(false);
         setDefaultCategory(categoryDetail);
         setErrors(defaultErrors);
-        // setFiles([])
         setPreviewImages(Array(9).fill(null))
     };
+
+    const prepareToPreview = (e: any) => {
+        const dayPrice = e.price[0].value;
+        const nightPrice = e.price[1].value;
+        const hourPrice = e.price[2].value;
+        const data = {
+            ...e,
+            dayPrice,
+            nightPrice,
+            hourPrice
+        }
+        setDefaultCategory(data)
+    }
 
     React.useImperativeHandle(ref, () => ({
         create: (item: any, type: any) => {
@@ -64,8 +75,8 @@ function Room_admin_detail(props: any, ref: any) {
             handleClickOpen()
         },
         update: (item: any, type: any) => {
-            setDefaultCategory(item)
             refMode.current = type
+            prepareToPreview(item)
             handleClickOpen()
         }
     }))
@@ -151,7 +162,6 @@ function Room_admin_detail(props: any, ref: any) {
 
     const prepareToSubmit = (data: any) => {
         const newdata: any = {
-            // ...data,
             category: data.category,
             description: data.description,
             name: data.name,
@@ -180,8 +190,7 @@ function Room_admin_detail(props: any, ref: any) {
     const submit = (e: any) => {
         const _defaultCategory = { ...defaultCategory };
         const files = getUploadedFiles();
-        console.log(files);
-        
+
         e.preventDefault()
         const isValid = validate([], _defaultCategory);
         if (isValid.length == 0 || files.length !== 0) {
@@ -204,7 +213,8 @@ function Room_admin_detail(props: any, ref: any) {
             else {
                 setLoading(false)
                 try {
-                    edit(_defaultCategory).then(() => {
+                    const data = prepareToSubmit(_defaultCategory)
+                    edit(data).then(() => {
                         <Alert variant="filled" severity="success">
                             This is a success alert — check it out!
                         </Alert>
@@ -268,7 +278,7 @@ function Room_admin_detail(props: any, ref: any) {
     };
 
     // Xóa ảnh
-    const handleDeleteImage = (index) => {
+    const handleDeleteImage = (index: any) => {
         const updatedPreviews = [...previewImages];
 
         // Giải phóng URL để tránh rò rỉ bộ nhớ
@@ -481,7 +491,7 @@ function Room_admin_detail(props: any, ref: any) {
                                                         applyChange("description", e.target.value)
                                                     }}
                                                     id="message"
-                                                    rows="5"
+                                                    rows={5}
                                                     className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300" placeholder="Nhập mô tả..."></textarea>
                                                 {Object.keys(errors).length !== 0 && (
                                                     <div>

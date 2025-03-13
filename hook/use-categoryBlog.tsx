@@ -18,7 +18,7 @@ const useCategoryBlog = (slug?: string) => {
     // delete
     const dele = async (id: string) => {
         await remove(id);
-        mutate(data.filter((item: CategoryBlog) => item._id !== id));
+        mutate(data && data.filter((item: CategoryBlog) => item._id !== id));
     };
     // update
     const edit = async (item: CategoryBlog) => {
