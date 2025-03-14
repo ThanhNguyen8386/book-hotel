@@ -33,7 +33,6 @@ function Room_admin_detail(props: any, ref: any) {
     const [defaultCategory, setDefaultCategory] = React.useState(categoryDetail)
     const refMode = React.useRef(null);
     const { add, edit, data } = useProducts("")
-
     const defaultErrors = {
         name: false,
         dayPrice: false,
@@ -44,7 +43,6 @@ function Room_admin_detail(props: any, ref: any) {
         description: false
     };
     const [errors, setErrors] = React.useState(defaultErrors);
-
     const handleClickOpen = () => {
         setOpen(true);
     };
@@ -60,6 +58,19 @@ function Room_admin_detail(props: any, ref: any) {
         const dayPrice = e.price[0].value;
         const nightPrice = e.price[1].value;
         const hourPrice = e.price[2].value;
+        const imgUrl = [];
+        if (e.image) {
+            for (let i = 0; i < 9; i++) {
+                if (e.image[i]) {
+                    imgUrl.push({ url: e.image[i] })
+                }
+                else {
+                    imgUrl.push(null)
+                }
+            }
+        }
+        setPreviewImages(imgUrl);
+
         const data = {
             ...e,
             dayPrice,
@@ -160,8 +171,15 @@ function Room_admin_detail(props: any, ref: any) {
         setDefaultCategory(_defaultCategory);
     }
 
-    const prepareToSubmit = (data: any) => {
+    const prepareToSubmit = (data: any, img: any) => {
+        const imgUrl: any[] = [];
+        if (img.length > 0) {
+            img.forEach((item: any) => {
+                imgUrl.push(item.url);
+            });
+        }
         const newdata: any = {
+            ...data,
             category: data.category,
             description: data.description,
             name: data.name,
@@ -183,37 +201,76 @@ function Room_admin_detail(props: any, ref: any) {
                     value: data.hourPrice
                 },
             ],
+            image: imgUrl
         }
         return newdata
     }
 
-    const submit = (e: any) => {
+    const uploadFiles = async (data: any) => {
+        const upload = data.map((item: any, index: any) => {
+            const formData = new FormData();
+            formData.append('file', item);
+            formData.append("upload_preset", "hzeskmhn");
+
+            return fetch('https://api.cloudinary.com/v1_1/dkhutgvlb/image/upload', {
+                method: "POST",
+                body: formData,
+            })
+                .then(res => res.json())
+        })
+        try {
+            const result = await Promise.all(upload)
+            return result;
+
+        } catch (error) {
+            console.log(error);
+
+        }
+    }
+
+    const submit = async (e: any) => {
         const _defaultCategory = { ...defaultCategory };
         const files = getUploadedFiles();
-
         e.preventDefault()
         const isValid = validate([], _defaultCategory);
-        if (isValid.length == 0 || files.length !== 0) {
+        if (isValid.length == 0 && files.length !== 0) {
             if (refMode.current == "CREATE") {
                 setLoading(false)
                 try {
-                    const data = prepareToSubmit(_defaultCategory)
-                    add(data).then(() => {
-                        <Alert variant="filled" severity="success">
-                            This is a success alert — check it out!
-                        </Alert>
-                        setLoading(true)
-                        handleClose()
-                        toastr.success("Thêm thành công")
+                    const upload = files.map((item: any, index: any) => {
+                        const formData = new FormData();
+                        formData.append('file', item);
+                        formData.append("upload_preset", "hzeskmhn");
+
+                        return fetch('https://api.cloudinary.com/v1_1/dkhutgvlb/image/upload', {
+                            method: "POST",
+                            body: formData,
+                        })
+                            .then(res => res.json())
+                    })
+                    try {
+                        const result = await Promise.all(upload)
+                        const data = prepareToSubmit(_defaultCategory, result)
+                        edit(data).then(() => {
+                            <Alert variant="filled" severity="success">
+                                This is a success alert — check it out!
+                            </Alert>
+                            setLoading(true)
+                            handleClose()
+                            toastr.success("Thêm thành công")
+                        }
+                        )
+                    } catch (error) {
+                        console.log(error);
                     }
-                    )
                 } catch (error) {
+                    console.log(error);
                 }
             }
             else {
                 setLoading(false)
                 try {
-                    const data = prepareToSubmit(_defaultCategory)
+                    const data = prepareToSubmit(_defaultCategory, [])
                     edit(data).then(() => {
                         <Alert variant="filled" severity="success">
                             This is a success alert — check it out!

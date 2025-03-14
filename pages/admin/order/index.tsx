@@ -1,139 +1,166 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import Link from 'next/link'
-import React from 'react'
+import * as React from 'react';
 import { DashboardLayout } from '../../../components/dashboard-layout'
 import OrderHook from '../../../hook/use-order'
 import { OrderType } from '../../../types/order'
-import { Button, TablePagination, Tooltip } from '@mui/material'
+import { Button, Chip, IconButton, LinearProgress, TablePagination, Tooltip } from '@mui/material'
 import dayjs from 'dayjs'
+import Head from 'next/head'
+import ShowForPermission from '../../../components/Private/showForPermission'
+import { DataGrid, GridActionsCellItem } from '@mui/x-data-grid'
+import EditIcon from '@mui/icons-material/Edit';
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
+import Swal from 'sweetalert2';
+import OrderDetail from './orderDetail';
+
 type Props = {}
 
 const index = (props: Props) => {
     const { data, error, mutate } = OrderHook()
-    const [page, setPage] = React.useState(0);
-    const [rowsPerPage, setRowsPerPage] = React.useState(8);
+    const [rows, setRows] = React.useState<any>([{ _id: 1, name: null }]);
+    const refDetail = React.useRef<any>();
+    const [loading, setLoading] = React.useState(true)
 
-    if (!data) return <div>Loading...</div>
-    if (error) return <div>Errors</div>
-    const handleChangePage = (event: unknown, newPage: number) => {
-        setPage(newPage);
-    };
+    React.useEffect(() => {
+        if (data) {
+            setRows(data)
+            setLoading(false)
+        }
+    }, [data])
 
-    const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setRowsPerPage(+event.target.value);
-        setPage(0);
-    };
+    const actionCrud = {
+        updateOrder: (item: any, type: any) => {
+            refDetail.current.update(item, type)
+        }
+    }
+
+    const deleteUser = React.useCallback(
+        (id: any) => () => {
+            setTimeout(() => {
+                setRows((prevRows: any) => prevRows.filter((row: any) => row?._id !== id));
+            });
+        },
+        [],
+    )
+
     const statuss = (value: number) => {
         if (value == 0) {
-            return <span className='rounded-full py-[5px] px-[10px] bg-sky-500 text-center text-white font-medium'>Chờ Xác Nhận</span>
+            return {
+                name: "Chờ Xác Nhận",
+                color: "warning"
+            }
         } else if (value == 1) {
-            return <span className='bg-orange-600 rounded-full py-[5px] px-[10px] bg-sky-500 text-center text-white font-medium'>Đã Xác Nhận</span>
+            return {
+                name:"Đã Xác Nhận",
+                color: "success"
+            }
         } else if (value == 2) {
-            return <span className='bg-green-600 rounded-full py-[5px] px-[10px] bg-sky-500 text-center text-white font-medium'>Đang Có Khách</span>
+            return {
+                name: "Đang Có Khách",
+                color: "info"
+            }
         } else if (value == 3) {
-            return <span className='bg-sky-600 rounded-full py-[5px] px-[10px] bg-sky-500 text-center text-white font-medium'>Đã Trả Phòng</span>
+            return {
+                name: "Đã Trả Phòng",
+                color: "success"
+            }
         }
         else {
-            return <span className='bg-red-600 rounded-full py-[5px] px-[10px] bg-sky-500 text-center text-white font-medium'>Hủy Phòng</span>
+            return {
+                name: "Hủy Phòng",
+                color: "error"
+            }
         }
     }
 
     return (
         <div>
-            <table className="min-w-full leading-normal scroll">
-                <thead>
-                    <tr>
-                        <th scope="col" className="px-5 py-3 bg-white  border-b border-gray-200 text-gray-800  text-left text-sm uppercase font-normal">
+            <div className='h-full' style={{ width: '100%', padding: "15px" }}>
+                <Head>
+                    <title>
+                        Order
+                    </title>
+                </Head>
+                {loading ? <LinearProgress className='fixed top-[65px] z-50 w-full' /> : <></>}
+                <div className="flex-col flex">
+                    <DataGrid
+                        rows={rows}
+                        getRowId={(row) => {
+                            if (row.data) {
+                                return row.data._id
+                            }
+                            return row._id
 
-                        </th>
-                        <th scope="col" className="px-5 py-3 bg-white  border-b border-gray-200 text-gray-800  text-left text-sm uppercase font-normal">
-                            Tên Khách Hàng
-                        </th>
-                        <th scope="col" className="px-5 py-3 bg-white  border-b border-gray-200 text-gray-800  text-left text-sm uppercase font-normal">
-                            Phòng
-                        </th>
-                        <th scope="col" className="px-5 py-3 bg-white  border-b border-gray-200 text-gray-800  text-left text-sm uppercase font-normal">
-                            Email
-                        </th>
-                        <th scope="col" className="px-5 py-3 bg-white  border-b border-gray-200 text-gray-800  text-left text-sm uppercase font-normal">
-                            Số điện thoại
-                        </th>
-                        <th scope="col" className="px-5 py-3 bg-white  border-b border-gray-200 text-gray-800  text-left text-sm uppercase font-normal">
-                            Check in
-                        </th>
-                        <th scope="col" className="px-5 py-3 bg-white  border-b border-gray-200 text-gray-800  text-left text-sm uppercase font-normal">
-                            Trạng thái Phòng
-                        </th>
-                        <th scope="col" className="px-5 py-3 bg-white  border-b border-gray-200 text-gray-800  text-left text-sm uppercase font-normal">
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {data?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((item: any, index: number) => (
-                        <tr key={index}>
-                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                <p className="text-gray-900 whitespace-no-wrap">
-                                    {index + 1}
-                                </p>
-                            </td>
-                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                <div className="flex items-center">
-                                    <div className="ml-3">
-                                        <p className="text-gray-900 whitespace-no-wrap">
-                                            {item.name}
-                                        </p>
-                                    </div>
-                                </div>
-                            </td>
-                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                <div className="flex items-center">
-                                    <div className="ml-3">
-                                        <p className="text-gray-900 whitespace-no-wrap">
-                                            {item.room?.name}
-                                        </p>
-                                    </div>
-                                </div>
-                            </td>
-                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                <p className="text-gray-900 whitespace-no-wrap">
-                                    {item.email}
-                                </p>
-                            </td>
-                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                <p className="text-gray-900 whitespace-no-wrap">
-                                    {item.phone}
-                                </p>
-                            </td>
-                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                <p className="text-gray-900 whitespace-no-wrap">
-                                    {dayjs(item.checkins).format("HH:mm DD/MM/YYYY")}
-                                </p>
-                            </td>
-                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                <p className="text-gray-900 whitespace-no-wrap">
-                                    <div className=''>
-                                        {statuss(item.statusorder)}
-                                    </div>
-                                </p>
-                            </td>
-                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                <Link href={`/admin/order/${item._id}`}><button className='bg-gray-600 rounded-full py-[5px] px-[10px] bg-sky-500 text-center text-white font-medium'>Detail</button></Link>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-            <div className=" bottom-0 bg-white w-full border-t border">
-                <TablePagination
-                    rowsPerPageOptions={[]}
-                    component="div"
-                    count={data.length}
-                    rowsPerPage={rowsPerPage}
-                    page={page}
-                    onPageChange={handleChangePage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
-                />
+                        }}
+                        columns={React.useMemo(
+                            () => [
+                                // { field: '_id', align: "left", type: 'string', headerName: "#", minWidth: 150, flex: 1 },
+                                { headerName: 'Tên Khách hàng', field: 'name', align: "left", type: 'string', minWidth: 150, flex: 1 },
+                                {
+                                    headerName: 'Tên Phòng',
+                                    field: "room",
+                                    align: "left",
+                                    type: 'string',
+                                    minWidth: 150,
+                                    flex: 1,
+                                    renderCell: (params) => {
+                                        if (params.row.room) {
+                                            return params.row.room.name
+                                        }
+                                    }
+                                },
+                                { headerName: 'Email', field: 'email', align: "left", type: 'string', minWidth: 150, flex: 1 },
+                                { headerName: 'Số điện thoại', field: 'phone', align: "left", type: 'string', minWidth: 150, flex: 1 },
+                                {
+                                    headerName: 'Check in',
+                                    field: "checkins",
+                                    align: "left",
+                                    type: 'string',
+                                    minWidth: 150,
+                                    flex: 1,
+                                    renderCell: (params) => {
+                                        if (params.row) {
+                                            return dayjs(params.row.checkins).format("HH:mm DD/MM/YYYY")
+                                        }
+                                    }
+                                },
+                                {
+                                    minWidth: 150,
+                                    headerName: "Trạng thái phòng",
+                                    field: 'actions',
+                                    type: 'actions',
+                                    flex: 1,
+                                    align: "center",
+                                    renderCell: (params) => {
+                                        if (params.row.statusorder) {
+                                            return (
+                                                <p>
+                                                    <Chip
+                                                        label={statuss(params.row.statusorder).name}
+                                                        size="small"
+                                                        color={statuss(params.row.statusorder).color}
+                                                    />
+                                                    <Chip
+                                                        label="Chi tiết"
+                                                        size="small"
+                                                        color="default"
+                                                        onClick={() => actionCrud.updateOrder(params.row, "UPDATE")}
+                                                    />
+                                                </p>
+                                            )
+                                        }
+                                    }
+                                }
+                            ],
+                            [deleteUser]
+                        )}
+                    />
+                </div>
             </div>
-        </div>
+            <OrderDetail ref={refDetail} />
+        </div >
     )
 }
 index.Layout = DashboardLayout
