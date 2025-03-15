@@ -1,18 +1,26 @@
-import { MenuItem } from '@mui/material'
+/* eslint-disable react-hooks/exhaustive-deps */
+import { Avatar, Chip, IconButton, MenuItem, Tooltip } from '@mui/material'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { listOrderUser } from '../../../api/order'
 import ProfileLayout from '../../../components/Layout/ProfileLayout'
 import { OrderType } from '../../../types/order'
 import { OrderUser } from '../../../types/OrderUser'
+import { BookingList } from './BookingList'
+import ShowForPermission from '../../../components/Private/showForPermission'
+import { DataGrid, GridActionsCellItem } from '@mui/x-data-grid'
+import EditIcon from '@mui/icons-material/Edit';
+import dayjs from 'dayjs'
 
 type Props = {}
 
 const Orderlisst = (props: Props) => {
     const [user, setUser] = useState<any>({})
+    const [rows, setRows] = React.useState<any>([{ _id: 1, name: null }]);
     const [order, setorder] = useState([])
     const [status, setStatus] = useState(false)
+    const refDetail = React.useRef<any>();
     const router = useRouter();
     useEffect(() => {
         const getUser = JSON.parse(localStorage.getItem('user') as string)
@@ -29,30 +37,67 @@ const Orderlisst = (props: Props) => {
                 setStatus(false)
             } else {
                 setStatus(true)
-                const data: any = await listOrderUser(getUser._id)
+                const { data }: any = await listOrderUser(getUser._id)
                 setorder(data)
+                setRows(data)
             }
         }
         get()
     }, [])
-    console.log(order)
+
+    const actionCrud = {
+        create: (item: any, type: any) => {
+            refDetail.current.create(item, type)
+        }
+    }
+
+    // const statuss = (value: any) => {
+    //     if (value == 0) {
+    //         return <span className='rounded-full py-[5px] px-[10px] bg-sky-500 text-center text-white font-medium'>Chờ Xác Nhận</span>
+    //     } else if (value == 1) {
+    //         return <span className='bg-orange-600 rounded-full py-[5px] px-[10px] bg-sky-500 text-center text-white font-medium'>Đã Xác Nhận</span>
+    //     } else if (value == 2) {
+    //         return <span className='bg-green-600 rounded-full py-[5px] px-[10px] bg-sky-500 text-center text-white font-medium'>Đang Có Khách</span>
+    //     } else if (value == 3) {
+    //         return <span className='bg-orange-600 rounded-full py-[5px] px-[10px] bg-sky-500 text-center text-white font-medium'>Đã Trả Phòng</span>
+    //     }
+    //     else {
+    //         return <span className='bg-red-600 rounded-full py-[5px] px-[10px] bg-sky-500 text-center text-white font-medium'>Hủy Phòng</span>
+    //     }
+    // }
+
     const statuss = (value: any) => {
         if (value == 0) {
-            return <span className='rounded-full py-[5px] px-[10px] bg-sky-500 text-center text-white font-medium'>Chờ Xác Nhận</span>
+            return {
+                name: "Chờ Xác Nhận",
+                color: "warning"
+            }
         } else if (value == 1) {
-            return <span className='bg-orange-600 rounded-full py-[5px] px-[10px] bg-sky-500 text-center text-white font-medium'>Đã Xác Nhận</span>
+            return {
+                name: "Đã Xác Nhận",
+                color: "primary"
+            }
         } else if (value == 2) {
-            return <span className='bg-green-600 rounded-full py-[5px] px-[10px] bg-sky-500 text-center text-white font-medium'>Đang Có Khách</span>
+            return {
+                name: "Đang Có Khách",
+                color: "info"
+            }
         } else if (value == 3) {
-            return <span className='bg-orange-600 rounded-full py-[5px] px-[10px] bg-sky-500 text-center text-white font-medium'>Đã Trả Phòng</span>
+            return {
+                name: "Đã Trả Phòng",
+                color: "success"
+            }
         }
         else {
-            return <span className='bg-red-600 rounded-full py-[5px] px-[10px] bg-sky-500 text-center text-white font-medium'>Hủy Phòng</span>
+            return {
+                name: "Hủy Phòng",
+                color: "error"
+            }
         }
     }
     return (
-        <div className=''>
-            <div className="account_body container mx-auto justify-center my-[40px] flex flex-row px-[96px] mb:flex mbs:inline ">
+        <div className='flex justify-center'>
+            <div className="account_body container justify-center my-[40px] flex flex-row px-[96px] mb:flex mbs:inline ">
                 <div className="account_sidebar flex flex-col w-[370px] h-fit border border-gray-20 rounded-3xl p-[24px] pb-[70px] mr-[32px] mb:flex mbs:mx-auto">
                     <div className="account_info px-[16px] py-[24px]">
                         <div className='contents'><img width={50} className="rounded-full mx-auto h-[100px] w-[100px] object-cover border-current" src={user?.avatar || "https://go2joy.vn/images/icons/user-placeholder.svg"} alt="" /></div>
@@ -86,80 +131,108 @@ const Orderlisst = (props: Props) => {
                             Đăng Xuất</span></a></div>
 
                 </div>
-                <div className="profile_account relative  mx-auto">
-                    <div className="flex flex-row justify-between mb-[32px]">
-                        <h2 className='text-[40px] font-bold'>Phòng Đặt của tôi</h2>
+                <div className="w-full pl-4">
+                    <div className="border-b border-gray-100">
+                        <div className="">
+                            <div>
+                                <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+                                    Phòng Đặt của tôi
+                                </h2>
+                                <p className="text-gray-500 mt-2">
+                                    Quản lý tất cả các đặt phòng của bạn
+                                </p>
+                            </div>
+                        </div>
                     </div>
+                    <div className='flex-col flex'>
+                        <DataGrid
+                            rowHeight={70}
+                            rows={rows}
+                            getRowId={(row) => {
+                                if (row.data) {
+                                    return row.data._id
+                                }
+                                return row._id
 
-                    <div>
-                        <table className="min-w-full leading-normal scroll">
-                            <thead>
-                                <tr>
-                                    <th scope="col" className="px-5 py-3 bg-white  border-b border-gray-200 text-gray-800  text-left text-sm uppercase font-normal">
-                                        STT
-                                    </th>
-                                    <th scope="col" className="px-5 py-3 bg-white  border-b border-gray-200 text-gray-800  text-left text-sm uppercase font-normal">
-                                        Tên phòng
-                                    </th>          
-                                    <th scope="col" className="px-5 py-3 bg-white  border-b border-gray-200 text-gray-800  text-left text-sm uppercase font-normal">
-                                        Thời gian đặt nhận
-                                    </th>
-                                    <th scope="col" className="px-5 py-3 bg-white  border-b border-gray-200 text-gray-800  text-left text-sm uppercase font-normal">
-                                    Trạng thái
-                                    </th>
-                                    <th scope="col" className="px-5 py-3 bg-white  border-b border-gray-200 text-gray-800  text-left text-sm uppercase font-normal">
-                                    Thông tin
-                                    </th>
-                                    
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {order?.map((item: OrderUser, index: number) => (
-                                    // eslint-disable-next-line react/jsx-key
-                                    <tr >
-                                        <td className="py-5 border-b border-gray-200 bg-white text-sm mb:block mbs:hidden">
-                                            <p className="text-gray-900 whitespace-no-wrap">
-                                                {index + 1}
-                                            </p>
-                                        </td>
-                                        <td className="py-5 border-b border-gray-200 bg-white text-sm">
-                                            <div className="flex items-center">
-                                                <div className="ml-3">
-                                                    <p className="text-gray-900 whitespace-no-wrap">
-                                                        {item?.room?.name}
+                            }}
+                            columns={React.useMemo(
+                                () => [
+                                    {
+                                        field: 'name',
+                                        headerName: "Tên phòng",
+                                        align: "left",
+                                        type: 'string',
+                                        minWidth: 150,
+                                        flex: 1,
+                                        renderCell: (params: any) => {
+                                            console.log(params.row);
+                                            return (
+                                                <div className='flex items-center'>
+                                                    <Avatar
+                                                        alt="Remy Sharp"
+                                                        src={params.row.room && params.row.room.image[0]}
+                                                        sx={{ width: 24, height: 24 }}
+                                                        variant="rounded"
+                                                    />
+                                                    <span className='pl-2'>{params.row.room && params.row.room.name}</span>
+                                                </div>
+
+                                            )
+                                        }
+                                    },
+                                    {
+                                        field: 'checkin',
+                                        headerName: "Thời gian đặt nhận",
+                                        align: "left",
+                                        type: 'string',
+                                        minWidth: 150,
+                                        flex: 1,
+                                        renderCell: (params: any) => {
+                                            return (
+                                                <div className="text-sm flex flex-col justify-center">
+                                                    <p className="text-gray-800 font-medium">{params.row && dayjs(params.row.checkins).format("HH:mm DD/MM/YYYY")}</p>
+                                                    <p className="text-gray-500 mt-1">đến {params.row && dayjs(params.row.checkouts).format("HH:mm DD/MM/YYYY")}</p>
+                                                </div>
+                                            )
+                                        }
+                                    },
+                                    {
+                                        minWidth: 150,
+                                        headerName: "Trạng thái phòng",
+                                        field: 'actions',
+                                        type: 'actions',
+                                        flex: 1,
+                                        align: "center",
+                                        renderCell: (params: any) => {
+                                            if (params.row.statusorder) {
+                                                return (
+                                                    <p>
+                                                        <Chip
+                                                            label={statuss(params.row.statusorder).name}
+                                                            size="small"
+                                                            color={statuss(params.row.statusorder).color}
+                                                        />
+                                                        <Chip
+                                                            className='pl-2'
+                                                            clickable
+                                                            label="Chi tiết"
+                                                            size="small"
+                                                            variant="outlined"
+                                                            onClick={() => actionCrud.updateOrder(params.row, "UPDATE")}
+                                                        />
                                                     </p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm xl: mbs:hidden">
-                                            <p className="text-gray-900 whitespace-no-wrap">
-                                                <img width={100} src={`${item?.room?.image?.[0]}`} alt="" />
-                                            </p>
-                                        </td>
-                                        <td className=" py-5 border-b border-gray-200 bg-white text-sm">
-                                            <p className="text-gray-900 whitespace-no-wrap">
-                                               <p>{item.checkins}</p> - <p>{item.checkouts}</p>
-                                            </p>
-                                        </td>
-                                        <td className=" py-5 border-b border-gray-200 bg-white text-sm">
-                                            <p className="text-gray-900 whitespace-no-wrap">
-                                                <div className=''>
-                                                    {statuss(item.statusorder)}
-                                                </div>
-                                            </p>
-                                        </td>
-                                        <td className=" border-b border-gray-200 bg-white text-sm">
-                                            <Link href={`/profile/order/${item._id}`}><button className='bg-gray-600 rounded-full px-[10px] py-[5px] bg-sky-500 text-center text-white font-medium'>Detail</button></Link>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                                                )
+                                            }
+                                        }
+                                    },
+                                ]
+                            )}
+                        />
                     </div>
                 </div>
             </div>
-       
+        </div>
+
     )
 }
 

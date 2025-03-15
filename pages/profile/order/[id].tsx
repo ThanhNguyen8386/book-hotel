@@ -37,7 +37,7 @@ const DtailOrderHistory = (props: Props) => {
   useEffect(() => {
     const abc = async () => {
       await getOnefac(orders?.room[0]._id).then((res: any) => {
-        setfacilities(res);
+        setfacilities(res.data);
       });
     };
     abc();
