@@ -45,7 +45,7 @@ const index = (props: Props) => {
         [],
     )
 
-    const statuss = (value: number) => {
+    const statuss = (value: any) => {
         if (value == 0) {
             return {
                 name: "Chờ Xác Nhận",
@@ -54,7 +54,7 @@ const index = (props: Props) => {
         } else if (value == 1) {
             return {
                 name:"Đã Xác Nhận",
-                color: "success"
+                color: "primary"
             }
         } else if (value == 2) {
             return {
@@ -159,7 +159,7 @@ const index = (props: Props) => {
                     />
                 </div>
             </div>
-            <OrderDetail ref={refDetail} />
+            <OrderDetail ref={refDetail} status={statuss} />
         </div >
     )
 }

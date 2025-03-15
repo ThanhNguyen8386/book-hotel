@@ -4,6 +4,7 @@ import {
   CalendarToday as CalendarIcon,
   Schedule as ClockIcon,
 } from '@mui/icons-material'
+import dayjs from "dayjs";
 import ImageGallery from './ImageGallery'
 const roomImages = [
   {
@@ -39,7 +40,8 @@ const roomImages = [
     alt: 'Hotel lobby',
   },
 ]
-const RoomInfo = () => {
+const RoomInfo = (props: any) => {
+  const { roomData } = props;
   const [isGalleryOpen, setIsGalleryOpen] = useState(false)
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const openGallery = (index: number) => {
@@ -56,12 +58,12 @@ const RoomInfo = () => {
       </div>
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 mb-8">
         <h3 className="text-2xl font-medium text-gray-800 flex items-center gap-2">
-          <span>Nhà nghỉ Bình minh</span>
+          <span>{roomData.room && roomData.room.name}</span>
           <div className="flex-1 h-px bg-gray-200 ml-4"></div>
         </h3>
       </div>
       <div className="grid grid-cols-2 gap-6 mb-8">
-        {roomImages.slice(0, 4).map((image, index) => (
+        {roomData.room && roomData.room.image.slice(0, 4).map((image: any, index: any) => (
           <div
             key={index}
             className="group bg-white rounded-xl overflow-hidden shadow-md transition-all duration-300 hover:shadow-xl cursor-pointer"
@@ -69,8 +71,8 @@ const RoomInfo = () => {
           >
             <div className="relative overflow-hidden">
               <img
-                src={image.url}
-                alt={image.alt}
+                src={image}
+                alt="Anh phong"
                 className="w-full h-48 object-cover transform transition-transform duration-300 group-hover:scale-110"
               />
               <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
@@ -80,19 +82,37 @@ const RoomInfo = () => {
           </div>
         ))}
       </div>
-      <div className="flex justify-center mb-8">
-        <button
-          onClick={() => openGallery(4)}
-          className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-6 py-3 rounded-full font-medium transition-all duration-300 flex items-center gap-2"
-        >
-          <CollectionsIcon
-            sx={{
-              fontSize: 20,
-            }}
-          />
-          Xem thêm {roomImages.length - 4} ảnh
-        </button>
-      </div>
+      {
+        roomData.room && roomData.room.image.length - 4 > 0 ?
+          <div className="flex justify-center mb-8">
+            <button
+              onClick={() => openGallery(4)}
+              className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-6 py-3 rounded-full font-medium transition-all duration-300 flex items-center gap-2"
+            >
+              <CollectionsIcon
+                sx={{
+                  fontSize: 20,
+                }}
+              />
+              Xem thêm {roomData.room && roomData.room.image.length - 4} ảnh
+            </button>
+          </div>
+          :
+          <div className="flex justify-center mb-8">
+            <button
+              onClick={() => openGallery(4)}
+              className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-6 py-3 rounded-full font-medium transition-all duration-300 flex items-center gap-2"
+            >
+              <CollectionsIcon
+                sx={{
+                  fontSize: 20,
+                }}
+              />
+              Xem chi tiết ảnh
+            </button>
+          </div>
+      }
+
       <div className="bg-white rounded-xl overflow-hidden shadow-md transition-all duration-300 hover:shadow-xl mb-8">
         <img
           src="https://images.unsplash.com/photo-1556905200-279565513a2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80"
@@ -110,12 +130,12 @@ const RoomInfo = () => {
             <p className="text-gray-700 flex items-center gap-2">
               <ClockIcon size={16} className="text-gray-400" />
               <span className="w-20">Giờ:</span>
-              <span className="font-medium text-gray-900">14:00</span>
+              <span className="font-medium text-gray-900">{roomData.room && dayjs(roomData?.checkins).format("HH:mm")}</span>
             </p>
             <p className="text-gray-700 flex items-center gap-2">
               <CalendarIcon size={16} className="text-gray-400" />
               <span className="w-20">Ngày:</span>
-              <span className="font-medium text-gray-900">24/02/2025</span>
+              <span className="font-medium text-gray-900">{roomData.room && dayjs(roomData?.checkins).format("DD/MM/YYYY")}</span>
             </p>
           </div>
         </div>
@@ -128,12 +148,12 @@ const RoomInfo = () => {
             <p className="text-gray-700 flex items-center gap-2">
               <ClockIcon size={16} className="text-gray-400" />
               <span className="w-20">Giờ:</span>
-              <span className="font-medium text-gray-900">12:00</span>
+              <span className="font-medium text-gray-900">{roomData.room && dayjs(roomData?.checkouts).format("HH:mm")}</span>
             </p>
             <p className="text-gray-700 flex items-center gap-2">
               <CalendarIcon size={16} className="text-gray-400" />
               <span className="w-20">Ngày:</span>
-              <span className="font-medium text-gray-900">25/02/2025</span>
+              <span className="font-medium text-gray-900">{roomData.room && dayjs(roomData?.checkouts).format("DD/MM/YYYY")}</span>
             </p>
           </div>
         </div>
