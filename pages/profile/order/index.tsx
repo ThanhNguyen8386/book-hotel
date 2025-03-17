@@ -1,28 +1,29 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Avatar, Chip, IconButton, MenuItem, Tooltip } from '@mui/material'
-import Link from 'next/link'
+import { Avatar, Chip } from '@mui/material'
 import { useRouter } from 'next/router'
 import React, { useEffect, useMemo, useState } from 'react'
 import { listOrderUser } from '../../../api/order'
 import ProfileLayout from '../../../components/Layout/ProfileLayout'
-import { OrderType } from '../../../types/order'
-import { OrderUser } from '../../../types/OrderUser'
-import { BookingList } from './BookingList'
-import ShowForPermission from '../../../components/Private/showForPermission'
-import { DataGrid, GridActionsCellItem } from '@mui/x-data-grid'
-import EditIcon from '@mui/icons-material/Edit';
+import { DataGrid } from '@mui/x-data-grid'
 import dayjs from 'dayjs'
 import Order_detail from './Order_detail'
+import useSWR from 'swr'
+import { API_URL } from '../../../constants'
+import { fetcher } from '../../../api/instance'
 
 type Props = {}
 
 const Orderlisst = (props: Props) => {
     const [user, setUser] = useState<any>({})
     const [rows, setRows] = React.useState<any>([{ _id: 1, name: null }]);
-    const [order, setorder] = useState([])
     const [status, setStatus] = useState(false)
     const refDetail = React.useRef<any>();
     const router = useRouter();
+    // const { data, mutate } = useSWR(`${API_URL}/orders/${user?._id}`, fetcher);
+    const { data, mutate } = useSWR(
+        user?._id ? `${API_URL}/orders/${user._id}` : null, 
+        fetcher
+      );
     useEffect(() => {
         const getUser = JSON.parse(localStorage.getItem('user') as string)
         if (getUser == 0 || getUser == null) {
@@ -32,19 +33,12 @@ const Orderlisst = (props: Props) => {
             setStatus(true)
         }
         setUser(getUser)
-        const get = async () => {
-            if (getUser == 0 || getUser == null) {
-                router.push('/')
-                setStatus(false)
-            } else {
-                setStatus(true)
-                const { data }: any = await listOrderUser(getUser._id)
-                setorder(data)
-                setRows(data)
-            }
-        }
-        get()
     }, [])
+
+    useEffect(() => {
+        setRows(data)
+        mutate()
+    }, [data])
 
     const actionCrud = {
         updateOrder: (item: any, type: any) => {

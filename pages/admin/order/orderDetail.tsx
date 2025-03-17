@@ -187,16 +187,6 @@ function orderDetail(props: any, ref: any) {
                 { check: false, value: 2, name: "Đang có khách" },
                 { check: false, value: 4, name: "Hủy" },
             ]
-            // return (
-            //     <select
-            //         id=""
-            //         className="mt-1 block w-full rounded-md border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-            //     >
-            //         <option check:true,  value="1">Đã Xác nhận</option>
-            //         <option check:true,  value="2">Đang có khách</option>
-            //         <option check:true,  value="4">Hủy</option>
-            //     </select>
-            // );
         } else if (status == 1) {
             return [
                 { value: 100, name: "--------------------------" },
@@ -204,30 +194,11 @@ function orderDetail(props: any, ref: any) {
                 { check: false, value: 3, name: "Đã trả phòng" },
                 { check: false, value: 4, name: "Hủy" },
             ]
-            // return (
-            //     <select
-            //         id=""
-            //         className="mt-1 block w-full rounded-md border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-            //     >
-            //         <option check:true,  value="2">Đang có khách</option>
-            //         <option check:true,  value="3">Đã trả phòng</option>
-            //         <option check:true,  value="4">Hủy</option>
-            //     </select>
-            // );
         } else if (status == 2) {
             return [
                 { value: 100, name: "--------------------------" },
                 { check: true, value: 3, name: "Đã trả phòng" },
             ]
-            // return (
-            //     <select
-            //         id=""
-            //         className="mt-1 block w-full rounded-md border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-            //     >
-            //         <option check:true,  value="3">Đã trả phòng</option>
-            //         {/* <option check:true,  value="4">Hủy</option> */}
-            //     </select>
-            // );
         } else if (status == 3) {
             return [
                 { value: 100, name: "--------------------------" },
@@ -379,35 +350,39 @@ function orderDetail(props: any, ref: any) {
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="flex justify-between ">
-                                        <div className="">
-                                            <select
-                                                id=""
-                                                className="mt-1 block w-full rounded-md border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-                                                onChange={(e: any) => applyChange("statusorder", e.target.value)}
-                                            >
-                                                {updateStatus(statusOrder)?.map((item: any, index: any) => {
-                                                    return <option
-                                                        key={index}
-                                                        value={item.value}>
-                                                        {item.name}
-                                                    </option>
-                                                })}
-                                            </select>
-                                        </div>
-                                        <button
-                                            disabled={statusOrder == defaultCategory.statusorder || defaultCategory.statusorder == 100}
-                                            className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-1 rounded-md text-sm shadow-lg transition-all duration-300 hover:shadow-xl transform hover:-translate-y-0.5 flex items-center gap-2"
-                                            onClick={(e) => submit(e)}
-                                        >
-                                            <RefreshIcon
-                                                sx={{
-                                                    fontSize: 18,
-                                                }}
-                                            />
-                                            Cập Nhật
-                                        </button>
-                                    </div>
+                                    {
+                                        statusOrder !== "4" ?
+                                            <div className="flex justify-between ">
+                                                <div className="">
+                                                    <select
+                                                        id=""
+                                                        className="mt-1 block w-full rounded-md border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+                                                        onChange={(e: any) => applyChange("statusorder", e.target.value)}
+                                                    >
+                                                        {updateStatus(statusOrder)?.map((item: any, index: any) => {
+                                                            return <option
+                                                                key={index}
+                                                                value={item.value}>
+                                                                {item.name}
+                                                            </option>
+                                                        })}
+                                                    </select>
+                                                </div>
+                                                <button
+                                                    disabled={statusOrder == defaultCategory.statusorder || defaultCategory.statusorder == 100}
+                                                    className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-1 rounded-md text-sm shadow-lg transition-all duration-300 hover:shadow-xl transform hover:-translate-y-0.5 flex items-center gap-2"
+                                                    onClick={(e) => submit(e)}
+                                                >
+                                                    <RefreshIcon
+                                                        sx={{
+                                                            fontSize: 18,
+                                                        }}
+                                                    />
+                                                    Cập Nhật
+                                                </button>
+                                            </div>
+                                            : ""
+                                    }
                                 </div>
                             </div>
                         </div>

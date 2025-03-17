@@ -6,40 +6,6 @@ import {
 } from '@mui/icons-material'
 import dayjs from "dayjs";
 import ImageGallery from './ImageGallery'
-const roomImages = [
-  {
-    url: 'https://images.unsplash.com/photo-1566665797739-1674de7a421a?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
-    alt: 'Hotel room',
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1541807084-5c52b6b3adef?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
-    alt: 'Modern room',
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1557682250-f0ba2d219bd3?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
-    alt: 'Purple waves',
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
-    alt: 'Coffee cup',
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
-    alt: 'Luxury bathroom',
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
-    alt: 'Hotel view',
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
-    alt: 'Room service',
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1521783988139-89397d761dce?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
-    alt: 'Hotel lobby',
-  },
-]
 const RoomInfo = (props: any) => {
   const { roomData } = props;
   const [isGalleryOpen, setIsGalleryOpen] = useState(false)
@@ -159,7 +125,7 @@ const RoomInfo = (props: any) => {
         </div>
       </div>
       <ImageGallery
-        images={roomImages}
+        images={roomData.room && roomData.room.image}
         isOpen={isGalleryOpen}
         onClose={() => setIsGalleryOpen(false)}
       />

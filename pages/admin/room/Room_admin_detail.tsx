@@ -251,7 +251,7 @@ function Room_admin_detail(props: any, ref: any) {
                     try {
                         const result = await Promise.all(upload)
                         const data = prepareToSubmit(_defaultCategory, result)
-                        edit(data).then(() => {
+                        add(data).then(() => {
                             <Alert variant="filled" severity="success">
                                 This is a success alert — check it out!
                             </Alert>

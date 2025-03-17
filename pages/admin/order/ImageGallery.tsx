@@ -23,7 +23,7 @@ const ImageGallery = ({ images, isOpen, onClose }: ImageGalleryProps) => {
     setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length)
   }
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 bg-black bg-opacity-90 z-[9999] flex items-center justify-center">
       <div className="relative w-full h-full flex items-center justify-center">
         <button
           onClick={onClose}
@@ -38,8 +38,8 @@ const ImageGallery = ({ images, isOpen, onClose }: ImageGalleryProps) => {
           <ChevronLeftIcon size={36} />
         </button>
         <img
-          src={images[currentImageIndex].url}
-          alt={images[currentImageIndex].alt}
+          src={images && images[currentImageIndex]}
+          alt="anh"
           className="max-h-[80vh] max-w-[80vw] object-contain"
         />
         <button
