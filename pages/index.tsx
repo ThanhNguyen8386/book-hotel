@@ -19,6 +19,7 @@ import Select from "@material-ui/core/Select";
 import { useRouter } from "next/router";
 import toastr from "toastr";
 import "toastr/build/toastr.min.css";
+import useCategory from "../hook/useCategory";
 
 const Home = () => {
   const router = useRouter();
@@ -45,6 +46,7 @@ const Home = () => {
   const [hours, setHours] = useState<number>(2);
 
   const room = useProducts("");
+  const category = useCategory()
   
   const [indexTab, setIndexTab] = useState(1);
 
@@ -351,7 +353,7 @@ const Home = () => {
       </div>
       <div className="mb:w-[80%] mbs:w-[95%] mx-auto pt-2">
         <h1 className='text-3xl font-semibold text-[orange] py-6'>Danh sách các phòng </h1>
-        {room.data ? <SimpleSwiper newsList={room.data} /> : skeletonLoadingRoom()}
+        {category.data ? <SimpleSwiper newsList={category.data} /> : skeletonLoadingRoom()}
       </div>
       <div className="mb:w-[80%] mbs:w-[95%] mx-auto pt-2">
         <p className="text-2xl text-amber-400 py-6 font-bold">Trải nghiệm cùng HappyWeekendHotel</p>

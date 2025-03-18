@@ -4,41 +4,41 @@ import toastr from "toastr";
 import "toastr/build/toastr.min.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar } from "@fortawesome/free-solid-svg-icons";
-import { ProductType } from "../../types/products";
+import { ProductType } from "../../../types/products";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { checkUserBookRoom } from "../../api/order";
+import { checkUserBookRoom } from "../../../api/order";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-import useProducts from "../../hook/use-product";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Mousewheel, Pagination } from "swiper";
-import "swiper/css";
-import "swiper/css/pagination";
 import Box from "@mui/material/Box";
-import BasicDateRangePicker from "../../components/DatePicker/index4";
-import DialogConfirm from "../../components/Dialog";
+import BasicDateRangePicker from "../../../components/DatePicker/index4";
+import DialogConfirm from "../../../components/Dialog";
 import { DateTimePicker, LocalizationProvider } from "@material-ui/pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs, { Dayjs } from "dayjs";
 import { Tab, Tabs, Typography } from "@mui/material";
 import TextField from "@material-ui/core/TextField";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import { getOnefac } from "../../api/facilities";
-import CommentItem from "../../components/CommentItem";
-import { UserType } from "../../types/user";
-import useComment from "../../hook/use-comment";
-import { CommentType, CommentType2 } from "../../types/comment";
-import { getVoucherByCode } from "../../api/voucher";
-import { Voucher } from "../../types/voucher";
+import { getOnefac } from "../../../api/facilities";
+import CommentItem from "../../../components/CommentItem";
+import { UserType } from "../../../types/user";
+import useComment from "../../../hook/use-comment";
+import { CommentType, CommentType2 } from "../../../types/comment";
+import { getVoucherByCode } from "../../../api/voucher";
+import { Voucher } from "../../../types/voucher";
 import InputLabel from "@material-ui/core/InputLabel";
 import MenuItem from "@material-ui/core/MenuItem";
 import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
 import { useRouter } from "next/router";
+import { API_URL } from "../../../constants";
+import { fetcher } from "../../../api/instance";
+import useSWR from "swr";
+import RoomDetailLayout from "../../../components/Layout/RoomDetailLayout";
+import { RoomList } from "./RoomList";
 
 type ProductProps = {
   product: ProductType;
@@ -87,15 +87,20 @@ const BookingDetail = () => {
 
   const router = useRouter();
   const { slug } = router.query;
-  const { data: product } = useProducts(slug);
-  const { data: comments, addComment, removeComment } = useComment(product?._id);
+  // const { data: product } = useProducts(slug);
+  const { data: product, mutate } = useSWR(
+    slug ? `${API_URL}/roomsbyCategory/${slug}` : null,
+    fetcher
+  );
 
+  const { data: comments, addComment, removeComment } = useComment(product?._id);
   const [value, setValue] = useState(0);
   const [date, setDate] = useState<any>([]); //date range pciker
   const [datebook, setdatebook] = useState({});
   const [dataorder, setdataorder] = useState({});
   const [dialong, setdialog] = useState(false);
   const [status, setstatus] = useState<string>();
+
   // const [ckeckout, setckekout] = useState('')
   const [showModal, setShowModal] = useState(false);
   const {
@@ -165,7 +170,7 @@ const BookingDetail = () => {
   // set giá phòng.
   useEffect(() => {
     // kiểm tra product ko phải [] => set price
-    if (product && !Array.isArray(product)) setchaprice(product.price[0].value);
+    if (product && !Array.isArray(product.roomList)) setchaprice(product.roomList.price[0].value);
   }, [product]);
 
   // check trạng thái đặt phòng.
@@ -475,27 +480,33 @@ const BookingDetail = () => {
       </div>
     );
   };
+  console.log(product?.images);
 
   return (
     <div className="w-[80%] mx-auto py-2">
       <div className="content-header__booking mt-8">
         <div className="content-text__booking">
           <div className="new-content__booking">
-            <div className="flex justify-between items-center">
-              <h1 className="text-[#FFA500] mb:text-4xl mbs:text-2xl font-semibold">{product?.name}</h1>
-
-              <button
+            <div className="">
+              <h1 className=" mb:text-4xl mbs:text-2xl font-semibold">{product?.name}</h1>
+              <p className="flex">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                </svg>
+                {product?.address}
+              </p>
+              {/* <button
                 className={`bg-[orange] px-4 py-2 rounded-md duration-300 ${open ? "invisible translate-y-[-20px] opacity-0" : "visible translate-y-0 opacity-100"
                   }`}
                 onClick={handleClickOpen}
               >
                 Đặt phòng
-              </button>
+              </button> */}
             </div>
-            <h2 className=" mb:text-2xl mbs:text-xl font-semibold">{product?.category?.name}</h2>
           </div>
         </div>
-        <div className="relative mx-auto mt-6 w-full overflow-hidden rounded-md mb:flex-row flex mbs:flex-col h-[auto]">
+        {/* <div className="relative mx-auto mt-6 w-full overflow-hidden rounded-md mb:flex-row flex mbs:flex-col h-[auto]">
           <div className="basis-4/5 hover:opacity-70 duration-150">
             <img className="w-full" src={product?.image ? product.image[0] : ""} alt="" />
           </div>
@@ -527,7 +538,8 @@ const BookingDetail = () => {
               />
             </svg>
           </div>
-        </div>
+        </div> */}
+        <RoomList />
         <div className="mt-[50px]">
           <h1 className="text-[35px] font-medium text-[#FFA500]">Giá Phòng</h1>
           <div className="flex mt-[30px] mbs:mt-[10px] mb:mt-[30px] mbs:flex-col mb:flex-row">
@@ -690,60 +702,6 @@ const BookingDetail = () => {
           )}
         </div>
 
-        <>
-          <Dialog
-            fullWidth
-            maxWidth="md"
-            open={open2}
-            onClose={handleClose2}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-          >
-            <button
-              className="absolute top-[20px] right-[20px] p-2 rounded-full bg-[white] z-50 shadow-xl"
-              onClick={() => {
-                handleClose2();
-              }}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="w-6 h-6"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-            <>
-              <Swiper
-                direction={"vertical"}
-                slidesPerView={1}
-                spaceBetween={30}
-                mousewheel={true}
-                autoHeight={true}
-                pagination={{
-                  clickable: true,
-                }}
-                modules={[Mousewheel, Pagination]}
-                className="mySwiper"
-              >
-                {product?.image?.map((item: any, index: any) => {
-                  return (
-                    <SwiperSlide key={index}>
-                      <img
-                        className="h-full w-full"
-                        src={item}
-                        alt="Two each of gray, white, and black shirts laying flat."
-                      />
-                    </SwiperSlide>
-                  );
-                })}
-              </Swiper>
-            </>
-          </Dialog>
-        </>
 
         <div>
           <Dialog open={open} onClose={handleClose}>
@@ -988,155 +946,5 @@ const BookingDetail = () => {
   );
 };
 
+BookingDetail.Layout = RoomDetailLayout
 export default BookingDetail;
-
-{
-  /* <div className="flex mt-6 border rounded-md p-2 relative">
-                    <Box className='basis-4/6' sx={{ width: '100%' }}>
-                        <Stepper activeStep={activeStep}>
-                            {steps.map((label, index) => {
-                                const stepProps: { completed?: boolean } = {};
-                                const labelProps: {
-                                    optional?: ReactNode;
-                                } = {};
-                                if (isStepOptional(index)) {
-                                    labelProps.optional = (
-                                        <Typography variant="caption">Optional</Typography>
-                                    );
-                                }
-                                if (isStepSkipped(index)) {
-                                    stepProps.completed = false;
-                                }
-                                return (
-                                    <Step key={label} {...stepProps}>
-                                        <StepLabel {...labelProps}>{label}</StepLabel>
-                                    </Step>
-                                );
-                            })}
-                        </Stepper>
-                        {activeStep === steps.length ? (
-                            <Fragment>
-                                <Typography sx={{ mt: 2, mb: 1 }}>
-                                    All steps completed - you&apos;re finished
-                                </Typography>
-                                <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
-                                    <Box sx={{ flex: '1 1 auto' }} />
-                                    <Button onClick={handleReset}>Reset</Button>
-                                </Box>
-                            </Fragment>
-                        ) : (
-                            <Fragment>
-                                {activeStep == 0 ?
-                                    <>
-                                        <DialogTitle>Thông tin đặt phòng</DialogTitle>
-                                        <DialogContent>
-                                            <DialogContentText>
-                                                Những thông tin này sẽ giúp chúng tôi liên hệ và trợ giúp bạn dễ dàng hơn
-                                            </DialogContentText>
-                                            <form action="" onSubmit={handleSubmit(onsubmit)}>
-                                                <div className="mb-6">
-                                                    <label htmlFor="default-input" className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Họ và tên <span>*</span></label>
-                                                    <input {...register('name', { required: true })} type="text" id="default-input" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
-                                                    {Object.keys(errors).length !== 0 && (
-                                                        <div>
-                                                            {errors.name?.type === "required" && <p className='text-red-600'>Tên không được bỏ trống</p>}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                                <div className="mb-6">
-                                                    <label htmlFor="default-input" className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Số điện thoại <span>*</span></label>
-                                                    <input {...register('phone', { required: true })} type="number" id="default-input" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
-                                                    {Object.keys(errors).length !== 0 && (
-                                                        <div>
-                                                            {errors.phone?.type === "required" && <p className='text-red-600'>Số điện thoại sản phẩm không được bỏ trống</p>}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                                <div className="mb-6">
-                                                    <label htmlFor="default-input" className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Email <span>*</span></label>
-                                                    <input {...register('email', { required: true })} type="text" id="default-input" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
-                                                    {Object.keys(errors).length !== 0 && (
-                                                        <div>
-                                                            {errors.email?.type === "required" && <p className='text-red-600'>Email sản phẩm không được bỏ trống</p>}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                                <Box sx={{ width: '100%' }}>
-                                                    <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                                                        <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-                                                            <Tab icon={<CalendarMonthIcon />} iconPosition="start" label="Theo ngày" {...a11yProps(0)} />
-                                                            <Tab icon={<BedtimeIcon />} iconPosition="start" label="Qua đêm" {...a11yProps(1)} />
-                                                            <Tab icon={<AccessTimeIcon />} iconPosition="start" label="Theo giờ" {...a11yProps(2)} />
-                                                        </Tabs>
-                                                    </Box>
-                                                    <TabPanel value={value} index={2}>
-                                                        <div className='mt-6'>
-                                                            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                                                <DateTimePicker
-                                                                    renderInput={(props) => <TextField helperText="" {...props} />}
-                                                                    label="DateTimePicker"
-                                                                    value={values}
-                                                                    onChange={(newValues) => {
-                                                                        setValues(newValues)
-                                                                        setDate([
-                                                                            newValues.$d,
-                                                                            addDays(new Date(newValues.$d), 1)
-                                                                        ])
-                                                                    }}
-                                                                />
-                                                            </LocalizationProvider>
-
-                                                        </div>
-                                                    </TabPanel>
-                                                    <TabPanel value={value} index={0}>
-                                                        <BasicDateRangePicker getDate={getDate} id={product?._id ? product._id : ''} />
-                                                    </TabPanel>
-                                                    <TabPanel value={value} index={1}>
-                                                        <BasicDateRangePicker getDate={getDate} id={product?._id ? product._id : ''} />
-                                                    </TabPanel>
-
-                                                </Box>
-                                                {/*footer*/
-}
-//                                 <div className="flex items-center justify-end border-t border-solid border-slate-200 rounded-b">
-//                                     <DialogActions>
-//                                         <Button onClick={handleClose}>Hủy</Button>
-//                                         <Button
-//                                             type="submit"
-//                                             onClick={() => { setShowModal(false); on(); handleClose; setdialog(true); }}
-//                                         >
-//                                             Đặt phòng
-//                                         </Button>
-
-//                                     </DialogActions>
-//                                 </div>
-//                             </form>
-//                         </DialogContent>
-//                     </>
-//                     : ""}
-//                 <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
-//                     <Button
-//                         color="inherit"
-//                         disabled={activeStep === 0}
-//                         onClick={handleBack}
-//                         sx={{ mr: 1 }}
-//                     >
-//                         Back
-//                     </Button>
-//                     <Box sx={{ flex: '1 1 auto' }} />
-//                     {isStepOptional(activeStep) && (
-//                         <Button color="inherit" onClick={handleSkip} sx={{ mr: 1 }}>
-//                             Skip
-//                         </Button>
-//                     )}
-//                     <Button onClick={handleNext}>
-//                         {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
-//                     </Button>
-//                 </Box>
-//             </Fragment>
-//         )}
-//     </Box>
-//     <div className='relative flex-1 border-l p-2'>
-//         <div className=" sticky top-[100px]">Thông tin đặt phòng</div>
-//     </div>
-// </div> */}

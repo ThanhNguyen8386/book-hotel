@@ -5,6 +5,7 @@ import SiteLayout from '../components/Layout'
 import { ThemeProvider } from '@mui/material'
 import { theme } from '../theme'
 
+
 function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   const LayoutWrapper = Component.Layout ?? SiteLayout
   return (

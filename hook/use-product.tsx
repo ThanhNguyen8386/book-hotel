@@ -1,5 +1,5 @@
 import useSWR from "swr";
-import { creat, remove, update, } from "../api/rooms";
+import { creat, getByCategory, remove, update, } from "../api/rooms";
 import { API_URL } from "../constants";
 import { ProductType } from "../types/products";
 import { fetcher } from "../api/instance";

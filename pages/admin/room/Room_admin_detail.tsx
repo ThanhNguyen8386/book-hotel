@@ -58,14 +58,11 @@ function Room_admin_detail(props: any, ref: any) {
         const dayPrice = e.price[0].value;
         const nightPrice = e.price[1].value;
         const hourPrice = e.price[2].value;
-        const imgUrl = [];
+        const imgUrl = Array(9).fill(null);
         if (e.image) {
             for (let i = 0; i < 9; i++) {
                 if (e.image[i]) {
-                    imgUrl.push({ url: e.image[i] })
-                }
-                else {
-                    imgUrl.push(null)
+                    imgUrl[i] = { url: e.image[i] };
                 }
             }
         }
@@ -281,6 +278,8 @@ function Room_admin_detail(props: any, ref: any) {
                     }
                     )
                 } catch (error) {
+                    console.log(error);
+                    toastr.error("Có lỗi xảy ra");
                 }
             }
         }

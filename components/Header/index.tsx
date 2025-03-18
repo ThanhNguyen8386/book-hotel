@@ -257,26 +257,13 @@ const Header = (props: Props) => {
   };
 
   return (
-    <header className='shadow-xl sticky top-0 bg-[#fff] z-50 '>
-      <div className="w-[80%] mx-auto py-2 mb:w-[80%] mbs:[100%] ">
+    <header className='sticky top-0 z-50 bg-[#fff]'>
+      <div className="w-[80%] border-b mx-auto py-2 mb:w-[80%] mbs:[100%] ">
         <div className="flex justify-between items-center my-2 mb:flex mbs:block ">
           <div className="flex">
             <Link href="/" >
               <img className='w-[100px] cursor-pointer' src="https://res.cloudinary.com/fptpolytechnic/image/upload/v1673543047/samples/325042297_711092773955485_5422088835829082377_n_ejizf3.png" alt="" />
             </Link>
-            {/* <Button
-              id="basic-button"
-              aria-controls={open2 ? 'basic-menu' : undefined}
-              aria-haspopup="true"
-              aria-expanded={open2 ? 'true' : undefined}
-              onClick={handleClick2}
-              className='bg-[#ffff] hover:bg-[#ffff] text-[black] normal-case text-base mx-6'
-            >
-              Danh mục nhà nghỉ
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 pl-[5px]">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-              </svg>
-            </Button> */}
             <Menu
               className='w-[100%]'
               id="basic-menu"
