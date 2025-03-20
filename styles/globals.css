@@ -4,16 +4,6 @@
 * {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
-.swiper-wrapper {
-  align-items: center;
-}
-.swiper-slide {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 550px !important;
-}
-
 .rdrDefinedRangesWrapper {
   display: none !important;
 }

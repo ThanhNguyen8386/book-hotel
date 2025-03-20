@@ -1,36 +1,60 @@
 import React from 'react'
-interface RoomProps {
-  room: {
-    id: number
-    name: string
-    image: string
-    features: string[]
-    price: string
-    hourRate: string
-  }
-}
-export function RoomCard({ room }: RoomProps) {
+import { Swiper, SwiperSlide } from 'swiper/react';
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
+// Import Swiper styles
+import 'swiper/css/pagination';
+import 'swiper/css';
+import 'swiper/css/free-mode';
+import 'swiper/css/navigation';
+import 'swiper/css/thumbs';
+import { Navigation, Pagination } from 'swiper/modules';
+import Image from 'next/image';
+export function RoomCard({ room }: any) {
+  const prevId = `prev-${room._id}`;
+  const nextId = `next-${room._id}`;
   return (
     <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
       <div className="flex flex-col md:flex-row">
         {/* Room Image */}
-        <div className="relative w-full md:w-72 h-72 md:h-auto overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent z-10" />
-          <img
-            src={room.image}
-            alt={room.name}
-            className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
-          />
-          <button className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-2 shadow-lg z-20 transition-all duration-300">
-            {/* <ChevronRight size={20} className="text-gray-600" /> */}
-          </button>
-          <div className="absolute bottom-4 left-0 w-full flex justify-center gap-1.5 z-20">
-            {[...Array(10)].map((_, i) => (
-              <div
-                key={i}
-                className={`h-1.5 w-1.5 rounded-full transition-all duration-300 ${i === 0 ? 'w-3 bg-white' : 'bg-white/60'}`}
-              />
-            ))}
+        <div className="relative w-full h-full md:w-72 h-72 md:h-auto overflow-hidden">
+          <Swiper
+            pagination={{
+              clickable: true,
+              dynamicBullets: true,
+            }}
+            navigation={{
+              nextEl: `#${nextId}`,
+              prevEl: `#${prevId}`,
+            }}
+            modules={[Pagination, Navigation]}
+            className="mySwiper w-full h-full"
+          >
+            {
+              room.image.map((item: any, index: any) => {
+                return (
+                  <SwiperSlide key={item._id}>
+                    <div className="relative w-full h-full">
+                      <Image
+                        src={item}
+                        alt='anh'
+                        layout="fill"
+                        objectFit="cover"
+                        priority
+                        className='cursor-grab hover:opacity-75 transition rounded-l-xl'
+                      />
+                    </div>
+                  </SwiperSlide>
+                )
+              })
+            }
+          </Swiper>
+
+          <div id={prevId} className="absolute top-1/2 left-2 -translate-y-1/2 z-10 custom-prev bg-black/50 hover:bg-black/70 text-white w-10 h-10 rounded-full flex items-center justify-center cursor-pointer">
+            <NavigateBeforeIcon />
+          </div>
+          <div id={nextId} className="absolute top-1/2 right-2 -translate-y-1/2 z-10 custom-next bg-black/50 hover:bg-black/70 text-white w-10 h-10 rounded-full flex items-center justify-center cursor-pointer">
+            <NavigateNextIcon />
           </div>
         </div>
         {/* Room Details */}
@@ -45,10 +69,10 @@ export function RoomCard({ room }: RoomProps) {
                 <p className="font-semibold text-gray-800 text-lg">
                   {room.name}
                 </p>
-                
+
               </div>
             </div>
-            {room.features.length > 0 && (
+            {/* {room.features.length > 0 && (
               <div>
                 <h3 className="text-gray-500 text-sm font-medium mb-2">
                   Đặc điểm nổi bật
@@ -64,13 +88,13 @@ export function RoomCard({ room }: RoomProps) {
                   ))}
                 </div>
               </div>
-            )}
+            )} */}
             <button
               onClick={() => console.log(`View details for ${room.name}`)}
               className="mt-6 inline-flex items-center text-gray-600 hover:text-gray-800 font-medium text-sm group/btn"
             >
               Xem chi tiết phòng{' '}
-             
+
             </button>
           </div>
           {/* Price and Book */}
@@ -80,7 +104,7 @@ export function RoomCard({ room }: RoomProps) {
                 Giá phòng
               </h3>
               <div className="flex items-baseline gap-1 justify-end">
-                <p className="text-gray-800 font-bold text-2xl">{room.price}</p>
+                <p className="text-gray-800 font-bold text-2xl">{room.price[0].value}</p>
                 <span className="text-sm font-normal text-gray-500">
                   {room.hourRate}
                 </span>

@@ -39,6 +39,9 @@ import { fetcher } from "../../../api/instance";
 import useSWR from "swr";
 import RoomDetailLayout from "../../../components/Layout/RoomDetailLayout";
 import { RoomList } from "./RoomList";
+import Carousel from "../../../components/Carousel";
+import FavoriteBorderSharpIcon from '@mui/icons-material/FavoriteBorderSharp';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
 
 type ProductProps = {
   product: ProductType;
@@ -84,15 +87,20 @@ function TabPanel(props: TabPanelProps) {
 
 const BookingDetail = () => {
   const LIMIT_SHOW_COMMENT = 6;
-
   const router = useRouter();
   const { slug } = router.query;
-  // const { data: product } = useProducts(slug);
   const { data: product, mutate } = useSWR(
     slug ? `${API_URL}/roomsbyCategory/${slug}` : null,
     fetcher
   );
-
+  const sectionRefs = {
+    overview: useRef<HTMLDivElement>(null),
+    rooms: useRef<HTMLDivElement>(null),
+    facilities: useRef<HTMLDivElement>(null),
+    reviews: useRef<HTMLDivElement>(null),
+    policy: useRef<HTMLDivElement>(null),
+    cancel: useRef<HTMLDivElement>(null),
+  }
   const { data: comments, addComment, removeComment } = useComment(product?._id);
   const [value, setValue] = useState(0);
   const [date, setDate] = useState<any>([]); //date range pciker
@@ -136,7 +144,7 @@ const BookingDetail = () => {
   const [errVoucher, setErrVoucher] = useState<string>();
 
   const [voucherData, setVoucherData] = useState<Voucher | null>(null);
-
+  const [active, setActive] = useState('overview')
   // thời gian nhận phòng theo giờ
   const [dateTimeStart, setDateTimeStart] = useState<Dayjs | null>(() => {
     const currentDate = new Date();
@@ -480,228 +488,236 @@ const BookingDetail = () => {
       </div>
     );
   };
-  console.log(product?.images);
+
+  const tabs = [
+    { label: 'Tổng quan', id: 'overview' },
+    { label: 'Danh sách phòng', id: 'rooms' },
+    { label: 'Tiện ích', id: 'facilities' },
+    { label: 'Đánh giá', id: 'reviews' }
+  ]
+
+  const handleClick = (id: string) => {
+    setActive(id)
+    sectionRefs[id as keyof typeof sectionRefs]?.current?.scrollIntoView({
+      behavior: 'smooth',
+    })
+  }
+
+  // Auto detect section in viewport
+  useEffect(() => {
+    const handleScroll = () => {
+      const offsets = Object.entries(sectionRefs).map(([key, ref]) => {
+        return {
+          id: key,
+          offset: ref.current
+            ? Math.abs(ref.current.getBoundingClientRect().top - 100) // 100 = offset từ top để dễ nhìn
+            : Infinity,
+        }
+      })
+
+      const nearest = offsets.reduce((prev, curr) =>
+        curr.offset < prev.offset ? curr : prev
+      )
+
+      setActive(nearest.id)
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   return (
-    <div className="w-[80%] mx-auto py-2">
-      <div className="content-header__booking mt-8">
-        <div className="content-text__booking">
-          <div className="new-content__booking">
-            <div className="">
-              <h1 className=" mb:text-4xl mbs:text-2xl font-semibold">{product?.name}</h1>
-              <p className="flex">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
-                </svg>
-                {product?.address}
-              </p>
-              {/* <button
+    <div className="w-[80%] mx-auto">
+      <div className="content-header__booking">
+        <div ref={sectionRefs.overview} className="content-text__booking h-full py-8 flex justify-between item-center">
+          <div className="">
+            <h1 className=" mb:text-4xl mbs:text-2xl font-semibold">{product?.name}</h1>
+            <p className="flex">
+              <LocationOnIcon color="warning"/>
+              {product?.address}
+            </p>
+            {/* <button
                 className={`bg-[orange] px-4 py-2 rounded-md duration-300 ${open ? "invisible translate-y-[-20px] opacity-0" : "visible translate-y-0 opacity-100"
                   }`}
                 onClick={handleClickOpen}
               >
                 Đặt phòng
               </button> */}
-            </div>
+          </div>
+          <div className="flex flex-col justify-center items-end">
+            <p className=""><FavoriteBorderSharpIcon color="error" /> Yêu thích</p>
+            <p>{comments?.length} Đánh giá</p>
           </div>
         </div>
-        {/* <div className="relative mx-auto mt-6 w-full overflow-hidden rounded-md mb:flex-row flex mbs:flex-col h-[auto]">
-          <div className="basis-4/5 hover:opacity-70 duration-150">
-            <img className="w-full" src={product?.image ? product.image[0] : ""} alt="" />
-          </div>
-          <div className="flex-1 mbs:flex mbs:flex-row  mb:flex-col">
-            {product?.image?.map((item: any, index: any) => (
-              <div key={index} className={`${index == 0 ? "hidden" : ""} hover:opacity-70 duration-150 border`}>
-                <img src={`${item}`} srcSet={`${item}`} alt={item} loading="lazy" />
-              </div>
-            ))}
-          </div>
-          <div
-            onClick={() => {
-              handleClickOpen2();
-            }}
-            className="absolute bottom-[20px] right-[20px] bg-white shadow-xl p-2 rounded-full cursor-pointer"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="w-6 h-6"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15"
-              />
-            </svg>
-          </div>
-        </div> */}
-        <RoomList />
-        <div className="mt-[50px]">
-          <h1 className="text-[35px] font-medium text-[#FFA500]">Giá Phòng</h1>
-          <div className="flex mt-[30px] mbs:mt-[10px] mb:mt-[30px] mbs:flex-col mb:flex-row">
-            {product?.price?.map((item: any, index: number) => (
-              <div className="mb:px-[30px] mbs:px-[0px]" key={index}>
-                <span className="font-medium text-[20px] text-red-500">{item.title}:</span>
-                <span className="ml-[10px] text-[18px] text-red-500">
-                  {new Intl.NumberFormat("de-DE", { style: "currency", currency: "VND" }).format(item.value)}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="mt-[50px] mbs:mt-[20px] mb:mt-[50px]">
-          <h1 className="text-[35px] font-medium text-[#FFA500]">Tiện Ích</h1>
-          <div className="grid mb:grid-cols-3 mb:gap-10 mbs:gap-4 mb:mb-[50px] mbs:mb-[10px] mbs:grid-cols-1 ">
-            {facilities.map((item: any, index: number) => (
-              <div className="flex mb:ml-[70px] mb:mt-[30px] mbs:ml-[0px] mbs:mt-[10px]" key={index}>
-                <img width={45} className="mr-[20px] sepia mbs:w-[30px] mb:w-[45px]" src={`${item.image}`} alt="" />
-                <p className="self-center text-[18px] text-gray-500 font-medium">{item.name}</p>
-              </div>
-            ))}
-          </div>
-        </div>
+        {product && <Carousel images={product.images} />}
 
-        {/* bình luận */}
-        <div>
-          <div className="pt-5 font-bold flex items-end">
-            <h2 className="text-[35px] font-medium text-[#FFA500]">Đánh giá</h2>
-            <div className="text-lg pb-1.5">
-              &ensp;•&ensp;
-              {comments?.length} Đánh giá
+        <div className="">
+          {/* tab */}
+          <div className="sticky top-[86.98px] z-50 bg-white">
+            <div className="flex gap-6 py-2 overflow-x-auto">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => handleClick(tab.id)}
+                  className={`pb-2 whitespace-nowrap text-xl font-medium transition-all ${active === tab.id
+                    ? 'text-black border-b-2 border-orange-500'
+                    : 'text-gray-400 hover:text-black'
+                    }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* form comment */}
-          {isLogged && isBooked && !isCommented && (
-            <form
-              key={2}
-              className="px-3 py-2 border-2 border-[#FFA500] mt-3"
-              onSubmit={handleSubmit2(handleSubmitComment)}
-            >
-              <h2 className="font-semibold text-xl">
-                {!comments?.length
-                  ? `Hãy là người đầu tiên bình luận về "${product?.name}"`
-                  : `Bình luận về "${product?.name}"`}
-              </h2>
-              <div className="mt-2">
-                <label className="block text-sm font-semibold">Đánh giá của bạn *</label>
-                <div className="stars">
-                  <input
-                    type="radio"
-                    hidden
-                    {...register2("star", { required: "Vui lòng chọn mức đánh giá" })}
-                    className="form__comment-star-number"
-                    id="star-5"
-                    value="5"
-                  />
-                  <label htmlFor="star-5" title="5 sao" className="star__item">
-                    <FontAwesomeIcon icon={faStar} />
-                  </label>
+          {/* giới thiệu */}
+          <div ref={sectionRefs.rooms} className="my-8">
+            <p className="font-semibold text-2xl mb-4">Tổng quan</p>
+          </div>
 
-                  <input
-                    type="radio"
-                    hidden
-                    {...register2("star", { required: "Vui lòng chọn mức đánh giá" })}
-                    className="form__comment-star-number"
-                    id="star-4"
-                    value="4"
-                  />
-                  <label htmlFor="star-4" title="4 sao" className="star__item">
-                    <FontAwesomeIcon icon={faStar} />
-                  </label>
+          {/* phòng */}
+          <div ref={sectionRefs.rooms} className="scroll-mt-[150px] my-8">
+            <p className="font-semibold text-2xl mb-4">Danh sách phòng</p>
+            {product && <RoomList roomList={product.roomList} />}
+          </div>
 
-                  <input
-                    type="radio"
-                    hidden
-                    {...register2("star", { required: "Vui lòng chọn mức đánh giá" })}
-                    className="form__comment-star-number"
-                    id="star-3"
-                    value="3"
-                  />
-                  <label htmlFor="star-3" title="3 sao" className="star__item">
-                    <FontAwesomeIcon icon={faStar} />
-                  </label>
-
-                  <input
-                    type="radio"
-                    hidden
-                    {...register2("star", { required: "Vui lòng chọn mức đánh giá" })}
-                    className="form__comment-star-number"
-                    id="star-2"
-                    value="2"
-                  />
-                  <label htmlFor="star-2" title="2 sao" className="star__item">
-                    <FontAwesomeIcon icon={faStar} />
-                  </label>
-
-                  <input
-                    type="radio"
-                    hidden
-                    {...register2("star", { required: "Vui lòng chọn mức đánh giá" })}
-                    className="form__comment-star-number"
-                    id="star-1"
-                    value="1"
-                  />
-                  <label htmlFor="star-1" title="1 sao" className="star__item">
-                    <FontAwesomeIcon icon={faStar} />
-                  </label>
+          {/* tiện ích */}
+          <div ref={sectionRefs.facilities} className=" my-8 mbs:mt-[20px] mb:mt-[50px]">
+            <p className="font-semibold text-2xl mb-4">Tiện Ích</p>
+            <div className="grid mb:grid-cols-3 mb:gap-10 mbs:gap-4 mb:mb-[50px] mbs:mb-[10px] mbs:grid-cols-1 ">
+              {facilities.map((item: any, index: number) => (
+                <div className="flex mb:ml-[70px] mb:mt-[30px] mbs:ml-[0px] mbs:mt-[10px]" key={index}>
+                  <img width={45} className="mr-[20px] sepia mbs:w-[30px] mb:w-[45px]" src={`${item.image}`} alt="" />
+                  <p className="self-center text-[18px] text-gray-500 font-medium">{item.name}</p>
                 </div>
-                <div className="text-sm mt-0.5 text-red-500">{errors2.star?.message}</div>
-              </div>
-
-              <div className="mt-2">
-                <label htmlFor="form__comment-content" className="block text-sm font-semibold">
-                  Nhận xét của bạn
-                </label>
-                <textarea
-                  id="form__comment-content"
-                  {...register2("comment", { required: "Vui lòng nhập nội dung bình luận" })}
-                  cols={30}
-                  rows={10}
-                  className="w-full outline-none border mt-1 px-3 py-1 shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)] hover:shadow-none focus:shadow-[0_0_5px_#ccc]"
-                  placeholder="Nhập nội dung bình luận"
-                />
-                <div className="text-sm mt-0.5 text-red-500">{errors2.comment?.message}</div>
-              </div>
-
-              <button className="my-3 px-4 py-2 bg-[#FFA500] font-semibold uppercase text-white text-sm transition ease-linear duration-300 hover:shadow-[inset_0_0_100px_rgba(0,0,0,0.2)]">
-                Gửi đi
-              </button>
-            </form>
-          )}
-
-          {/* danh sách comment */}
-          <div className="flex flex-wrap ">
-            {comments?.slice(0, LIMIT_SHOW_COMMENT).map((cmt: CommentType) => {
-              // eslint-disable-next-line react/jsx-key
-              return (
-                <div className="border-2 mx-[5px] mbs:w-[100%] mb:w-[33.3%]" key={cmt._id}>
-                  <CommentItem
-                    comment={cmt as any}
-                    isLogged={isLogged}
-                    currentUser={currentUser}
-                    onRemoveCmt={removeComment}
-                  />
-                </div>
-              );
-            })}
+              ))}
+            </div>
           </div>
 
-          {/* button see more */}
-          {comments?.length > LIMIT_SHOW_COMMENT && (
-            <div className="inline-flex items-center cursor-pointer mb-12" onClick={() => handleToggleDialogComment()}>
-              <span className="font-bold underline">Hiển thị thêm</span>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" className="w-4 h-4 mt-1 ml-1">
-                <path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z" />
-              </svg>
+          {/* đánh giá */}
+          <div ref={sectionRefs.reviews} className=" my-8">
+            <div className="pt-5 font-bold flex items-end">
+              <p className="font-semibold text-2xl mb-4">Đánh giá</p>
             </div>
-          )}
+            {/* form comment */}
+            {isLogged && isBooked && !isCommented && (
+              <form
+                key={2}
+                className="px-3 py-2 border-2 border-[#FFA500] mt-3"
+                onSubmit={handleSubmit2(handleSubmitComment)}
+              >
+                <h2 className="font-semibold text-xl">
+                  {!comments?.length
+                    ? `Hãy là người đầu tiên bình luận về "${product?.name}"`
+                    : `Bình luận về "${product?.name}"`}
+                </h2>
+                <div className="mt-2">
+                  <label className="block text-sm font-semibold">Đánh giá của bạn *</label>
+                  <div className="stars">
+                    <input
+                      type="radio"
+                      hidden
+                      {...register2("star", { required: "Vui lòng chọn mức đánh giá" })}
+                      className="form__comment-star-number"
+                      id="star-5"
+                      value="5"
+                    />
+                    <label htmlFor="star-5" title="5 sao" className="star__item">
+                      <FontAwesomeIcon icon={faStar} />
+                    </label>
+                    <input
+                      type="radio"
+                      hidden
+                      {...register2("star", { required: "Vui lòng chọn mức đánh giá" })}
+                      className="form__comment-star-number"
+                      id="star-4"
+                      value="4"
+                    />
+                    <label htmlFor="star-4" title="4 sao" className="star__item">
+                      <FontAwesomeIcon icon={faStar} />
+                    </label>
+                    <input
+                      type="radio"
+                      hidden
+                      {...register2("star", { required: "Vui lòng chọn mức đánh giá" })}
+                      className="form__comment-star-number"
+                      id="star-3"
+                      value="3"
+                    />
+                    <label htmlFor="star-3" title="3 sao" className="star__item">
+                      <FontAwesomeIcon icon={faStar} />
+                    </label>
+                    <input
+                      type="radio"
+                      hidden
+                      {...register2("star", { required: "Vui lòng chọn mức đánh giá" })}
+                      className="form__comment-star-number"
+                      id="star-2"
+                      value="2"
+                    />
+                    <label htmlFor="star-2" title="2 sao" className="star__item">
+                      <FontAwesomeIcon icon={faStar} />
+                    </label>
+                    <input
+                      type="radio"
+                      hidden
+                      {...register2("star", { required: "Vui lòng chọn mức đánh giá" })}
+                      className="form__comment-star-number"
+                      id="star-1"
+                      value="1"
+                    />
+                    <label htmlFor="star-1" title="1 sao" className="star__item">
+                      <FontAwesomeIcon icon={faStar} />
+                    </label>
+                  </div>
+                  <div className="text-sm mt-0.5 text-red-500">{errors2.star?.message}</div>
+                </div>
+                <div className="mt-2">
+                  <label htmlFor="form__comment-content" className="block text-sm font-semibold">
+                    Nhận xét của bạn
+                  </label>
+                  <textarea
+                    id="form__comment-content"
+                    {...register2("comment", { required: "Vui lòng nhập nội dung bình luận" })}
+                    cols={30}
+                    rows={10}
+                    className="w-full outline-none border mt-1 px-3 py-1 shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)] hover:shadow-none focus:shadow-[0_0_5px_#ccc]"
+                    placeholder="Nhập nội dung bình luận"
+                  />
+                  <div className="text-sm mt-0.5 text-red-500">{errors2.comment?.message}</div>
+                </div>
+                <button className="my-3 px-4 py-2 bg-[#FFA500] font-semibold uppercase text-white text-sm transition ease-linear duration-300 hover:shadow-[inset_0_0_100px_rgba(0,0,0,0.2)]">
+                  Gửi đi
+                </button>
+              </form>
+            )}
+            {/* danh sách comment */}
+            <div className="flex flex-wrap ">
+              {comments?.slice(0, LIMIT_SHOW_COMMENT).map((cmt: CommentType) => {
+                // eslint-disable-next-line react/jsx-key
+                return (
+                  <div className="border-2 mx-[5px] mbs:w-[100%] mb:w-[33.3%]" key={cmt._id}>
+                    <CommentItem
+                      comment={cmt as any}
+                      isLogged={isLogged}
+                      currentUser={currentUser}
+                      onRemoveCmt={removeComment}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+            {/* button see more */}
+            {comments?.length > LIMIT_SHOW_COMMENT && (
+              <div className="inline-flex items-center cursor-pointer mb-12" onClick={() => handleToggleDialogComment()}>
+                <span className="font-bold underline">Hiển thị thêm</span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" className="w-4 h-4 mt-1 ml-1">
+                  <path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z" />
+                </svg>
+              </div>
+            )}
+          </div>
         </div>
-
 
         <div>
           <Dialog open={open} onClose={handleClose}>

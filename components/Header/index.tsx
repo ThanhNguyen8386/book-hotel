@@ -257,7 +257,7 @@ const Header = (props: Props) => {
   };
 
   return (
-    <header className='sticky top-0 z-50 bg-[#fff]'>
+    <header className='sticky top-0 z-[9998] bg-[#fff]'>
       <div className="w-[80%] border-b mx-auto py-2 mb:w-[80%] mbs:[100%] ">
         <div className="flex justify-between items-center my-2 mb:flex mbs:block ">
           <div className="flex">
