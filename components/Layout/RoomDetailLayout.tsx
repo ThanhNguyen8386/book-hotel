@@ -22,14 +22,12 @@ const RoomDetailLayout = ({ children }: LayoutProps) => {
         window.addEventListener("scroll", toggleVisible)
     }, [])
     return (
-        // <div className="flex justify-center">
-        <div className='w-[80%] mx-auto '>
-            <Header />
-            {children}
-            <BackToTop visible={visible} />
-            <Footer />
-        </div>
-        // </div>
+            <div className="">
+                <Header />
+                {children}
+                <BackToTop visible={visible} />
+                <Footer />
+            </div>
     )
 }
 

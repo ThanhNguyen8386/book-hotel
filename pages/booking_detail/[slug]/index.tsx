@@ -527,7 +527,7 @@ const BookingDetail = () => {
   }, [])
 
   return (
-    <div className="w-[80%] mx-auto">
+    <div className="w-[60%] mx-auto">
       <div className="content-header__booking">
         <div ref={sectionRefs.overview} className="content-text__booking h-full py-8 flex justify-between item-center">
           <div className="">

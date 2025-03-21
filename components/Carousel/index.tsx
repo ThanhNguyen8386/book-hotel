@@ -13,9 +13,11 @@ import { Dialog, DialogContent } from '@material-ui/core';
 
 const Carousel = ({ images }: []) => {
     const [thumbsSwiper, setThumbsSwiper] = useState(null);
+    const [thumbsSwiperDialog, setThumbsSwiperDialog] = useState(null);
     const [open, setOpen] = useState(false)
     const handleClose = () => {
-        setOpen(false)
+        setOpen(false);
+        setThumbsSwiperDialog(null);
     }
 
     return (
@@ -57,7 +59,7 @@ const Carousel = ({ images }: []) => {
                         }}
                         className='absolute bottom-[10px] text-sm cursor-pointer left-[50%] translate-x-[-50%] z-[999] p-2 rounded-xl shadow-xl bg-[#fff]'>Xem tất cả</p>
                     <Swiper
-                        onSwiper={() => setThumbsSwiper}
+                        onSwiper={(swiper:any) => setThumbsSwiper(swiper)}
                         loop={true}
                         spaceBetween={10}
                         slidesPerView={3}
@@ -114,38 +116,71 @@ const Carousel = ({ images }: []) => {
                             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
-                    <div className="h-96 rounded-xl overflow-hidden">
-                        <Swiper
-                            direction={"vertical"}
-                            slidesPerView={1}
-                            spaceBetween={30}
-                            mousewheel={true}
-                            // autoHeight={true}
-                            pagination={{
-                                clickable: true,
-                            }}
-                            modules={[Mousewheel, Pagination]}
-                            className="mySwiper w-full h-full"
-                        >
-                            {
-                                images.map((item: any, index: any) => {
-                                    return (
-                                        <SwiperSlide key={index}>
-                                            <div className="relative w-full h-full">
-                                                <Image
-                                                    src={item}
-                                                    alt='anh'
-                                                    layout="fill"
-                                                    objectFit="cover"
-                                                    priority
-                                                    className='cursor-grab hover:opacity-75 transition rounded-l-xl'
-                                                />
-                                            </div>
-                                        </SwiperSlide>
-                                    )
-                                })
-                            }
-                        </Swiper>
+                    <div className="relative h-full">
+                        <div className="h-[60%] w-[60%] rounded-xl overflow-hidden absolute top-[100px] left-[50%] translate-x-[-50%]">
+                            <Swiper
+                                direction={"vertical"}
+                                slidesPerView={1}
+                                spaceBetween={30}
+                                mousewheel={true}
+                                thumbs={{ swiper: thumbsSwiperDialog }}
+                                pagination={{
+                                    clickable: true,
+                                }}
+                                modules={[Mousewheel, Pagination, FreeMode, Thumbs]}
+                                className="mySwiper w-full h-full"
+                            >
+                                {
+                                    images.map((item: any, index: any) => {
+                                        return (
+                                            <SwiperSlide key={index}>
+                                                <div className="relative w-full h-full">
+                                                    <Image
+                                                        src={item}
+                                                        alt='anh'
+                                                        layout="fill"
+                                                        objectFit="cover"
+                                                        priority
+                                                        className='cursor-grab hover:opacity-75 transition rounded-l-xl'
+                                                    />
+                                                </div>
+                                            </SwiperSlide>
+                                        )
+                                    })
+                                }
+                            </Swiper>
+                        </div>
+                        <div className='w-[40%] absolute bottom-[10px] left-[50%] translate-x-[-50%]'>
+                            <Swiper
+                                onSwiper={(swiperDialog:any) => setThumbsSwiperDialog(swiperDialog)}
+                                loop={true}
+                                spaceBetween={10}
+                                slidesPerView={3}
+                                freeMode={true}
+                                watchSlidesProgress={true}
+                                modules={[FreeMode, Navigation, Thumbs]}
+                                className="h-[90px]"
+                            >
+                                {
+                                    images.map((item: any, index: any) => {
+                                        return (
+                                            <SwiperSlide key={index}>
+                                                <div className="w-full h-full">
+                                                    <Image
+                                                        src={item}
+                                                        alt='anh'
+                                                        layout='fill'
+                                                        priority
+                                                        objectFit="cover"
+                                                        className='cursor-grab hover:opacity-75 transition border rounded-xl'
+                                                    />
+                                                </div>
+                                            </SwiperSlide>
+                                        )
+                                    })
+                                }
+                            </Swiper>
+                        </div>
                     </div>
                 </DialogContent>
             </Dialog>

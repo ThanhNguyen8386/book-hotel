@@ -257,7 +257,7 @@ const Header = (props: Props) => {
   };
 
   return (
-    <header className='sticky top-0 z-[9998] bg-[#fff]'>
+    <header className='sticky top-0 z-[90] bg-[#fff]'>
       <div className="w-[80%] border-b mx-auto py-2 mb:w-[80%] mbs:[100%] ">
         <div className="flex justify-between items-center my-2 mb:flex mbs:block ">
           <div className="flex">
@@ -273,7 +273,7 @@ const Header = (props: Props) => {
               MenuListProps={{
                 'aria-labelledby': 'basic-button',
               }}
-
+              
             >
               <MenuItem className='w-[100%]' onClick={handleClose2}>HappyWeekend Room</MenuItem>
               <MenuItem onClick={handleClose2}>Tình yêu</MenuItem>
@@ -417,7 +417,7 @@ const Header = (props: Props) => {
                 {
                   status ? (
                     <Menu
-                      className='mt-[5px] left-[-150px]   '
+                      className='mt-[25px] left-[-125px]'
                       id="basic-menu"
                       anchorEl={anchorEl}
                       open={open1}
