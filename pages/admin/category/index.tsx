@@ -5,7 +5,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import Category_admin_detail from './Category_admin_detail';
-import { Button, IconButton, Tooltip } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogTitle, IconButton, Switch, Tooltip } from '@mui/material';
 import { DashboardLayout } from '../../../components/dashboard-layout';
 import useCategory from '../../../hook/useCategory';
 import Head from 'next/head';
@@ -17,6 +17,14 @@ function CategoryAdmin() {
     const [loading, setLoading] = React.useState(true)
     const [rows, setRows] = React.useState<any>([{ _id: 1, name: null }]);
     const refDetail = React.useRef<any>();
+    const [openDialog, setOpenDialog] = React.useState(false)
+    const defaultData = {
+        "status": false,
+        "address": null,
+        "image": null,
+        "name": null
+    }
+    const [categoryData, setCategoryData] = React.useState(defaultData)
 
     React.useEffect(() => {
         if (e.data) {
@@ -55,17 +63,36 @@ function CategoryAdmin() {
             })
         }
     }
+    const handleClose = () => {
+        setOpenDialog(false);
+        setCategoryData(defaultData);
+    };
+
+    const submit = () => {
+        try {
+            e.edit(categoryData).then(() => {
+                handleClose()
+            })
+        } catch (error) {
+            console.log(error);
+
+        }
+    }
 
     const deleteUser = React.useCallback(
         (id: any) => () => {
             setTimeout(() => {
-                setRows((prevRows:any) => prevRows.filter((row:any) => row?._id !== id));
+                setRows((prevRows: any) => prevRows.filter((row: any) => row?._id !== id));
             });
         },
         [],
     )
 
-
+    const handleCheckStatus = (e: any, userData: any) => {
+        const status = e.target.checked
+        const _categoryData = { ...userData, status }
+        setCategoryData(_categoryData);
+    }
     return (
         <div className='h-full' style={{ width: '100%', padding: "15px" }}>
             <Head>
@@ -93,13 +120,32 @@ function CategoryAdmin() {
                     }}
                     columns={React.useMemo(
                         () => [
-                            // { field: '_id', align: "left", type: 'string', headerName: "#", minWidth: 150, flex: 1 },
-                            { field: 'name', align: "left", type: 'string', minWidth: 150, flex: 1 },
+                            { field: 'name', headerName: "Tên", align: "left", type: 'string', minWidth: 150, flex: 1 },
+                            { field: 'address', headerName: "Địa chỉ", align: "left", type: 'string', minWidth: 150, flex: 1 },
                             {
-                                minWidth: 150,
+                                field: 'status',
+                                headerName: "Trạng thái",
+                                align: "left",
+                                type: 'string',
+                                minWidth: 100,
+                                renderCell: (params: any) => {
+                                    return (
+                                        <Switch
+                                            checked={params.row.status}
+                                            color='success'
+                                            onChange={(e) => {
+                                                console.log(e);
+                                                setOpenDialog(true)
+                                                handleCheckStatus(e, params.row);
+                                            }} />
+                                    );
+                                }
+                            },
+                            {
+                                minWidth: 100,
                                 field: 'actions',
                                 type: 'actions',
-                                flex: 1,
+
                                 align: "center",
                                 getActions: (params: any) => [
                                     <ShowForPermission key={1}>
@@ -129,6 +175,18 @@ function CategoryAdmin() {
                     )}
                 />
             </div>
+            <Dialog
+                onClose={handleClose}
+                open={openDialog}
+            >
+                <DialogTitle id="alert-dialog-title">
+                    {"Chuyển trạng thái Danh mục này?"}
+                </DialogTitle>
+                <DialogActions>
+                    <Button onClick={handleClose}>Từ chối</Button>
+                    <Button onClick={submit}>Đồng ý</Button>
+                </DialogActions>
+            </Dialog>
         </div>
     );
 }
