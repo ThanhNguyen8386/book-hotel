@@ -3,6 +3,7 @@ import { LayoutProps } from '../../models/layout'
 import BackToTop from '../BackToTop'
 import Footer from '../Footer'
 import Header from '../Header'
+import HeaderBookingDetail from '../HeaderBookingDetail'
 
 type Props = {}
 
@@ -23,7 +24,7 @@ const RoomDetailLayout = ({ children }: LayoutProps) => {
     }, [])
     return (
             <div className="">
-                <Header />
+                <HeaderBookingDetail />
                 {children}
                 <BackToTop visible={visible} />
                 <Footer />

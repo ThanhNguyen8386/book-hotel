@@ -17,7 +17,7 @@ export default function ActionAreaCard({ newsList }: props) {
               <CardActionArea sx={{ display: "flex", flexDirection: "column", alignContent: "space-between", justifyContent: "space-between" }}>
                 <div className="max-w-sm bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700">
                   <div className='h-[200px] overflow-hidden'>
-                    <img className="rounded-t-lg " src={item.image ? item.image : ''} alt="" />
+                    <img className="rounded-t-lg " src={item.representativeImage ? item.representativeImage : ''} alt="" />
                   </div>
                   <div className="p-3">
                     <div className="flex justify-between items-start h-[50px]">

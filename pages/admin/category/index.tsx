@@ -157,17 +157,17 @@ function CategoryAdmin() {
                                             </Tooltip>}
                                             label="Edit"
                                             onClick={() => actionCrud.update(params.row, params)} />
-                                    </ShowForPermission>,
-                                    <ShowForPermission key={2}>
-                                        <GridActionsCellItem
-                                            icon={<Tooltip title="Delete">
-                                                <IconButton>
-                                                    <DeleteIcon />
-                                                </IconButton>
-                                            </Tooltip>}
-                                            label="Delete"
-                                            onClick={() => actionCrud.remove(params.id)} />
                                     </ShowForPermission>
+                                    // <ShowForPermission key={2}>
+                                    //     <GridActionsCellItem
+                                    //         icon={<Tooltip title="Delete">
+                                    //             <IconButton>
+                                    //                 <DeleteIcon />
+                                    //             </IconButton>
+                                    //         </Tooltip>}
+                                    //         label="Delete"
+                                    //         onClick={() => actionCrud.remove(params.id)} />
+                                    // </ShowForPermission>
                                 ],
                             },
                         ],

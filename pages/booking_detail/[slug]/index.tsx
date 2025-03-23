@@ -545,419 +545,432 @@ const BookingDetail = () => {
               </button> */}
           </div>
           <div className="flex flex-col justify-center items-end">
-            <p className=" cursor-pointer"><FavoriteBorderSharpIcon color="error" /> Yêu thích</p>
-            <p className="cursor-pointer" onClick={() => handleClick("reviews")}>{product && product.listRatings.length} Đánh giá</p>
+            <p className="cursor-pointer font-semibold"><FavoriteBorderSharpIcon color="error" /> Yêu thích</p>
+            <p
+              className="cursor-pointer font-semibold"
+              onClick={() => handleClick("reviews")}>
+              <span className="text-[#ff6400] text-xs">
+                <FontAwesomeIcon icon={faStar} />
+                {/* <StarIcon /> */}
+              </span>
+              {
+                product && product.listRatings.length > 0 ?
+                (product && product.listRatings.reduce((accumulator: any, currentValue: any) => {
+                  return accumulator += +(currentValue.star);
+                }, 0) / product.listRatings.length) + "/5" : "0/0"
+              } •{product && product.listRatings.length} Đánh giá
+            </p>
+          </div>
         </div>
-      </div>
-      {product && <Carousel images={product.images} />}
+        {product && <Carousel images={product.images} />}
 
-      <div className="">
-        {/* tab */}
-        <div className="sticky my-4 top-[86.98px] z-50 bg-white">
-          <div className="flex gap-6 py-2 overflow-x-auto">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => handleClick(tab.id)}
-                className={`pb-2 whitespace-nowrap text-xl font-medium transition-all ${active === tab.id
-                  ? 'text-black border-b-2 border-orange-500'
-                  : 'text-gray-400 hover:text-black'
-                  }`}
+        <div className="">
+          {/* tab */}
+          <div className="sticky my-4 top-[86.98px] z-50 bg-white">
+            <div className="flex gap-6 py-2 overflow-x-auto">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => handleClick(tab.id)}
+                  className={`pb-2 whitespace-nowrap text-xl font-medium transition-all ${active === tab.id
+                    ? 'text-black border-b-2 border-orange-500'
+                    : 'text-gray-400 hover:text-black'
+                    }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* giới thiệu */}
+          <div ref={sectionRefs.rooms} className="my-8">
+            <p className="font-semibold text-2xl mb-4">Tổng quan</p>
+          </div>
+
+          {/* phòng */}
+          <div ref={sectionRefs.rooms} className="scroll-mt-[150px] my-8">
+            <p className="font-semibold text-2xl mb-4">Danh sách phòng</p>
+            {product && <RoomList roomList={product.roomList} />}
+          </div>
+
+          {/* tiện ích */}
+          <div ref={sectionRefs.facilities} className=" my-8 mbs:mt-[20px] mb:mt-[50px]">
+            <p className="font-semibold text-2xl mb-4">Tiện Ích</p>
+            <div className="grid mb:grid-cols-3 mb:gap-10 mbs:gap-4 mb:mb-[50px] mbs:mb-[10px] mbs:grid-cols-1 ">
+              {facilities.map((item: any, index: number) => (
+                <div className="flex mb:ml-[70px] mb:mt-[30px] mbs:ml-[0px] mbs:mt-[10px]" key={index}>
+                  <img width={45} className="mr-[20px] sepia mbs:w-[30px] mb:w-[45px]" src={`${item.image}`} alt="" />
+                  <p className="self-center text-[18px] text-gray-500 font-medium">{item.name}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* đánh giá */}
+          <div ref={sectionRefs.reviews} className=" my-8">
+            <div className="pt-5 font-bold flex items-end">
+              <p className="font-semibold text-2xl mb-4">Đánh giá</p>
+            </div>
+            {/* form comment */}
+            {isLogged && isBooked && !isCommented && (
+              <form
+                key={2}
+                className="px-3 py-2 border-2 border-[#FFA500] mt-3"
+                onSubmit={handleSubmit2(handleSubmitComment)}
               >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* giới thiệu */}
-        <div ref={sectionRefs.rooms} className="my-8">
-          <p className="font-semibold text-2xl mb-4">Tổng quan</p>
-        </div>
-
-        {/* phòng */}
-        <div ref={sectionRefs.rooms} className="scroll-mt-[150px] my-8">
-          <p className="font-semibold text-2xl mb-4">Danh sách phòng</p>
-          {product && <RoomList roomList={product.roomList} />}
-        </div>
-
-        {/* tiện ích */}
-        <div ref={sectionRefs.facilities} className=" my-8 mbs:mt-[20px] mb:mt-[50px]">
-          <p className="font-semibold text-2xl mb-4">Tiện Ích</p>
-          <div className="grid mb:grid-cols-3 mb:gap-10 mbs:gap-4 mb:mb-[50px] mbs:mb-[10px] mbs:grid-cols-1 ">
-            {facilities.map((item: any, index: number) => (
-              <div className="flex mb:ml-[70px] mb:mt-[30px] mbs:ml-[0px] mbs:mt-[10px]" key={index}>
-                <img width={45} className="mr-[20px] sepia mbs:w-[30px] mb:w-[45px]" src={`${item.image}`} alt="" />
-                <p className="self-center text-[18px] text-gray-500 font-medium">{item.name}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* đánh giá */}
-        <div ref={sectionRefs.reviews} className=" my-8">
-          <div className="pt-5 font-bold flex items-end">
-            <p className="font-semibold text-2xl mb-4">Đánh giá</p>
-          </div>
-          {/* form comment */}
-          {isLogged && isBooked && !isCommented && (
-            <form
-              key={2}
-              className="px-3 py-2 border-2 border-[#FFA500] mt-3"
-              onSubmit={handleSubmit2(handleSubmitComment)}
-            >
-              <h2 className="font-semibold text-xl">
-                {!comments?.length
-                  ? `Hãy là người đầu tiên bình luận về "${product?.name}"`
-                  : `Bình luận về "${product?.name}"`}
-              </h2>
-              <div className="mt-2">
-                <label className="block text-sm font-semibold">Đánh giá của bạn *</label>
-                <div className="stars">
-                  <input
-                    type="radio"
-                    hidden
-                    {...register2("star", { required: "Vui lòng chọn mức đánh giá" })}
-                    className="form__comment-star-number"
-                    id="star-5"
-                    value="5"
-                  />
-                  <label htmlFor="star-5" title="5 sao" className="star__item">
-                    <FontAwesomeIcon icon={faStar} />
-                  </label>
-                  <input
-                    type="radio"
-                    hidden
-                    {...register2("star", { required: "Vui lòng chọn mức đánh giá" })}
-                    className="form__comment-star-number"
-                    id="star-4"
-                    value="4"
-                  />
-                  <label htmlFor="star-4" title="4 sao" className="star__item">
-                    <FontAwesomeIcon icon={faStar} />
-                  </label>
-                  <input
-                    type="radio"
-                    hidden
-                    {...register2("star", { required: "Vui lòng chọn mức đánh giá" })}
-                    className="form__comment-star-number"
-                    id="star-3"
-                    value="3"
-                  />
-                  <label htmlFor="star-3" title="3 sao" className="star__item">
-                    <FontAwesomeIcon icon={faStar} />
-                  </label>
-                  <input
-                    type="radio"
-                    hidden
-                    {...register2("star", { required: "Vui lòng chọn mức đánh giá" })}
-                    className="form__comment-star-number"
-                    id="star-2"
-                    value="2"
-                  />
-                  <label htmlFor="star-2" title="2 sao" className="star__item">
-                    <FontAwesomeIcon icon={faStar} />
-                  </label>
-                  <input
-                    type="radio"
-                    hidden
-                    {...register2("star", { required: "Vui lòng chọn mức đánh giá" })}
-                    className="form__comment-star-number"
-                    id="star-1"
-                    value="1"
-                  />
-                  <label htmlFor="star-1" title="1 sao" className="star__item">
-                    <FontAwesomeIcon icon={faStar} />
-                  </label>
+                <h2 className="font-semibold text-xl">
+                  {!comments?.length
+                    ? `Hãy là người đầu tiên bình luận về "${product?.name}"`
+                    : `Bình luận về "${product?.name}"`}
+                </h2>
+                <div className="mt-2">
+                  <label className="block text-sm font-semibold">Đánh giá của bạn *</label>
+                  <div className="stars">
+                    <input
+                      type="radio"
+                      hidden
+                      {...register2("star", { required: "Vui lòng chọn mức đánh giá" })}
+                      className="form__comment-star-number"
+                      id="star-5"
+                      value="5"
+                    />
+                    <label htmlFor="star-5" title="5 sao" className="star__item">
+                      <FontAwesomeIcon icon={faStar} />
+                    </label>
+                    <input
+                      type="radio"
+                      hidden
+                      {...register2("star", { required: "Vui lòng chọn mức đánh giá" })}
+                      className="form__comment-star-number"
+                      id="star-4"
+                      value="4"
+                    />
+                    <label htmlFor="star-4" title="4 sao" className="star__item">
+                      <FontAwesomeIcon icon={faStar} />
+                    </label>
+                    <input
+                      type="radio"
+                      hidden
+                      {...register2("star", { required: "Vui lòng chọn mức đánh giá" })}
+                      className="form__comment-star-number"
+                      id="star-3"
+                      value="3"
+                    />
+                    <label htmlFor="star-3" title="3 sao" className="star__item">
+                      <FontAwesomeIcon icon={faStar} />
+                    </label>
+                    <input
+                      type="radio"
+                      hidden
+                      {...register2("star", { required: "Vui lòng chọn mức đánh giá" })}
+                      className="form__comment-star-number"
+                      id="star-2"
+                      value="2"
+                    />
+                    <label htmlFor="star-2" title="2 sao" className="star__item">
+                      <FontAwesomeIcon icon={faStar} />
+                    </label>
+                    <input
+                      type="radio"
+                      hidden
+                      {...register2("star", { required: "Vui lòng chọn mức đánh giá" })}
+                      className="form__comment-star-number"
+                      id="star-1"
+                      value="1"
+                    />
+                    <label htmlFor="star-1" title="1 sao" className="star__item">
+                      <FontAwesomeIcon icon={faStar} />
+                    </label>
+                  </div>
+                  <div className="text-sm mt-0.5 text-red-500">{errors2.star?.message}</div>
                 </div>
-                <div className="text-sm mt-0.5 text-red-500">{errors2.star?.message}</div>
-              </div>
-              <div className="mt-2">
-                <label htmlFor="form__comment-content" className="block text-sm font-semibold">
-                  Nhận xét của bạn
-                </label>
-                <textarea
-                  id="form__comment-content"
-                  {...register2("comment", { required: "Vui lòng nhập nội dung bình luận" })}
-                  cols={30}
-                  rows={10}
-                  className="w-full outline-none border mt-1 px-3 py-1 shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)] hover:shadow-none focus:shadow-[0_0_5px_#ccc]"
-                  placeholder="Nhập nội dung bình luận"
-                />
-                <div className="text-sm mt-0.5 text-red-500">{errors2.comment?.message}</div>
-              </div>
-              <button className="my-3 px-4 py-2 bg-[#FFA500] font-semibold uppercase text-white text-sm transition ease-linear duration-300 hover:shadow-[inset_0_0_100px_rgba(0,0,0,0.2)]">
-                Gửi đi
-              </button>
-            </form>
-          )}
-          {/* danh sách comment */}
-          <div className="grid grid-cols-2 gap-4">
-            {product && product.reviews?.slice(0, LIMIT_SHOW_COMMENT).map((cmt: CommentType) => {
-              // eslint-disable-next-line react/jsx-key
-              return (
-                <div className="" key={cmt._id}>
-                  <CommentItem
-                    comment={cmt as any}
-                    isLogged={isLogged}
-                    currentUser={currentUser}
-                    onRemoveCmt={removeComment}
+                <div className="mt-2">
+                  <label htmlFor="form__comment-content" className="block text-sm font-semibold">
+                    Nhận xét của bạn
+                  </label>
+                  <textarea
+                    id="form__comment-content"
+                    {...register2("comment", { required: "Vui lòng nhập nội dung bình luận" })}
+                    cols={30}
+                    rows={10}
+                    className="w-full outline-none border mt-1 px-3 py-1 shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)] hover:shadow-none focus:shadow-[0_0_5px_#ccc]"
+                    placeholder="Nhập nội dung bình luận"
                   />
+                  <div className="text-sm mt-0.5 text-red-500">{errors2.comment?.message}</div>
                 </div>
-              );
-            })}
-          </div>
-          {/* button see more */}
-          {comments?.length > LIMIT_SHOW_COMMENT && (
-            <div className="inline-flex items-center cursor-pointer mb-12" onClick={() => handleToggleDialogComment()}>
-              <span className="font-bold underline">Hiển thị thêm</span>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" className="w-4 h-4 mt-1 ml-1">
-                <path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z" />
-              </svg>
+                <button className="my-3 px-4 py-2 bg-[#FFA500] font-semibold uppercase text-white text-sm transition ease-linear duration-300 hover:shadow-[inset_0_0_100px_rgba(0,0,0,0.2)]">
+                  Gửi đi
+                </button>
+              </form>
+            )}
+            {/* danh sách comment */}
+            <div className="grid grid-cols-2 gap-4">
+              {product && product.reviews?.slice(0, LIMIT_SHOW_COMMENT).map((cmt: CommentType) => {
+                // eslint-disable-next-line react/jsx-key
+                return (
+                  <div className="" key={cmt._id}>
+                    <CommentItem
+                      comment={cmt as any}
+                      isLogged={isLogged}
+                      currentUser={currentUser}
+                      onRemoveCmt={removeComment}
+                    />
+                  </div>
+                );
+              })}
             </div>
-          )}
+            {/* button see more */}
+            {comments?.length > LIMIT_SHOW_COMMENT && (
+              <div className="inline-flex items-center cursor-pointer mb-12" onClick={() => handleToggleDialogComment()}>
+                <span className="font-bold underline">Hiển thị thêm</span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" className="w-4 h-4 mt-1 ml-1">
+                  <path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z" />
+                </svg>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
 
-      <div>
-        <Dialog open={open} onClose={handleClose}>
-          {product?.coc ? (
-            <div className="flex justify-center flex-col items-center">
-              <DialogTitle>Yêu cầu thanh toán trước</DialogTitle>
-              <DialogContent>
-                <DialogContentText>Phòng đặc biệt này phải đặt cọc để giữ phòng</DialogContentText>
-                <div className="flex flex-col">
-                  <button
-                    onClick={() => {
-                      router.push("/payment");
-                    }}
-                  >
-                    Ok
-                  </button>
-                  <button autoFocus onClick={handleClose}>
-                    Hủy
-                  </button>
-                </div>
-              </DialogContent>
-            </div>
-          ) : (
-            <>
-              <DialogTitle>Thông tin đặt phòng</DialogTitle>
-              <DialogContent>
-                <DialogContentText>
-                  Những thông tin này sẽ giúp chúng tôi liên hệ và trợ giúp bạn dễ dàng hơn
-                </DialogContentText>
-                <form action="" key={1} onSubmit={handleSubmit(onsubmit)}>
-                  <div className="mb-6">
-                    <label
-                      htmlFor="default-input"
-                      className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+        <div>
+          <Dialog open={open} onClose={handleClose}>
+            {product?.coc ? (
+              <div className="flex justify-center flex-col items-center">
+                <DialogTitle>Yêu cầu thanh toán trước</DialogTitle>
+                <DialogContent>
+                  <DialogContentText>Phòng đặc biệt này phải đặt cọc để giữ phòng</DialogContentText>
+                  <div className="flex flex-col">
+                    <button
+                      onClick={() => {
+                        router.push("/payment");
+                      }}
                     >
-                      Họ và tên <span>*</span>
-                    </label>
-                    <input
-                      {...register("name", { required: true })}
-                      type="text"
-                      id="default-input"
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    />
-                    {Object.keys(errors).length !== 0 && (
-                      <div>
-                        {errors.name?.type === "required" && <p className="text-red-600">Tên không được bỏ trống</p>}
-                      </div>
-                    )}
+                      Ok
+                    </button>
+                    <button autoFocus onClick={handleClose}>
+                      Hủy
+                    </button>
                   </div>
-                  <div className="mb-6">
-                    <label
-                      htmlFor="default-input"
-                      className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-                    >
-                      Số điện thoại <span>*</span>
-                    </label>
-                    <input
-                      {...register("phone", { required: true })}
-                      type="number"
-                      id="default-input"
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    />
-                    {Object.keys(errors).length !== 0 && (
-                      <div>
-                        {errors.phone?.type === "required" && (
-                          <p className="text-red-600">Số điện thoại sản phẩm không được bỏ trống</p>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                  <div className="mb-6">
-                    <label
-                      htmlFor="default-input"
-                      className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-                    >
-                      Email <span>*</span>
-                    </label>
-                    <input
-                      {...register("email", { required: true })}
-                      type="text"
-                      id="default-input"
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    />
-                    {Object.keys(errors).length !== 0 && (
-                      <div>
-                        {errors.email?.type === "required" && (
-                          <p className="text-red-600">Email sản phẩm không được bỏ trống</p>
-                        )}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* voucher */}
-                  {isLogged && (
+                </DialogContent>
+              </div>
+            ) : (
+              <>
+                <DialogTitle>Thông tin đặt phòng</DialogTitle>
+                <DialogContent>
+                  <DialogContentText>
+                    Những thông tin này sẽ giúp chúng tôi liên hệ và trợ giúp bạn dễ dàng hơn
+                  </DialogContentText>
+                  <form action="" key={1} onSubmit={handleSubmit(onsubmit)}>
                     <div className="mb-6">
                       <label
                         htmlFor="default-input"
                         className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
                       >
-                        Voucher
+                        Họ và tên <span>*</span>
                       </label>
                       <input
-                        value={voucher}
-                        onChange={(e) => {
-                          const voucher = e.target.value;
-                          setVoucher(voucher);
-                          if (!voucher.trim()) {
-                            setErrVoucher("");
-                            setVoucherData(null);
-                          }
-                        }}
+                        {...register("name", { required: true })}
                         type="text"
                         id="default-input"
                         className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                       />
-                      <div>{errVoucher?.trim() && <p className="text-red-600">{errVoucher}</p>}</div>
+                      {Object.keys(errors).length !== 0 && (
+                        <div>
+                          {errors.name?.type === "required" && <p className="text-red-600">Tên không được bỏ trống</p>}
+                        </div>
+                      )}
                     </div>
-                  )}
-
-                  {/* tab */}
-                  <Box sx={{ width: "100%" }}>
-                    <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-                      <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-                        {product?.price?.map((item: any, index: number) => (
-                          <Tab
-                            key={index}
-                            icon={<CalendarMonthIcon />}
-                            onClick={() => {
-                              setchaprice(item.value);
-                            }}
-                            iconPosition="start"
-                            label={`${item.title}`}
-                            {...a11yProps(item.brand)}
-                          />
-                        ))}
-                        {/* <Tab icon={<CalendarMonthIcon />} iconPosition="start" label="Theo ngày" {...a11yProps(0)} />
-                                                    <Tab icon={<BedtimeIcon />} iconPosition="start" label="Qua đêm" {...a11yProps(1)} />
-                                                    <Tab icon={<AccessTimeIcon />} iconPosition="start" label="Theo giờ" {...a11yProps(2)} /> */}
-                      </Tabs>
-                    </Box>
-                    <div className="flex mt-[10px] font-medium text-gray-500">
-                      Giá phòng: {formatCurrency(chaprice)}
-                      {value !== 2 && <div className="ml-[40px]">Số ngày ở: {totaldate}</div>}
+                    <div className="mb-6">
+                      <label
+                        htmlFor="default-input"
+                        className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                      >
+                        Số điện thoại <span>*</span>
+                      </label>
+                      <input
+                        {...register("phone", { required: true })}
+                        type="number"
+                        id="default-input"
+                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                      />
+                      {Object.keys(errors).length !== 0 && (
+                        <div>
+                          {errors.phone?.type === "required" && (
+                            <p className="text-red-600">Số điện thoại sản phẩm không được bỏ trống</p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <div className="mb-6">
+                      <label
+                        htmlFor="default-input"
+                        className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                      >
+                        Email <span>*</span>
+                      </label>
+                      <input
+                        {...register("email", { required: true })}
+                        type="text"
+                        id="default-input"
+                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                      />
+                      {Object.keys(errors).length !== 0 && (
+                        <div>
+                          {errors.email?.type === "required" && (
+                            <p className="text-red-600">Email sản phẩm không được bỏ trống</p>
+                          )}
+                        </div>
+                      )}
                     </div>
 
-                    <div className="mt-[10px] font-medium text-gray-500">
-                      <span>Tạm tính: </span>
-                      <span>{formatCurrency(chaprice * totaldate)}</span>
-                    </div>
-
-                    {!errVoucher?.trim().length && voucherData && (
-                      <div className="mt-[10px] font-medium text-gray-500">
-                        <span>Voucher: </span>
-                        <span>
-                          {voucherData.code} (-{formatCurrency(voucherData.discount)})
-                        </span>
+                    {/* voucher */}
+                    {isLogged && (
+                      <div className="mb-6">
+                        <label
+                          htmlFor="default-input"
+                          className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                        >
+                          Voucher
+                        </label>
+                        <input
+                          value={voucher}
+                          onChange={(e) => {
+                            const voucher = e.target.value;
+                            setVoucher(voucher);
+                            if (!voucher.trim()) {
+                              setErrVoucher("");
+                              setVoucherData(null);
+                            }
+                          }}
+                          type="text"
+                          id="default-input"
+                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        />
+                        <div>{errVoucher?.trim() && <p className="text-red-600">{errVoucher}</p>}</div>
                       </div>
                     )}
 
-                    <div className="mt-[10px] font-bold text-[18px] text-orange-500">
-                      Tổng:{" "}
-                      {totaldate
-                        ? formatCurrency(
-                          chaprice * totaldate -
-                          +`${!errVoucher?.trim().length && voucherData ? voucherData?.discount : 0}`,
-                        )
-                        : formatCurrency(0)}
+                    {/* tab */}
+                    <Box sx={{ width: "100%" }}>
+                      <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+                        <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
+                          {product?.price?.map((item: any, index: number) => (
+                            <Tab
+                              key={index}
+                              icon={<CalendarMonthIcon />}
+                              onClick={() => {
+                                setchaprice(item.value);
+                              }}
+                              iconPosition="start"
+                              label={`${item.title}`}
+                              {...a11yProps(item.brand)}
+                            />
+                          ))}
+                          {/* <Tab icon={<CalendarMonthIcon />} iconPosition="start" label="Theo ngày" {...a11yProps(0)} />
+                                                    <Tab icon={<BedtimeIcon />} iconPosition="start" label="Qua đêm" {...a11yProps(1)} />
+                                                    <Tab icon={<AccessTimeIcon />} iconPosition="start" label="Theo giờ" {...a11yProps(2)} /> */}
+                        </Tabs>
+                      </Box>
+                      <div className="flex mt-[10px] font-medium text-gray-500">
+                        Giá phòng: {formatCurrency(chaprice)}
+                        {value !== 2 && <div className="ml-[40px]">Số ngày ở: {totaldate}</div>}
+                      </div>
+
+                      <div className="mt-[10px] font-medium text-gray-500">
+                        <span>Tạm tính: </span>
+                        <span>{formatCurrency(chaprice * totaldate)}</span>
+                      </div>
+
+                      {!errVoucher?.trim().length && voucherData && (
+                        <div className="mt-[10px] font-medium text-gray-500">
+                          <span>Voucher: </span>
+                          <span>
+                            {voucherData.code} (-{formatCurrency(voucherData.discount)})
+                          </span>
+                        </div>
+                      )}
+
+                      <div className="mt-[10px] font-bold text-[18px] text-orange-500">
+                        Tổng:{" "}
+                        {totaldate
+                          ? formatCurrency(
+                            chaprice * totaldate -
+                            +`${!errVoucher?.trim().length && voucherData ? voucherData?.discount : 0}`,
+                          )
+                          : formatCurrency(0)}
+                      </div>
+
+                      {/* giá theo giờ */}
+                      <TabPanel value={value} index={2}>
+                        <DateTimePickers />
+                      </TabPanel>
+                      <TabPanel value={value} index={0}>
+                        <BasicDateRangePicker settotaldate={settotaldate} getDate={getDate} id={product?._id ? product._id : ''} />
+                      </TabPanel>
+                      <TabPanel value={value} index={1}>
+                        <BasicDateRangePicker settotaldate={settotaldate} getDate={getDate} id={product?._id ? product._id : ''} />
+                      </TabPanel>
+                    </Box>
+
+                    {/*footer*/}
+                    <div className="flex items-center justify-end border-t border-solid border-slate-200 rounded-b">
+                      <DialogActions>
+                        <Button onClick={handleClose}>Hủy</Button>
+                        <Button
+                          type="submit"
+                          onClick={() => {
+                            setShowModal(false);
+                            on();
+                            handleClose;
+                            setdialog(true);
+                          }}
+                        >
+                          Đặt phòng
+                        </Button>
+                      </DialogActions>
                     </div>
+                  </form>
+                </DialogContent>
+              </>
+            )}
+          </Dialog>
+          <DialogConfirm ref={dialogConfirmRef} data={dataorder} datebooks={datebook} room={product?.name} />
+        </div>
 
-                    {/* giá theo giờ */}
-                    <TabPanel value={value} index={2}>
-                      <DateTimePickers />
-                    </TabPanel>
-                    <TabPanel value={value} index={0}>
-                      <BasicDateRangePicker settotaldate={settotaldate} getDate={getDate} id={product?._id ? product._id : ''} />
-                    </TabPanel>
-                    <TabPanel value={value} index={1}>
-                      <BasicDateRangePicker settotaldate={settotaldate} getDate={getDate} id={product?._id ? product._id : ''} />
-                    </TabPanel>
-                  </Box>
+        {/* dialog comment */}
+        <Dialog open={openDialogComment} onClose={() => handleToggleDialogComment()} fullWidth maxWidth="lg">
+          <div className="px-6 py-4">
+            <button className="block ml-auto" onClick={() => handleToggleDialogComment()}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" className="w-6 h-6">
+                <path d="M310.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L160 210.7 54.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L114.7 256 9.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L160 301.3 265.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L205.3 256 310.6 150.6z" />
+              </svg>
+            </button>
 
-                  {/*footer*/}
-                  <div className="flex items-center justify-end border-t border-solid border-slate-200 rounded-b">
-                    <DialogActions>
-                      <Button onClick={handleClose}>Hủy</Button>
-                      <Button
-                        type="submit"
-                        onClick={() => {
-                          setShowModal(false);
-                          on();
-                          handleClose;
-                          setdialog(true);
-                        }}
-                      >
-                        Đặt phòng
-                      </Button>
-                    </DialogActions>
-                  </div>
-                </form>
-              </DialogContent>
-            </>
-          )}
-        </Dialog>
-        <DialogConfirm ref={dialogConfirmRef} data={dataorder} datebooks={datebook} room={product?.name} />
-      </div>
+            <div className="font-bold flex items-end">
+              <h2 className="text-[35px]">Đánh giá</h2>
+              <div className="text-lg pb-1.5">
+                &ensp;•&ensp;
+                {comments?.length} Đánh giá
+              </div>
+            </div>
 
-      {/* dialog comment */}
-      <Dialog open={openDialogComment} onClose={() => handleToggleDialogComment()} fullWidth maxWidth="lg">
-        <div className="px-6 py-4">
-          <button className="block ml-auto" onClick={() => handleToggleDialogComment()}>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" className="w-6 h-6">
-              <path d="M310.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L160 210.7 54.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L114.7 256 9.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L160 301.3 265.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L205.3 256 310.6 150.6z" />
-            </svg>
-          </button>
-
-          <div className="font-bold flex items-end">
-            <h2 className="text-[35px]">Đánh giá</h2>
-            <div className="text-lg pb-1.5">
-              &ensp;•&ensp;
-              {comments?.length} Đánh giá
+            {/* list comment */}
+            <div className="grid grid-cols-3 gap-5 my-3">
+              {comments?.map((cmt: CommentType) => {
+                return (
+                  <CommentItem
+                    key={cmt._id}
+                    comment={cmt as any}
+                    isLogged={isLogged}
+                    currentUser={currentUser}
+                    onRemoveCmt={removeComment}
+                  />
+                );
+              })}
             </div>
           </div>
-
-          {/* list comment */}
-          <div className="grid grid-cols-3 gap-5 my-3">
-            {comments?.map((cmt: CommentType) => {
-              return (
-                <CommentItem
-                  key={cmt._id}
-                  comment={cmt as any}
-                  isLogged={isLogged}
-                  currentUser={currentUser}
-                  onRemoveCmt={removeComment}
-                />
-              );
-            })}
-          </div>
-        </div>
-      </Dialog>
-    </div>
+        </Dialog>
+      </div>
     </div >
   );
 };

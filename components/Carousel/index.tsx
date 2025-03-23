@@ -155,7 +155,7 @@ const Carousel = ({ images }: []) => {
                                 onSwiper={(swiperDialog:any) => setThumbsSwiperDialog(swiperDialog)}
                                 loop={true}
                                 spaceBetween={10}
-                                slidesPerView={3}
+                                slidesPerView={5}
                                 freeMode={true}
                                 watchSlidesProgress={true}
                                 modules={[FreeMode, Navigation, Thumbs]}

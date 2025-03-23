@@ -5,16 +5,21 @@ import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import CloseIcon from '@mui/icons-material/Close';
-import { Alert, TextField } from '@mui/material';
+import { Alert, FormControlLabel, Switch, TextField } from '@mui/material';
 import useCategory from '../../../hook/useCategory'
 import toastr from "toastr";
 import "toastr/build/toastr.min.css";
+import Image from 'next/image';
 
 function Category_admin_detail(props: any, ref: any) {
     var _ = require('lodash');
     const [open, setOpen] = React.useState(false);
     const categoryDetail = {
-        name: ""
+        name: "",
+        status: true,
+        address: "",
+        image: "",
+        imagePreview: "",
     }
     const [defaultCategory, setDefaultCategory] = React.useState(categoryDetail)
     const refMode = React.useRef(null);
@@ -22,6 +27,9 @@ function Category_admin_detail(props: any, ref: any) {
 
     const defaultErrors = {
         name: false,
+        status: false,
+        address: false,
+        image: false
     };
     const [errors, setErrors] = React.useState(defaultErrors);
 
@@ -31,6 +39,7 @@ function Category_admin_detail(props: any, ref: any) {
 
     const handleClose = () => {
         setOpen(false);
+        URL.revokeObjectURL(defaultCategory.imagePreview)
         setDefaultCategory(categoryDetail);
         setErrors(defaultErrors)
     };
@@ -63,6 +72,12 @@ function Category_admin_detail(props: any, ref: any) {
                 case "name":
                     result[prop] = _defaultCategory.name.length <= 0;
                     break;
+                case "status":
+                    result[prop] = _defaultCategory.status.length <= 0;
+                    break;
+                case "address":
+                    result[prop] = _defaultCategory.address.length <= 0;
+                    break;
                 default:
                     break;
             }
@@ -80,12 +95,34 @@ function Category_admin_detail(props: any, ref: any) {
             case "name":
                 _defaultCategory.name = val;
                 break;
+            case "status":
+                _defaultCategory.status = val;
+                break;
+            case "address":
+                _defaultCategory.address = val;
+                break;
+            case "image":
+                if (_defaultCategory.imagePreview) {
+                    URL.revokeObjectURL(_defaultCategory.imagePreview)
+                }
+                if (val != "") {
+                    const file = val?.[0]
+                    _defaultCategory.imagePreview = URL.createObjectURL(file)
+                    _defaultCategory.image = file;
+                }
+                else {
+                    _defaultCategory.imagePreview = "";
+                    _defaultCategory.image = "";
+                }
+
+                break;
             default:
                 _defaultCategory[prop] = val;
         }
         validate([prop], _defaultCategory)
         setDefaultCategory(_defaultCategory);
     }
+    console.log(defaultCategory);
 
     const [loading, setLoading] = React.useState(true)
 
@@ -172,6 +209,92 @@ function Category_admin_detail(props: any, ref: any) {
                                                 {Object.keys(errors).length !== 0 && (
                                                     <div>
                                                         {errors.name && <p className='text-red-600'>Tên danh mục không được bỏ trống</p>}
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div className="py-4">
+                                                <TextField
+                                                    fullWidth
+                                                    error={errors.address}
+                                                    id="outlined-basic"
+                                                    label="Địa chỉ"
+                                                    variant="outlined"
+                                                    value={defaultCategory.address}
+                                                    onChange={(e) => {
+                                                        applyChange("address", e.target.value)
+                                                    }}
+                                                />
+                                                {Object.keys(errors).length !== 0 && (
+                                                    <div>
+                                                        {errors.address && <p className='text-red-600'>Địa chỉ không được bỏ trống</p>}
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* {
+                                                defaultCategory.imagePreview || defaultCategory.image ?
+                                                    (
+                                                        <div
+                                                            onClick={() => {
+                                                                applyChange("image", "")
+                                                            }}
+                                                            className='relative w-full h-64'>
+                                                            <Image
+                                                                src={defaultCategory.imagePreview ? defaultCategory.imagePreview : defaultCategory.image}
+                                                                alt="" 
+                                                                layout='fill'
+                                                                />
+                                                            <CloseIcon fontSize="large" className='absolute top-[10px] right-[10px] bg-[#000] text-white rounded-full ' />
+                                                        </div>
+                                                    )
+                                                    : (
+                                                        <div className="py-4">
+                                                            <div className="flex items-center justify-center w-full">
+                                                                <label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer">
+                                                                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                                                        <svg className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                                                                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
+                                                                        </svg>
+                                                                        <p className="mb-2 text-sm text-gray-500 dark:text-gray-400"><span className="font-semibold">Click to upload</span> or drag and drop</p>
+                                                                        <p className="text-xs text-gray-500 dark:text-gray-400">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
+                                                                    </div>
+                                                                    <input
+                                                                        id="dropzone-file"
+                                                                        type="file"
+                                                                        className="hidden"
+                                                                        // value={defaultCategory.image}
+                                                                        onChange={(e) => {
+                                                                            applyChange("image", e.target.files)
+                                                                        }}
+                                                                    />
+                                                                </label>
+                                                            </div>
+                                                            {Object.keys(errors).length !== 0 && (
+                                                                <div>
+                                                                    {errors.image && <p className='text-red-600'>Ảnh không được bỏ trống</p>}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    )
+                                            } */}
+
+                                            <div className="py-4">
+                                                <FormControlLabel control={
+                                                    <Switch
+                                                        name="gilad"
+                                                        checked={defaultCategory.status}
+                                                        onChange={(e) => {
+                                                            applyChange("status", e.target.checked)
+                                                        }}
+                                                        inputProps={{ 'aria-label': 'controlled' }}
+                                                    />
+                                                }
+                                                    label="Trạng thái"
+                                                />
+                                                {Object.keys(errors).length !== 0 && (
+                                                    <div>
+                                                        {errors.status && <p className='text-red-600'>Trạng thái không được bỏ trống</p>}
                                                     </div>
                                                 )}
                                             </div>
