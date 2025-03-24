@@ -52,7 +52,6 @@ const Home = () => {
   const category = useCategory()
   const { data, mutate } = useSWR(`${API_URL}/getAllCategoryWithImage`, fetcher);
   const [indexTab, setIndexTab] = useState(1);
-console.log(data);
 
   useEffect(() => {
     window.addEventListener("scroll", toggleVisible);
