@@ -27,7 +27,7 @@ const RoomDetailLayout = ({ children, roomName }: RoomDetailLayoutProps) => {
     }, [])
     return (
         <RoomContext.Provider value={{roomName: "Nhà nghỉ Hồng Minh"}} >
-            <div className="">
+            <div className="w-[80%] mx-auto">
                 <HeaderBookingDetail />
                 {children}
                 <BackToTop visible={visible} />

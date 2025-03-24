@@ -25,12 +25,27 @@ import HourglassFullTwoToneIcon from '@mui/icons-material/HourglassFullTwoTone';
 import DarkModeTwoToneIcon from '@mui/icons-material/DarkModeTwoTone';
 import CalendarMonthTwoToneIcon from '@mui/icons-material/CalendarMonthTwoTone';
 import { useRoom } from '../../contexts/RoomContext';
-import BookingFilter from './tabSelec';
+import LoginTwoToneIcon from '@mui/icons-material/LoginTwoTone';
+import LogoutTwoToneIcon from '@mui/icons-material/LogoutTwoTone';
+import { DateRange } from 'react-date-range';
+import 'react-date-range/dist/styles.css'; // style mặc định
+import 'react-date-range/dist/theme/default.css'; // theme mặc định
+import { addDays, format } from 'date-fns';
+import { vi } from 'date-fns/locale';
 
 type Props = {}
 
 const HeaderBookingDetail = (props: Props) => {
     const { roomName } = useRoom();
+    const [selectedType, setSelectedType] = useState<'hourly' | 'overnight' | 'daily'>('hourly');
+    const [showDatePicker, setShowDatePicker] = useState(false);
+    const [range, setRange] = useState([
+        {
+            startDate: new Date(),
+            endDate: addDays(new Date(), 1),
+            key: 'selection',
+        },
+    ]);
     const [isMounted, setIsMounted] = useState(false);
     useEffect(() => {
         setIsMounted(true)
@@ -267,16 +282,132 @@ const HeaderBookingDetail = (props: Props) => {
         });
     };
 
+    useEffect(() => {
+        if (!showDatePicker) return;
+
+        const handleClickOutside = (event: MouseEvent) => {
+            const target = event.target as HTMLElement;
+            if (!target.closest('.date-picker-container') && !target.closest('.date-fields')) {
+                setShowDatePicker(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [showDatePicker]);
+
+    const handleApplyDates = () => {
+        setShowDatePicker(false);
+    };
+    
     return (
         <header className='sticky w-[80%] border-b mx-auto top-0 z-[90] bg-[#fff]'>
             <div className="flex justify-between items-center py-2 mb:flex mbs:block ">
                 <Link href="/" >
                     <img className='w-[100px] cursor-pointer' src="https://res.cloudinary.com/fptpolytechnic/image/upload/v1673543047/samples/325042297_711092773955485_5422088835829082377_n_ejizf3.png" alt="" />
                 </Link>
-                <div className="">
+                
+                {/* tab select */}
+                <div className="flex-1">
                     {
                         isMounted && (
-                            <BookingFilter />
+                            <div className="relative flex items-center rounded-full border px-4 py-2 gap-4 shadow-sm bg-white">
+                                {/* === Kiểu thuê === */}
+                                <div className="flex items-center gap-6 rounded-full border-r pr-4">
+                                    {[
+                                        { label: 'Theo giờ', value: 'hourly', icon: <HourglassFullTwoToneIcon /> },
+                                        { label: 'Qua đêm', value: 'overnight', icon: <DarkModeTwoToneIcon /> },
+                                        { label: 'Theo ngày', value: 'daily', icon: <CalendarMonthTwoToneIcon /> },
+                                    ].map(({ label, value, icon }) => (
+                                        <div
+                                            key={value}
+                                            onClick={() => setSelectedType(value as any)}
+                                            className={`flex flex-col items-center cursor-pointer text-sm font-semibold transition ${selectedType === value ? 'text-orange-500' : 'text-black'
+                                                }`}
+                                        >
+                                            <div className="text-lg">{icon}</div>
+                                            <span>{label}</span>
+                                            {selectedType === value && <div className="w-4 h-[2px] bg-orange-500 rounded-full mt-1" />}
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* === Địa điểm === */}
+                                <div className="text-sm font-semibold text-gray-400 border-r pr-4">
+                                    <div>Địa điểm</div>
+                                    <div className="text-gray-600 whitespace-nowrap truncate w-40">Cloud 9 Hotel Quang Tr...</div>
+                                </div>
+
+                                {/* === Nhận và trả phòng === */}
+                                <div
+                                    className="date-fields flex-1 flex justify-evenly items-center border-r pr-4 cursor-pointer"
+                                    onClick={() => setShowDatePicker(!showDatePicker)}
+                                >
+                                    {/* Nhận phòng */}
+                                    <div className="text-sm font-semibold">
+                                        <div className="flex items-center gap-1 text-gray-500">
+                                            <LoginTwoToneIcon fontSize="small" />
+                                            <span>Nhận phòng</span>
+                                        </div>
+                                        {isMounted ? (
+                                            <div className="text-gray-700">
+                                                {format(range[0].startDate, 'dd/MM/yyyy')}
+                                            </div>
+                                        ) : (
+                                            <div className="outline-none text-black">--/--/----</div>
+                                        )}
+                                    </div>
+
+                                    <div className="border-l h-8 mx-3"></div>
+
+                                    {/* Trả phòng */}
+                                    <div className="text-sm font-semibold">
+                                        <div className="flex items-center gap-1 text-gray-500">
+                                            <LogoutTwoToneIcon fontSize="small" />
+                                            <span>Trả phòng</span>
+                                        </div>
+                                        {isMounted ? (
+                                            <div className="text-gray-700">
+                                                {format(range[0].endDate, 'dd/MM/yyyy')}
+                                            </div>
+                                        ) : (
+                                            <div className="outline-none text-black">--/--/----</div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* === Button === */}
+                                <button className="bg-orange-500 text-white text-sm font-semibold px-5 py-2 rounded-full hover:bg-orange-600 transition ml-auto">
+                                    Cập nhật
+                                </button>
+
+                                {/* === Date Range Picker Popup === */}
+                                {isMounted && showDatePicker && (
+                                    <div className="date-picker-container absolute top-16 left-1/2 transform -translate-x-1/2 z-50 mt-2">
+                                        <div className="bg-white shadow-xl rounded-lg p-4 border">
+                                            <DateRange
+                                                ranges={range}
+                                                onChange={(item: any) => setRange([item.selection])}
+                                                moveRangeOnFirstSelection={false}
+                                                months={2}
+                                                direction="horizontal"
+                                                minDate={new Date()}
+                                                locale={vi}
+                                                rangeColors={["#f97316"]}
+                                                color="#f97316"
+                                            />
+                                            <div className="flex justify-end mt-2">
+                                                <button
+                                                    onClick={handleApplyDates}
+                                                    className="bg-orange-500 text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-orange-600 transition"
+                                                >
+                                                    Áp dụng
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         )
                     }
                 </div>
@@ -317,11 +448,7 @@ const HeaderBookingDetail = (props: Props) => {
                                                         alt="Remy Sharp"
                                                         sx={{ width: 56, height: 56 }}
                                                         src={user.avatar || "https://go2joy.vn/images/icons/user-placeholder.svg"} />
-                                                    {/* <img
-                              width={50}
-                              className="rounded-full h-[50px] w-[50px] object-cover border-current"
-                              src={user.avatar || "https://go2joy.vn/images/icons/user-placeholder.svg"}
-                              alt="" /> */}
+
                                                 </div>
                                                 <div className="flex-col pl-3 w-[100%] items-start">
                                                     <p>+{user.phone}</p>
