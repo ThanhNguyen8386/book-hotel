@@ -4,24 +4,9 @@ import toastr from "toastr";
 import "toastr/build/toastr.min.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar } from "@fortawesome/free-solid-svg-icons";
-import { ProductType } from "../../../types/products";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { checkUserBookRoom } from "../../../api/order";
-import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
-import Box from "@mui/material/Box";
-import BasicDateRangePicker from "../../../components/DatePicker/index4";
-import DialogConfirm from "../../../components/Dialog";
-import { DateTimePicker, LocalizationProvider } from "@material-ui/pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import dayjs, { Dayjs } from "dayjs";
-import { Tab, Tabs, Typography } from "@mui/material";
-import TextField from "@material-ui/core/TextField";
-import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import { getOnefac } from "../../../api/facilities";
 import CommentItem from "../../../components/CommentItem";
 import { UserType } from "../../../types/user";
@@ -29,10 +14,6 @@ import useComment from "../../../hook/use-comment";
 import { CommentType, CommentType2 } from "../../../types/comment";
 import { getVoucherByCode } from "../../../api/voucher";
 import { Voucher } from "../../../types/voucher";
-import InputLabel from "@material-ui/core/InputLabel";
-import MenuItem from "@material-ui/core/MenuItem";
-import FormControl from "@material-ui/core/FormControl";
-import Select from "@material-ui/core/Select";
 import { useRouter } from "next/router";
 import { API_URL } from "../../../constants";
 import { fetcher } from "../../../api/instance";
@@ -58,9 +39,6 @@ import InfoTwoToneIcon from '@mui/icons-material/InfoTwoTone';
 import ModeTwoToneIcon from '@mui/icons-material/ModeTwoTone';
 import ChevronRightTwoToneIcon from '@mui/icons-material/ChevronRightTwoTone';
 
-type ProductProps = {
-  product: ProductType;
-};
 type Form = {
   name: string;
   email: string;
@@ -74,41 +52,16 @@ type FormComment = {
   star: string;
 };
 
-interface TabPanelProps {
-  children?: ReactNode;
-  index: number;
-  value: number;
-}
-
-function TabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
-
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
-      {...other}
-    >
-      {value === index && (
-        <Box sx={{ p: 3 }}>
-          <Typography>{children}</Typography>
-        </Box>
-      )}
-    </div>
-  );
-}
 
 const BookingDetail = () => {
+  const router = useRouter();
+  const { slug } = router.query;
   const { data: product, mutate } = useSWR(
     slug ? `${API_URL}/roomsbyCategory/${slug}` : null,
     fetcher
   );
   const { inputValue, setUpdateBooking } = useLayout()
   const LIMIT_SHOW_COMMENT = 6;
-  const router = useRouter();
-  const { slug } = router.query;
   const sectionRefs = {
     overview: useRef<HTMLDivElement>(null),
     rooms: useRef<HTMLDivElement>(null),
@@ -118,16 +71,8 @@ const BookingDetail = () => {
     cancel: useRef<HTMLDivElement>(null),
   }
   const { data: comments, addComment, removeComment } = useComment(product?._id);
-  const [value, setValue] = useState(0);
-  const [date, setDate] = useState<any>([]); //date range pciker
-  const [datebook, setdatebook] = useState({});
-  const [dataorder, setdataorder] = useState({});
-  const [dialong, setdialog] = useState(false);
-  const [status, setstatus] = useState<string>();
   const [step, setStep] = useState<"list" | "checkout">("list");
 
-  // const [ckeckout, setckekout] = useState('')
-  const [showModal, setShowModal] = useState(false);
   const {
     register,
     handleSubmit,
@@ -142,14 +87,11 @@ const BookingDetail = () => {
   } = useForm<FormComment>();
   // const { creatstatus } = useStatus(setstatus)
   const [open, setOpen] = useState(false);
-  const [open2, setOpen2] = useState(false);
   const [openDialogComment, setOpenDialogComment] = useState(false);
-  const [activeStep, setActiveStep] = useState(0);
   const [skipped, setSkipped] = useState(new Set<number>());
   const steps = ["Select campaign settings", "Create an ad group", "Create an ad"];
   const [facilities, setfacilities] = useState<any[]>([]);
   const [chaprice, setchaprice] = useState<any>();
-  const [totaldate, settotaldate] = useState<number>(0);
   const [currentUser, setCurrentUser] = useState<UserType>();
   const [isLogged, setIsLogged] = useState(false);
   // trạng thái user đã sử dụng - trả phòng chưa.
@@ -162,13 +104,6 @@ const BookingDetail = () => {
 
   const [voucherData, setVoucherData] = useState<Voucher | null>(null);
   const [active, setActive] = useState('overview')
-  // thời gian nhận phòng theo giờ
-  const [dateTimeStart, setDateTimeStart] = useState<Dayjs | null>(() => {
-    const currentDate = new Date();
-    const futureDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1, 6, 30);
-
-    return dayjs(futureDate.toISOString());
-  });
   const [hours, setHours] = useState<number>(2);
 
   useEffect(() => {
@@ -233,227 +168,8 @@ const BookingDetail = () => {
     }
   }, [setUpdateBooking, inputValue]);
 
-  const isStepOptional = (step: number) => {
-    return step === 1;
-  };
-
-  const isStepSkipped = (step: number) => {
-    return skipped.has(step);
-  };
-
-  const handleNext = () => {
-    let newSkipped = skipped;
-    if (isStepSkipped(activeStep)) {
-      newSkipped = new Set(newSkipped.values());
-      newSkipped.delete(activeStep);
-    }
-
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    setSkipped(newSkipped);
-  };
-
-  const handleBack = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep - 1);
-  };
-
-  const handleSkip = () => {
-    if (!isStepOptional(activeStep)) {
-      // You probably want to guard against something like this,
-      // it should never occur unless someone's actively trying to break something.
-      throw new Error("You can't skip a step that isn't optional.");
-    }
-
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    setSkipped((prevSkipped) => {
-      const newSkipped = new Set(prevSkipped.values());
-      newSkipped.add(activeStep);
-      return newSkipped;
-    });
-  };
-
-  const handleReset = () => {
-    setActiveStep(0);
-  };
-  const dialogConfirmRef = useRef<any>();
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-  const handleClickOpen2 = () => {
-    setOpen2(true);
-  };
-  const handleClose = () => {
-    setOpen(false);
-    setVoucher("");
-    setVoucherData(null);
-  };
-  const handleClose2 = () => {
-    setOpen2(false);
-  };
-
   // toggle dialog comment list
   const handleToggleDialogComment = () => setOpenDialogComment(!openDialogComment);
-
-  const getDate = (dateData: any) => {
-    //date range pciker
-    setDate(dateData);
-  };
-  const on = async () => { };
-
-  const openDialogConfirm = () => {
-    dialogConfirmRef.current.open("hi");
-  };
-
-  function a11yProps(index: number) {
-    return {
-      id: `simple-tab-${index}`,
-      "aria-controls": `simple-tabpanel-${index}`,
-    };
-  }
-
-  const handleChange = (event: SyntheticEvent, newValue: number) => {
-    if (newValue === 2) {
-      setDateTimeStart(() => {
-        const currentDate = new Date();
-        const futureDate = new Date(
-          currentDate.getFullYear(),
-          currentDate.getMonth(),
-          currentDate.getDate() + 1,
-          6,
-          30,
-        );
-
-        return dayjs(futureDate.toISOString());
-      });
-      setHours(2);
-      settotaldate(2);
-    }
-
-    setValue(newValue);
-  };
-
-  const onsubmit: SubmitHandler<Form> = async (data) => {
-    let tempVoucher;
-    if (voucher.trim()) {
-      const { isValid, voucherData } = await validateVoucher();
-      if (!isValid) return;
-      tempVoucher = voucherData;
-    }
-
-    const user = JSON.parse(localStorage.getItem("user") as string)?._id;
-    const total = chaprice * totaldate;
-
-    let neworder: any = {
-      ...data,
-      user: user,
-      room: product._id,
-      statusorder: "0",
-      total: total,
-      status: status,
-      voucher: tempVoucher,
-      methodpay: "0"
-    };
-
-    let dateBooked: any = {
-      room: product._id,
-    };
-
-    // đặt phòng theo giờ.
-    if (value === 2) {
-      const dateFrom = dayjs(dateTimeStart).toISOString();
-      const dateTo = dayjs(dateTimeStart).add(hours, "hours").toISOString();
-      dateBooked = {
-        ...dateBooked,
-        dateFrom,
-        dateTo,
-      };
-
-      neworder = {
-        ...neworder,
-        checkins: dateFrom,
-        checkouts: dateTo,
-      };
-    } else {
-      const [a, b] = date;
-
-      // thời gian checkin là 14h và checkout là 12h trưa hôm sau
-      // nếu đặt phòng theo ngày và qua đêm
-      const dateFrom = dayjs(a).hour(14).minute(0).second(0).millisecond(0).toISOString();
-      const dateTo = dayjs(b).hour(12).minute(0).second(0).millisecond(0).toISOString();
-
-      dateBooked = {
-        ...dateBooked,
-        dateFrom,
-        dateTo,
-      };
-
-      neworder = {
-        ...neworder,
-        checkins: dateFrom,
-        checkouts: dateTo,
-      };
-    }
-
-    setdatebook(dateBooked);
-    setdataorder(neworder);
-    openDialogConfirm();
-    handleClose();
-    setValue(0);
-    setchaprice(product.price[0].value);
-  };
-
-  // validate voucher
-  const validateVoucher = async () => {
-    let isValid = true;
-    const code = voucher.trim();
-
-    // get thông tin voucher
-    const voucherData = await getVoucherByCode(code);
-    setVoucherData(voucherData);
-    if (!voucherData) {
-      setErrVoucher("Voucher không tồn tại");
-      isValid = false;
-    } else {
-      const { quantity, activeTime, expriedTime, users } = voucherData;
-      const today = new Date().getTime();
-      const activeTimeGetTime = new Date(activeTime).getTime();
-      const expriedTimeGetTime = new Date(expriedTime).getTime();
-
-      // check số lượng voucher hiện còn.
-      if (quantity <= 0) {
-        setErrVoucher("Voucher đã hết lượt sử dụng");
-        isValid = false;
-      } else if (today < activeTimeGetTime) {
-        // check thời gian sử dụng voucher
-        setErrVoucher("Voucher chưa đến thời gian sử dụng");
-        isValid = false;
-      } else if (today > expriedTimeGetTime) {
-        // check thời hạn sử dụng voucher
-        setErrVoucher("Voucher đã hết hạn");
-        isValid = false;
-      } else if (users?.includes(currentUser?._id!)) {
-        // check user đã từng sử dụng voucher chưa.
-        setErrVoucher("Bạn đã sử dụng Voucher này trước đó");
-        isValid = false;
-      } else {
-        // check điều kiện sử dụng: đã đặt phòng 1 lần.
-        const { isBooked } = await checkUserBookRoom({ user: currentUser?._id! });
-        if (!isBooked) {
-          setErrVoucher("Bạn không đủ điều kiện sử dụng Voucher");
-          isValid = false;
-        } else {
-          setErrVoucher("");
-          isValid = true;
-        };
-      }
-    }
-
-    return { isValid, voucherData };
-  };
-
-  const changePrice = (value: number) => {
-    // console.log(product.price)
-    setchaprice(value);
-  };
 
   // submit comment
   const handleSubmitComment: SubmitHandler<FormComment> = async ({ star, comment }) => {
@@ -465,58 +181,6 @@ const BookingDetail = () => {
     });
     toastr.success("Bình luận thành công");
     reset2();
-  };
-
-  // format tiền.
-  const formatCurrency = (currency: number) => {
-    const tempCurrency = +currency >= 0 ? currency : 0;
-    return new Intl.NumberFormat("de-DE", { style: "currency", currency: "VND" }).format(tempCurrency);
-  };
-
-  const DateTimePickers = () => {
-    return (
-      <div className="d-flex">
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <DateTimePicker
-            disablePast
-            label="Nhận phòng"
-            inputFormat="HH:mm, DD [tháng] MM"
-            renderInput={(params) => <TextField {...params} size="small" helperText="" />}
-            value={dateTimeStart}
-            onChange={(newValue) => {
-              setDateTimeStart(newValue);
-            }}
-          />
-        </LocalizationProvider>
-
-        <div className="inline-block min-w-[150px] pl-4">
-          <FormControl className="w-full">
-            <InputLabel id="demo-simple-select-label">Số giờ sử dụng</InputLabel>
-            <Select
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
-              value={hours as any}
-              label="Age"
-              onChange={(e: any) => {
-                setHours(+e.target.value);
-                settotaldate(+e.target.value);
-              }}
-            >
-              <MenuItem value={1}>1 giờ</MenuItem>
-              <MenuItem value={2}>2 giờ</MenuItem>
-              <MenuItem value={3}>3 giờ</MenuItem>
-              <MenuItem value={4}>4 giờ</MenuItem>
-              <MenuItem value={5}>5 giờ</MenuItem>
-              <MenuItem value={6}>6 giờ</MenuItem>
-              <MenuItem value={7}>7 giờ</MenuItem>
-              <MenuItem value={8}>8 giờ</MenuItem>
-              <MenuItem value={9}>9 giờ</MenuItem>
-              <MenuItem value={10}>10 giờ</MenuItem>
-            </Select>
-          </FormControl>
-        </div>
-      </div>
-    );
   };
 
   const tabs = [
@@ -555,9 +219,6 @@ const BookingDetail = () => {
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
-
-  // const prevId = `prev-${product ? product.roomList._id : ""}`;
-  // const nextId = `next-${product ? product.roomList._id : ""}`;
 
   return (
     <div className="w-[80%] mx-auto">
@@ -627,7 +288,7 @@ const BookingDetail = () => {
               <p className="font-semibold text-2xl mb-4">Danh sách phòng</p>
               {product && (
                 <div className="space-y-6">
-                  {product.roomList.map((item:any, index:any) => {
+                  {product.roomList.map((item: any, index: any) => {
                     const prevId = `prev-${item._id}`;
                     const nextId = `next-${item._id}`;
                     return (
@@ -880,211 +541,6 @@ const BookingDetail = () => {
             </div>
           </div>
 
-          <div>
-            <Dialog open={open} onClose={handleClose}>
-              {product?.coc ? (
-                <div className="flex justify-center flex-col items-center">
-                  <DialogTitle>Yêu cầu thanh toán trước</DialogTitle>
-                  <DialogContent>
-                    <DialogContentText>Phòng đặc biệt này phải đặt cọc để giữ phòng</DialogContentText>
-                    <div className="flex flex-col">
-                      <button
-                        onClick={() => {
-                          router.push("/payment");
-                        }}
-                      >
-                        Ok
-                      </button>
-                      <button autoFocus onClick={handleClose}>
-                        Hủy
-                      </button>
-                    </div>
-                  </DialogContent>
-                </div>
-              ) : (
-                <>
-                  <DialogTitle>Thông tin đặt phòng</DialogTitle>
-                  <DialogContent>
-                    <DialogContentText>
-                      Những thông tin này sẽ giúp chúng tôi liên hệ và trợ giúp bạn dễ dàng hơn
-                    </DialogContentText>
-                    <form action="" key={1} onSubmit={handleSubmit(onsubmit)}>
-                      <div className="mb-6">
-                        <label
-                          htmlFor="default-input"
-                          className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-                        >
-                          Họ và tên <span>*</span>
-                        </label>
-                        <input
-                          {...register("name", { required: true })}
-                          type="text"
-                          id="default-input"
-                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                        />
-                        {Object.keys(errors).length !== 0 && (
-                          <div>
-                            {errors.name?.type === "required" && <p className="text-red-600">Tên không được bỏ trống</p>}
-                          </div>
-                        )}
-                      </div>
-                      <div className="mb-6">
-                        <label
-                          htmlFor="default-input"
-                          className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-                        >
-                          Số điện thoại <span>*</span>
-                        </label>
-                        <input
-                          {...register("phone", { required: true })}
-                          type="number"
-                          id="default-input"
-                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                        />
-                        {Object.keys(errors).length !== 0 && (
-                          <div>
-                            {errors.phone?.type === "required" && (
-                              <p className="text-red-600">Số điện thoại sản phẩm không được bỏ trống</p>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                      <div className="mb-6">
-                        <label
-                          htmlFor="default-input"
-                          className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-                        >
-                          Email <span>*</span>
-                        </label>
-                        <input
-                          {...register("email", { required: true })}
-                          type="text"
-                          id="default-input"
-                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                        />
-                        {Object.keys(errors).length !== 0 && (
-                          <div>
-                            {errors.email?.type === "required" && (
-                              <p className="text-red-600">Email sản phẩm không được bỏ trống</p>
-                            )}
-                          </div>
-                        )}
-                      </div>
-
-                      {/* voucher */}
-                      {isLogged && (
-                        <div className="mb-6">
-                          <label
-                            htmlFor="default-input"
-                            className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-                          >
-                            Voucher
-                          </label>
-                          <input
-                            value={voucher}
-                            onChange={(e) => {
-                              const voucher = e.target.value;
-                              setVoucher(voucher);
-                              if (!voucher.trim()) {
-                                setErrVoucher("");
-                                setVoucherData(null);
-                              }
-                            }}
-                            type="text"
-                            id="default-input"
-                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                          />
-                          <div>{errVoucher?.trim() && <p className="text-red-600">{errVoucher}</p>}</div>
-                        </div>
-                      )}
-
-                      {/* tab */}
-                      <Box sx={{ width: "100%" }}>
-                        <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-                          <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-                            {product?.price?.map((item: any, index: number) => (
-                              <Tab
-                                key={index}
-                                icon={<CalendarMonthIcon />}
-                                onClick={() => {
-                                  setchaprice(item.value);
-                                }}
-                                iconPosition="start"
-                                label={`${item.title}`}
-                                {...a11yProps(item.brand)}
-                              />
-                            ))}
-                            {/* <Tab icon={<CalendarMonthIcon />} iconPosition="start" label="Theo ngày" {...a11yProps(0)} />
-                                                    <Tab icon={<BedtimeIcon />} iconPosition="start" label="Qua đêm" {...a11yProps(1)} />
-                                                    <Tab icon={<AccessTimeIcon />} iconPosition="start" label="Theo giờ" {...a11yProps(2)} /> */}
-                          </Tabs>
-                        </Box>
-                        <div className="flex mt-[10px] font-medium text-gray-500">
-                          Giá phòng: {formatCurrency(chaprice)}
-                          {value !== 2 && <div className="ml-[40px]">Số ngày ở: {totaldate}</div>}
-                        </div>
-
-                        <div className="mt-[10px] font-medium text-gray-500">
-                          <span>Tạm tính: </span>
-                          <span>{formatCurrency(chaprice * totaldate)}</span>
-                        </div>
-
-                        {!errVoucher?.trim().length && voucherData && (
-                          <div className="mt-[10px] font-medium text-gray-500">
-                            <span>Voucher: </span>
-                            <span>
-                              {voucherData.code} (-{formatCurrency(voucherData.discount)})
-                            </span>
-                          </div>
-                        )}
-
-                        <div className="mt-[10px] font-bold text-[18px] text-orange-500">
-                          Tổng:{" "}
-                          {totaldate
-                            ? formatCurrency(
-                              chaprice * totaldate -
-                              +`${!errVoucher?.trim().length && voucherData ? voucherData?.discount : 0}`,
-                            )
-                            : formatCurrency(0)}
-                        </div>
-
-                        {/* giá theo giờ */}
-                        <TabPanel value={value} index={2}>
-                          <DateTimePickers />
-                        </TabPanel>
-                        <TabPanel value={value} index={0}>
-                          <BasicDateRangePicker settotaldate={settotaldate} getDate={getDate} id={product?._id ? product._id : ''} disabled={undefined} />
-                        </TabPanel>
-                        <TabPanel value={value} index={1}>
-                          <BasicDateRangePicker settotaldate={settotaldate} getDate={getDate} id={product?._id ? product._id : ''} disabled={undefined} />
-                        </TabPanel>
-                      </Box>
-
-                      {/*footer*/}
-                      <div className="flex items-center justify-end border-t border-solid border-slate-200 rounded-b">
-                        <DialogActions>
-                          <Button onClick={handleClose}>Hủy</Button>
-                          <Button
-                            type="submit"
-                            onClick={() => {
-                              setShowModal(false);
-                              on();
-                              handleClose;
-                              setdialog(true);
-                            }}
-                          >
-                            Đặt phòng
-                          </Button>
-                        </DialogActions>
-                      </div>
-                    </form>
-                  </DialogContent>
-                </>
-              )}
-            </Dialog>
-            <DialogConfirm ref={dialogConfirmRef} data={dataorder} datebooks={datebook} room={product?.name} />
-          </div>
-
           {/* dialog comment */}
           <Dialog open={openDialogComment} onClose={() => handleToggleDialogComment()} fullWidth maxWidth="lg">
             <div className="px-6 py-4">
@@ -1122,9 +578,9 @@ const BookingDetail = () => {
       ) : (
         <div className="max-w-6xl mx-auto bg-white">
           {/* Header */}
-          <div 
-          onClick={()=>setStep("list")}
-          className="p-4 border-b flex items-center">
+          <div
+            onClick={() => setStep("list")}
+            className="p-4 border-b flex items-center">
             <ChevronLeftRoundedIcon className="h-6 w-6 text-gray-700" />
             <h1 className="text-lg font-medium ml-2">Xác nhận & Thanh toán</h1>
           </div>
