@@ -41,6 +41,7 @@ const SearchResult = (props: Props) => {
   const [open2, setOpen2] = useState(false);
   const [rooms, setRooms] = useState<RoomType[]>([]);
   const [value, setValue] = useState<number[]>([0, 100]);
+  console.log(rooms);
 
   useEffect(() => {
     if (Object.keys(query).length) {
@@ -241,16 +242,16 @@ const SearchResult = (props: Props) => {
           <div className="main bg-[#f2f2f7]  mb-[20px] flex justify-between mbs:flex-col mb:flex-row ">
             <div className={styles.content_left}>
               <div className="m-3">
-                {!rooms.length ? (
+                {rooms.data && !rooms.data.length ? (
                   <div>Không tìm thấy khách sạn nào phù hợp</div>
                 ) : (
                   <div>
-                    Có <strong>{rooms.length}</strong> khách sạn phù hợp với bạn
+                    Có <strong>{rooms.data && rooms.data.length}</strong> khách sạn phù hợp với bạn
                   </div>
                 )}
               </div>
 
-              {rooms?.map((room, index) => (
+              {rooms && rooms?.data?.map((room, index) => (
                 <Link href={`/booking_detail/${room.slug}`} key={index}>
                   <div className="card m-3 bg-[white] object-cover border rounded-lg cursor-pointer">
                     <div className="box h-[fitcontent] p-2 flex mbs:flex-col mb:flex-row">

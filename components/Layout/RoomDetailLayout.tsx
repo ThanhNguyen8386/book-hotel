@@ -4,12 +4,12 @@ import BackToTop from '../BackToTop'
 import Footer from '../Footer'
 import Header from '../Header'
 import HeaderBookingDetail from '../HeaderBookingDetail'
-import { RoomContext } from '../../contexts/RoomContext'
+import { RoomContext } from '../../contexts/LayoutContext'
 
 type Props = {}
 type RoomDetailLayoutProps = LayoutProps & {
     roomName: string;
-  };
+};
 const RoomDetailLayout = ({ children, roomName }: RoomDetailLayoutProps) => {
     const [visible, setVisible] = useState(true);
 
@@ -26,14 +26,12 @@ const RoomDetailLayout = ({ children, roomName }: RoomDetailLayoutProps) => {
         window.addEventListener("scroll", toggleVisible)
     }, [])
     return (
-        <RoomContext.Provider value={{roomName: "Nhà nghỉ Hồng Minh"}} >
-            <div className="w-[80%] mx-auto">
-                <HeaderBookingDetail />
-                {children}
-                <BackToTop visible={visible} />
-                <Footer />
-            </div>
-        </RoomContext.Provider>
+        <div className="w-[80%] mx-auto">
+            <HeaderBookingDetail />
+            {children}
+            <BackToTop visible={visible} />
+            <Footer />
+        </div>
     )
 }
 

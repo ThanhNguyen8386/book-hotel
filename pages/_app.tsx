@@ -4,15 +4,18 @@ import { AppPropsWithLayout } from '../models/layout'
 import SiteLayout from '../components/Layout'
 import { ThemeProvider } from '@mui/material'
 import { theme } from '../theme'
+import { LayoutProvider } from '../contexts/LayoutContext'
 
 
 function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   const LayoutWrapper = Component.Layout ?? SiteLayout
   return (
     // <ThemeProvider theme={theme}>
-    <LayoutWrapper>
-      <Component {...pageProps} />
-    </LayoutWrapper>
+    <LayoutProvider>
+      <LayoutWrapper>
+        <Component {...pageProps} />
+      </LayoutWrapper>
+    </LayoutProvider>
     // </ThemeProvider>
   )
 }

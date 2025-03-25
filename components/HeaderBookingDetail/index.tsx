@@ -1,51 +1,32 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from 'next/link'
-import React, { ChangeEvent, FormEvent, MouseEvent, useEffect, useMemo, useState } from 'react'
+import React, { MouseEvent, useEffect, useMemo, useState } from 'react'
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
-import { DateRangePicker, DateRangeDelimiter, LocalizationProvider, DateTimePicker } from "@material-ui/pickers";
-import { Avatar, InputAdornment } from "@mui/material";
-import InputLabel from "@material-ui/core/InputLabel";
+import { Avatar } from "@mui/material";
 import MenuItem from "@material-ui/core/MenuItem";
-import FormControl from "@material-ui/core/FormControl";
-import Select from "@material-ui/core/Select";
 import { useRouter } from 'next/router';
 import { USER_ROLE } from '../../constants';
 import dayjs, { Dayjs } from 'dayjs';
-import TextField from "@material-ui/core/TextField";
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import LogoutIcon from "@mui/icons-material/Logout";
-// import DateFnsUtils from "@material-ui/pickers/adapter/date-fns";
-import LoginIcon from "@mui/icons-material/Login";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch } from '@fortawesome/free-solid-svg-icons';
-import toastr from "toastr";
 import "toastr/build/toastr.min.css";
 import HourglassFullTwoToneIcon from '@mui/icons-material/HourglassFullTwoTone';
 import DarkModeTwoToneIcon from '@mui/icons-material/DarkModeTwoTone';
 import CalendarMonthTwoToneIcon from '@mui/icons-material/CalendarMonthTwoTone';
-import { useRoom } from '../../contexts/RoomContext';
 import LoginTwoToneIcon from '@mui/icons-material/LoginTwoTone';
 import LogoutTwoToneIcon from '@mui/icons-material/LogoutTwoTone';
 import { DateRange } from 'react-date-range';
 import 'react-date-range/dist/styles.css'; // style mặc định
 import 'react-date-range/dist/theme/default.css'; // theme mặc định
-import { addDays, format } from 'date-fns';
+import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
+import { useLayout } from '../../contexts/LayoutContext';
 
 type Props = {}
 
 const HeaderBookingDetail = (props: Props) => {
-    const { roomName } = useRoom();
+    const { inputValue, handleInputChange, setUpdateBooking, updateBooking } = useLayout();
     const [selectedType, setSelectedType] = useState<'hourly' | 'overnight' | 'daily'>('hourly');
     const [showDatePicker, setShowDatePicker] = useState(false);
-    const [range, setRange] = useState([
-        {
-            startDate: new Date(),
-            endDate: addDays(new Date(), 1),
-            key: 'selection',
-        },
-    ]);
     const [isMounted, setIsMounted] = useState(false);
     useEffect(() => {
         setIsMounted(true)
@@ -57,28 +38,8 @@ const HeaderBookingDetail = (props: Props) => {
         return [dayjs(currentDate.toISOString()), dayjs(futureDate.toISOString())];
     }, []);
 
-    const [selectedDate, setSelectedDate] = useState<any>(defaultSelectedDate);
-
-    // thời gian nhận phòng - form tìm kiếm theo giờ
-    const [dateTimeStart, setDateTimeStart] = useState<Dayjs | null>(() => {
-        const currentDate = new Date();
-        const futureDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1, 6, 30);
-
-        return dayjs(futureDate.toISOString());
-    });
-
-    // thời gian trả phòng - form tìm kiếm theo giờ
-    const [hours, setHours] = useState<number>(2);
-    const [selection, setSelection] = useState<number>(1);
-
     const [anchorEl2, setAnchorEl2] = useState<null | HTMLElement>(null);
     const open2 = Boolean(anchorEl2);
-    const handleClick2 = (event: MouseEvent<HTMLButtonElement>) => {
-        setAnchorEl2(event.currentTarget);
-    };
-    const handleClose2 = () => {
-        setAnchorEl2(null);
-    };
 
     const router = useRouter()
     const query = router.asPath
@@ -96,23 +57,7 @@ const HeaderBookingDetail = (props: Props) => {
         setUser(getUser)
     }, [])
 
-    const [visible, setVisible] = useState(false);
-    const [indexTab, setIndexTab] = useState(1);
     const [open, setOpen] = useState(true)
-
-    const toggleVisible = () => {
-        const scrolled = document.documentElement.scrollTop;
-        if (scrolled > 150) {
-            setVisible(true)
-            setOpen(true)
-        }
-        else if (scrolled <= 150) {
-            setVisible(false)
-        }
-    };
-    useEffect(() => {
-        window.addEventListener("scroll", toggleVisible)
-    }, [])
     useEffect(() => {
         if (query === "/") {
             setShowSearch(false)
@@ -129,157 +74,6 @@ const HeaderBookingDetail = (props: Props) => {
     };
     const handleClose = () => {
         setAnchorEl(null);
-    };
-
-    const DateRangerPicker = () => {
-        return (
-            <LocalizationProvider dateAdapter={AdapterDayjs as any}>
-                <DateRangePicker
-                    startText="Nhận phòng"
-                    inputFormat="dd/MM/YYY"
-                    endText="Trả phòng"
-                    value={selectedDate}
-                    disablePast
-                    onChange={(date: any) => setSelectedDate(date)}
-                    renderInput={(startProps, endProps) => (
-                        <>
-                            <TextField
-                                {...startProps}
-                                size="small"
-                                variant="standard"
-                                InputProps={{
-                                    startAdornment: (
-                                        <InputAdornment position="start">
-                                            <LoginIcon />
-                                        </InputAdornment>
-                                    ),
-                                }}
-                                helperText=""
-                            />
-                            <DateRangeDelimiter> to </DateRangeDelimiter>
-                            <TextField
-                                {...endProps}
-                                size="small"
-                                variant="standard"
-                                InputProps={{
-                                    startAdornment: (
-                                        <InputAdornment position="start">
-                                            <LogoutIcon />
-                                        </InputAdornment>
-                                    ),
-                                }}
-                                error={!selectedDate[1]}
-                                helperText=""
-                            />
-                        </>
-                    )}
-                />
-            </LocalizationProvider>
-            // <div></div>
-        );
-    };
-
-    const DateTimePickers = () => {
-        return (
-            <>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DateTimePicker
-                        disablePast
-                        label="Nhận phòng"
-                        inputFormat="HH:mm, DD [tháng] MM"
-                        renderInput={(params) => <TextField {...params} size="small" helperText="" />}
-                        value={dateTimeStart}
-                        onChange={(newValue) => {
-                            setDateTimeStart(newValue);
-                        }}
-                    />
-                </LocalizationProvider>
-
-                <div className="ml-2 mr-3 min-w-[150px]">
-                    <FormControl fullWidth>
-                        <InputLabel id="demo-simple-select-label">Số giờ sử dụng</InputLabel>
-                        <Select
-                            labelId="demo-simple-select-label"
-                            id="demo-simple-select"
-                            value={hours as any}
-                            label="Age"
-                            onChange={(e: ChangeEvent<any>) => {
-                                setHours(+e.target.value);
-                            }}
-                        >
-                            <MenuItem value={1}>1 giờ</MenuItem>
-                            <MenuItem value={2}>2 giờ</MenuItem>
-                            <MenuItem value={3}>3 giờ</MenuItem>
-                            <MenuItem value={4}>4 giờ</MenuItem>
-                            <MenuItem value={5}>5 giờ</MenuItem>
-                            <MenuItem value={6}>6 giờ</MenuItem>
-                            <MenuItem value={7}>7 giờ</MenuItem>
-                            <MenuItem value={8}>8 giờ</MenuItem>
-                            <MenuItem value={9}>9 giờ</MenuItem>
-                            <MenuItem value={10}>10 giờ</MenuItem>
-                        </Select>
-                    </FormControl>
-                </div>
-            </>
-        );
-    };
-
-    // search room.
-    const handleSearch = (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-
-        if (!selectedDate[0] || !selectedDate[1]) {
-            toastr.info("Vui lòng chọn thời gian trả phòng!");
-            return;
-        }
-
-        let query = {};
-
-        // tìm kiếm theo giờ.
-        if (indexTab === 1) {
-            const timeCheckin = new Date(dateTimeStart as any);
-
-            query = {
-                checkin: new Date(
-                    timeCheckin.getFullYear(),
-                    timeCheckin.getMonth(),
-                    timeCheckin.getDate(),
-                    timeCheckin.getHours(),
-                    timeCheckin.getMinutes(),
-                    timeCheckin.getSeconds(),
-                ).toISOString(),
-                checkout: new Date(
-                    timeCheckin.getFullYear(),
-                    timeCheckin.getMonth(),
-                    timeCheckin.getDate(),
-                    timeCheckin.getHours() + hours,
-                    timeCheckin.getMinutes(),
-                    timeCheckin.getSeconds(),
-                ).toISOString(),
-            };
-        } else {
-            const [checkin, checkout] = selectedDate;
-            const dateCheckin = new Date(checkin);
-            const dateCheckout = new Date(checkout);
-
-            // tìm kiếm phòng qua đêm, theo ngày mặc định thời gian checkin là 14h và checkout là 12h trưa hôm sau.
-            query = {
-                checkin: new Date(dateCheckin.getFullYear(), dateCheckin.getMonth(), dateCheckin.getDate(), 14).toISOString(),
-                checkout: new Date(
-                    dateCheckout.getFullYear(),
-                    dateCheckout.getMonth(),
-                    dateCheckout.getDate(),
-                    12,
-                ).toISOString(),
-            };
-        }
-
-        setOpen(true);
-
-        router.push({
-            pathname: "search",
-            query,
-        });
     };
 
     useEffect(() => {
@@ -299,14 +93,22 @@ const HeaderBookingDetail = (props: Props) => {
     const handleApplyDates = () => {
         setShowDatePicker(false);
     };
-    
+
+    const handleUpdateBooking = () => {
+        if (updateBooking) {
+            updateBooking(); // Gọi API từ BookingDetail
+        } else {
+            console.error("🚨 Không tìm thấy hàm gọi API!");
+        }
+    };
+
     return (
-        <header className='sticky w-[80%] border-b mx-auto top-0 z-[90] bg-[#fff]'>
+        <header className='sticky w-[90%] border-b mx-auto top-0 z-[90] bg-[#fff]'>
             <div className="flex justify-between items-center py-2 mb:flex mbs:block ">
                 <Link href="/" >
                     <img className='w-[100px] cursor-pointer' src="https://res.cloudinary.com/fptpolytechnic/image/upload/v1673543047/samples/325042297_711092773955485_5422088835829082377_n_ejizf3.png" alt="" />
                 </Link>
-                
+
                 {/* tab select */}
                 <div className="flex-1">
                     {
@@ -341,7 +143,7 @@ const HeaderBookingDetail = (props: Props) => {
                                 {/* === Nhận và trả phòng === */}
                                 <div
                                     className="date-fields flex-1 flex justify-evenly items-center border-r pr-4 cursor-pointer"
-                                    onClick={() => setShowDatePicker(!showDatePicker)}
+                                    onClick={() => setShowDatePicker(true)}
                                 >
                                     {/* Nhận phòng */}
                                     <div className="text-sm font-semibold">
@@ -351,7 +153,7 @@ const HeaderBookingDetail = (props: Props) => {
                                         </div>
                                         {isMounted ? (
                                             <div className="text-gray-700">
-                                                {format(range[0].startDate, 'dd/MM/yyyy')}
+                                                {format(inputValue[0].startDate, 'dd/MM/yyyy')}
                                             </div>
                                         ) : (
                                             <div className="outline-none text-black">--/--/----</div>
@@ -368,7 +170,7 @@ const HeaderBookingDetail = (props: Props) => {
                                         </div>
                                         {isMounted ? (
                                             <div className="text-gray-700">
-                                                {format(range[0].endDate, 'dd/MM/yyyy')}
+                                                {format(inputValue[0].endDate, 'dd/MM/yyyy')}
                                             </div>
                                         ) : (
                                             <div className="outline-none text-black">--/--/----</div>
@@ -377,17 +179,20 @@ const HeaderBookingDetail = (props: Props) => {
                                 </div>
 
                                 {/* === Button === */}
-                                <button className="bg-orange-500 text-white text-sm font-semibold px-5 py-2 rounded-full hover:bg-orange-600 transition ml-auto">
+                                <button
+                                    onClick={() => { handleUpdateBooking() }}
+                                    className="bg-orange-500 text-white text-sm font-semibold px-5 py-2 rounded-full hover:bg-orange-600 transition ml-auto">
                                     Cập nhật
                                 </button>
 
                                 {/* === Date Range Picker Popup === */}
                                 {isMounted && showDatePicker && (
-                                    <div className="date-picker-container absolute top-16 left-1/2 transform -translate-x-1/2 z-50 mt-2">
+                                    <div className="date-picker-container absolute top-16 right-12 z-50 mt-2">
                                         <div className="bg-white shadow-xl rounded-lg p-4 border">
                                             <DateRange
-                                                ranges={range}
-                                                onChange={(item: any) => setRange([item.selection])}
+                                                ranges={inputValue}
+                                                onChange={(item: any) => handleInputChange([item.selection])}
+                                                // onChange={(item: any) => setRange([item.selection])}
                                                 moveRangeOnFirstSelection={false}
                                                 months={2}
                                                 direction="horizontal"

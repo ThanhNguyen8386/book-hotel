@@ -29,7 +29,7 @@ const Carousel = ({ images }: []) => {
                         spaceBetween={10}
                         thumbs={{ swiper: thumbsSwiper }}
                         modules={[FreeMode, Navigation, Thumbs]}
-                        className="h-[400px]"
+                        className="h-[500px]"
                         direction="vertical"
                     >
                         {
@@ -67,7 +67,7 @@ const Carousel = ({ images }: []) => {
                         watchSlidesProgress={true}
                         modules={[FreeMode, Navigation, Thumbs]}
                         direction="vertical"
-                        className="h-[400px]"
+                        className="h-[500px]"
                     >
                         {
                             images.map((item: any, index: any) => {

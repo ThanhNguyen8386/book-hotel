@@ -1,88 +1,113 @@
-/* eslint-disable @next/next/no-img-element */
 import React from 'react'
-import Link from 'next/link'
-
-type Props = {}
-
-const Footer = (props: Props) => {
-  return (
-    <footer className="bg-[#ddd] dark:bg-gray-900">
-      <div className="w-[80%] mx-auto">
-        <div className="grid grid-cols-2 gap-8 py-8 px-6 md:grid-cols-4">
-          <div>
-            <h2 className="mb-6 text-normal font-bold text-[black] uppercase dark:text-gray-400">Hỗ trợ</h2>
-            <ul className="text-[black] dark:text-gray-400">
-              <li className="mb-4 flex">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
-                </svg>
-                <a href="#" className=" hover:underline text-sm">Hotline: 0123456789</a>
-              </li>
-              <li className="mb-4">
-                <a href="#" className="hover:underline text-sm">Hỗ trợ khách hàng: thanh@gmai.com</a>
-              </li>
-              <li className="mb-4">
-                <a href="#" className="hover:underline text-sm">Liên hệ hợp tác: thanh@gmail.com</a>
-              </li>
-              <li className="mb-4">
-                <a href="#" className="hover:underline text-sm">Cơ chế giải quyết tranh chấp, khiếu nại</a>
-              </li>
-            </ul>
+import LocalPhoneTwoToneIcon from '@mui/icons-material/LocalPhoneTwoTone';
+const Footer = () => (
+  <footer className="bg-white border-t border-gray-200 w-[90%] mx-auto">
+    <div className="container mx-auto px-4 py-8">
+      {/* Main footer sections */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+        {/* Support section */}
+        <div>
+          <h3 className="font-medium text-lg mb-4">Hỗ trợ</h3>
+          <div className="space-y-2">
+            <div className="flex items-center">
+              <LocalPhoneTwoToneIcon size={18} className="mr-2" />
+              <span>Hotline: 1900 638 838</span>
+            </div>
+            <p>Hỗ trợ khách hàng: cskh@go2joy.vn</p>
+            <p>Liên hệ hợp tác: support@go2joy.vn</p>
+            <p>Cơ chế giải quyết tranh chấp, khiếu nại</p>
           </div>
-          <div>
-            <h2 className="mb-6 text-normal font-bold text-[black] uppercase dark:text-gray-400">Giới thiệu</h2>
-            <ul className="text-[black] dark:text-gray-400">
-              <li className="mb-4">
-                <Link href="/introduce" className="hover:underline text-sm" >
-                  Về chúng tôi
-                </Link>
-              </li>
-              <li className="mb-4">
-                <Link href="/blog" className="hover:underline text-sm" >
-                  Trang blog
-                </Link>
-                {/* <a href="#" className="hover:underline text-sm">Trang blog</a> */}
-              </li>
-              <li className="mb-4">
-                <a href="#" className="hover:underline text-sm">Qui chế hoạt động website</a>
-              </li>
-              <li className="mb-4">
-                <a href="#" className="hover:underline text-sm">Cơ hội nghề nghiệp</a>
-              </li>
-            </ul>
+        </div>
+        {/* Introduction section */}
+        <div>
+          <h3 className="font-medium text-lg mb-4">Giới thiệu</h3>
+          <ul className="space-y-2">
+            <li>Về chúng tôi</li>
+            <li>Trang blog</li>
+            <li>Quy chế hoạt động website</li>
+            <li>Cơ hội nghề nghiệp</li>
+            <li>Dành cho đối tác</li>
+          </ul>
+        </div>
+        {/* Payment partners section */}
+        <div>
+          <h3 className="font-medium text-lg mb-4">Đối tác thanh toán</h3>
+          <div className="flex flex-wrap gap-3">
+            <img
+              src="https://cdn.haitrieu.com/wp-content/uploads/2022/10/Icon-VNPAY-QR.png"
+              alt="VNPay"
+              className="h-8 object-contain" />
+            <img
+              src="https://cdn.haitrieu.com/wp-content/uploads/2022/10/Logo-MoMo-Square.png"
+              alt="MoMo"
+              className="h-8 object-contain" />
+            <img
+              src="https://cdn.haitrieu.com/wp-content/uploads/2022/02/Icon-Zalo-Pay.png"
+              alt="ZaloPay"
+              className="h-8 object-contain" />
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/MasterCard_Logo.svg/2560px-MasterCard_Logo.svg.png"
+              alt="MasterCard"
+              className="h-8 object-contain" />
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/2560px-Visa_Inc._logo.svg.png"
+              alt="Visa"
+              className="h-8 object-contain" />
           </div>
-          <div>
-            <h2 className="mb-6 text-normal font-bold text-[black] uppercase dark:text-gray-400">Đối tác thanh toán</h2>
-            <ul className="text-[black] dark:text-gray-400 flex">
-              <li className="mb-4">
-                <a href="#" className="hover:underline text-sm">
-                  <img width="100px" className='pr-2 h-[100%]' src="https://seeklogo.com/images/V/vnpay-logo-CCF12E3F02-seeklogo.com.png" alt="" />
-                </a>
-              </li>
-              <a href="#" className="hover:underline text-sm">
-                <img width="100px" className='pl-2' src="https://seeklogo.com/images/V/vnpay-logo-CCF12E3F02-seeklogo.com.png" alt="" />
+        </div>
+        {/* App download section */}
+        <div>
+          <h3 className="font-medium text-lg mb-4">Tải ứng dụng</h3>
+          <div className="flex flex-col space-y-3">
+            <img
+              src="https://uploadthingy.s3.us-west-1.amazonaws.com/9EFQgc9Si16Met8VKV9RQZ/image.png"
+              alt="QR Code"
+              className="h-32 w-32 object-contain" />
+            <div className="flex flex-col space-y-2">
+              <a href="#" className="inline-block">
+                <img
+                  src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg"
+                  alt="Download on App Store"
+                  className="h-10" />
               </a>
-            </ul>
-          </div>
-          <div>
-            <h2 className="mb-6 text-normal font-bold text-[black] uppercase dark:text-gray-400">Tải ứng dụng</h2>
-            <ul className="text-[black] dark:text-gray-400">
-              <li className="mb-4">
-                <a href="#" className="hover:underline text-sm">Privacy Policy</a>
-              </li>
-              <li className="mb-4">
-                <a href="#" className="hover:underline text-sm">Licensing</a>
-              </li>
-              <li className="mb-4">
-                <a href="#" className="hover:underline text-sm">Terms &amp; Conditions</a>
-              </li>
-            </ul>
+              <a href="#" className="inline-block">
+                <img
+                  src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png"
+                  alt="Get it on Google Play"
+                  className="h-12" />
+              </a>
+            </div>
           </div>
         </div>
       </div>
-    </footer>
-
-  )
-}
-
+      {/* Divider */}
+      <hr className="border-gray-200 my-6" />
+      {/* Copyright section */}
+      <div className="flex flex-col md:flex-row justify-between items-center">
+        <div className="mb-4 md:mb-0 text-sm text-gray-600">
+          <p>
+            Copyright © 2023 GO2JOY Vietnam, Jsc. · Điều khoản · Bảo mật ·
+            Quy định đăng tin · Sơ đồ trang web
+          </p>
+        </div>
+      </div>
+      {/* Company info */}
+      <div className="mt-8 text-center text-sm text-gray-600">
+        <p className="font-medium mb-2">CÔNG TY CỔ PHẦN GO2JOY VIỆT NAM</p>
+        <p className="mb-1">
+          Địa chỉ trụ sở: 5A/2 đường Trần Phú, Phường 04, Quận 5, Thành phố Hồ
+          Chí Minh, Việt Nam
+        </p>
+        <p className="mb-1">
+          Người đại diện theo pháp luật: BYUN SUNG MIN - chức vụ: Tổng Giám
+          đốc
+        </p>
+        <p>
+          Mã số thuế: 0311850218 do Sở Kế hoạch và Đầu tư TP. Hồ Chí Minh cấp
+          lần đầu ngày 11/06/2012, thay đổi lần thứ 19 ngày 10/01/2024
+        </p>
+      </div>
+    </div>
+  </footer>
+)
 export default Footer
