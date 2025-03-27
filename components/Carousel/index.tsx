@@ -57,7 +57,7 @@ const Carousel = ({ images }: []) => {
                         onClick={() => {
                             setOpen(true)
                         }}
-                        className='absolute bottom-[10px] text-sm cursor-pointer left-[50%] translate-x-[-50%] z-[999] p-2 rounded-xl shadow-xl bg-[#fff]'>Xem tất cả</p>
+                        className='absolute bottom-[10px] text-sm cursor-pointer left-[50%] translate-x-[-50%] z-[50] p-2 rounded-xl shadow-xl bg-[#fff]'>Xem tất cả</p>
                     <Swiper
                         onSwiper={(swiper:any) => setThumbsSwiper(swiper)}
                         loop={true}

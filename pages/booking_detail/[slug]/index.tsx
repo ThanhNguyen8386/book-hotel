@@ -6,7 +6,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar } from "@fortawesome/free-solid-svg-icons";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { checkUserBookRoom } from "../../../api/order";
-import Dialog from "@mui/material/Dialog";
 import { getOnefac } from "../../../api/facilities";
 import CommentItem from "../../../components/CommentItem";
 import { UserType } from "../../../types/user";
@@ -35,6 +34,7 @@ import 'swiper/css/thumbs';
 import { Navigation, Pagination } from 'swiper/modules';
 import Image from 'next/image';
 import Checkout from "./Checkout";
+import { differenceInSeconds } from "date-fns";
 
 type Form = {
   name: string;
@@ -57,7 +57,11 @@ const BookingDetail = () => {
     slug ? `${API_URL}/roomsbyCategory/${slug}` : null,
     fetcher
   );
-  const { inputValue, setUpdateBooking } = useLayout()
+  const {
+    inputValue,
+    setUpdateBooking,
+    setRoomName,
+    selectedType } = useLayout()
   const LIMIT_SHOW_COMMENT = 6;
   const sectionRefs = {
     overview: useRef<HTMLDivElement>(null),
@@ -156,6 +160,11 @@ const BookingDetail = () => {
   };
 
   useEffect(() => {
+    if (product) {
+      setRoomName(product?.name)
+    }
+  }, [product])
+  useEffect(() => {
     if (setUpdateBooking) {
       setUpdateBooking(() => callBookingAPI);
     }
@@ -173,9 +182,18 @@ const BookingDetail = () => {
     reset2();
   };
 
+  const startDate = new Date(inputValue[0].startDate);
+  const endDate = new Date(inputValue[0].endDate);
+  const diffInSeconds = differenceInSeconds(endDate, startDate) / 60 / 60 / 24;
+
   const actionOpenDialog = {
     checkout: (item: any, type: any) => {
-      refCheckout.current.checkout(item, type)
+      const _item = {
+        ...item,
+        address: product.address,
+        total: diffInSeconds * item.price[selectedType].value
+      }
+      refCheckout.current.checkout(_item, type)
     },
     update: (item: any, type: any) => {
       refCheckout.current.comment(item, type)
@@ -221,6 +239,10 @@ const BookingDetail = () => {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  const formatCurrency = (currency: number) => {
+    const tempCurrency = +currency >= 0 ? currency : 0;
+    return new Intl.NumberFormat("de-DE", { style: "currency", currency: "VND" }).format(tempCurrency);
+  };
   return (
     <div className="w-[80%] mx-auto">
       <div className="content-header__booking">
@@ -261,13 +283,13 @@ const BookingDetail = () => {
 
         <div className="">
           {/* tab */}
-          <div className="sticky my-4 top-[86.98px] z-50 bg-white">
+          <div className="sticky my-4 top-[89.98px] z-50 bg-white">
             <div className="flex gap-6 py-2 overflow-x-auto">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => handleClick(tab.id)}
-                  className={`pb-2 whitespace-nowrap text-xl font-medium transition-all ${active === tab.id
+                  className={`pb-2 whitespace-nowrap font-medium transition-all ${active === tab.id
                     ? 'text-black border-b-2 border-orange-500'
                     : 'text-gray-400 hover:text-black'
                     }`}
@@ -284,7 +306,7 @@ const BookingDetail = () => {
           </div>
 
           {/* phòng */}
-          <div ref={sectionRefs.rooms} className="scroll-mt-[150px] my-8">
+          <div ref={sectionRefs.rooms} className="scroll-mt-[160px] my-8">
             <p className="font-semibold text-2xl mb-4">Danh sách phòng</p>
             {product && (
               <div className="space-y-6">
@@ -382,7 +404,12 @@ const BookingDetail = () => {
                                 Giá phòng
                               </h3>
                               <div className="flex items-baseline gap-1 justify-end">
-                                <p className="text-gray-800 font-bold text-2xl">{item.price[0].value}</p>
+                                <div className="flex items-end">
+                                  <p className="text-gray-800 font-semibold text-2xl">{
+                                    formatCurrency((item.price[selectedType].value) * diffInSeconds)
+                                  }</p>
+                                  <span className="text-orange-500">/{diffInSeconds}</span>
+                                </div>
                                 <span className="text-sm font-normal text-gray-500">
                                   {item.hourRate}
                                 </span>

@@ -24,19 +24,19 @@ import { useLayout } from '../../contexts/LayoutContext';
 type Props = {}
 
 const HeaderBookingDetail = (props: Props) => {
-    const { inputValue, handleInputChange, setUpdateBooking, updateBooking } = useLayout();
-    const [selectedType, setSelectedType] = useState<'hourly' | 'overnight' | 'daily'>('hourly');
+    const {
+        inputValue,
+        handleInputChange,
+        updateBooking,
+        selectedType,
+        setSelectedType,
+        roomName
+    } = useLayout();
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
     useEffect(() => {
         setIsMounted(true)
     }, [])
-    const defaultSelectedDate = useMemo(() => {
-        const currentDate = new Date();
-        const futureDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1);
-
-        return [dayjs(currentDate.toISOString()), dayjs(futureDate.toISOString())];
-    }, []);
 
     const [anchorEl2, setAnchorEl2] = useState<null | HTMLElement>(null);
     const open2 = Boolean(anchorEl2);
@@ -117,9 +117,9 @@ const HeaderBookingDetail = (props: Props) => {
                                 {/* === Kiểu thuê === */}
                                 <div className="flex items-center gap-6 rounded-full border-r pr-4">
                                     {[
-                                        { label: 'Theo giờ', value: 'hourly', icon: <HourglassFullTwoToneIcon /> },
-                                        { label: 'Qua đêm', value: 'overnight', icon: <DarkModeTwoToneIcon /> },
-                                        { label: 'Theo ngày', value: 'daily', icon: <CalendarMonthTwoToneIcon /> },
+                                        { label: 'Theo giờ', value: 2, icon: <HourglassFullTwoToneIcon /> },
+                                        { label: 'Qua đêm', value: 1, icon: <DarkModeTwoToneIcon /> },
+                                        { label: 'Theo ngày', value: 0, icon: <CalendarMonthTwoToneIcon /> },
                                     ].map(({ label, value, icon }) => (
                                         <div
                                             key={value}
@@ -137,7 +137,7 @@ const HeaderBookingDetail = (props: Props) => {
                                 {/* === Địa điểm === */}
                                 <div className="text-sm font-semibold text-gray-400 border-r pr-4">
                                     <div>Địa điểm</div>
-                                    <div className="text-gray-600 whitespace-nowrap truncate w-40">Cloud 9 Hotel Quang Tr...</div>
+                                    <div className="text-gray-600 whitespace-nowrap truncate w-40">{roomName}</div>
                                 </div>
 
                                 {/* === Nhận và trả phòng === */}
@@ -192,7 +192,6 @@ const HeaderBookingDetail = (props: Props) => {
                                             <DateRange
                                                 ranges={inputValue}
                                                 onChange={(item: any) => handleInputChange([item.selection])}
-                                                // onChange={(item: any) => setRange([item.selection])}
                                                 moveRangeOnFirstSelection={false}
                                                 months={2}
                                                 direction="horizontal"

@@ -5,19 +5,30 @@ const LayoutContext = createContext("");
 
 export const LayoutProvider = ({ children }: any) => {
   const [inputValue, setInputValue] = useState([
-          {
-              startDate: new Date(),
-              endDate: addDays(new Date(), 1),
-              key: 'selection',
-          },
-      ]);
+    {
+      startDate: new Date(),
+      endDate: addDays(new Date(), 1),
+      key: 'selection',
+    },
+  ]);
 
-  const handleInputChange = (e:any) => setInputValue(e);
+  const handleInputChange = (e: any) => setInputValue(e);
 
   const [updateBooking, setUpdateBooking] = useState<(() => void) | null>(null);
+  const [selectedType, setSelectedType] = useState<2 | 1 | 0>(0);
+  const [roomName, setRoomName] = useState<string | null>(null);
 
   return (
-    <LayoutContext.Provider value={{ inputValue, handleInputChange, setUpdateBooking, updateBooking }}>
+    <LayoutContext.Provider value={{
+      inputValue,
+      handleInputChange,
+      setUpdateBooking,
+      updateBooking,
+      setSelectedType,
+      selectedType,
+      roomName,
+      setRoomName
+    }}>
       {children}
     </LayoutContext.Provider>
   );

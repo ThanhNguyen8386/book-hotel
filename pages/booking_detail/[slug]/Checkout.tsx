@@ -1,11 +1,15 @@
 import { Dialog } from "@mui/material"
 import { forwardRef, useImperativeHandle, useRef, useState } from "react"
-import ChevronLeftRoundedIcon from '@mui/icons-material/ChevronLeftRounded';
 import InfoTwoToneIcon from '@mui/icons-material/InfoTwoTone';
 import ModeTwoToneIcon from '@mui/icons-material/ModeTwoTone';
+import CloseTwoToneIcon from '@mui/icons-material/CloseTwoTone';
 import ChevronRightTwoToneIcon from '@mui/icons-material/ChevronRightTwoTone';
 import CommentItem from "../../../components/CommentItem";
 import { differenceInSeconds, format } from 'date-fns';
+import Image from "next/image";
+import dayjs from "dayjs";
+import { creat } from "../../../api/bookedDate";
+import { creatOrder } from "../../../api/order";
 
 const Checkout = (props: any, ref: any) => {
     const { comments, removeComment, currentUser, isLogged, dataDate } = props;
@@ -31,11 +35,11 @@ const Checkout = (props: any, ref: any) => {
         statusorder: "0",
         total: "",
         status: "",
-        voucher: "",
+        // voucher: "",
         methodpay: "0",
         email: "",
         name: "",
-        phone: "",
+        phone: ""
     }
     const [datebook, setdatebook] = useState(defaultDateBook);
     const [dataorder, setdataorder] = useState(defaultOrder);
@@ -43,23 +47,66 @@ const Checkout = (props: any, ref: any) => {
         setOpen(true);
     };
 
+    const startDate = new Date(dataDate[0].startDate);
+    const endDate = new Date(dataDate[0].endDate);
+    const diffInSeconds = differenceInSeconds(endDate, startDate) / 60 / 60 / 24;
+
     useImperativeHandle(ref, () => ({
         checkout: (item: any, type: any) => {
             refMode.current = type;
             handleClickOpen();
-            console.log(item);
-            console.log(dataDate);
-
+            const dateFrom = dayjs(dataDate[0].startDate).hour(14).minute(0).second(0).millisecond(0).toISOString();
+            const dateTo = dayjs(dataDate[0].endDate).hour(12).minute(0).second(0).millisecond(0).toISOString();
+            const _dataOrder = {
+                ...dataorder,
+                room: item._id,
+                roomName: item.name,
+                address: item.address,
+                image: item.image,
+                user: currentUser._id,
+                email: currentUser.email,
+                name: currentUser.name,
+                phone: currentUser.phone,
+                checkins: dateFrom,
+                checkouts: dateTo,
+                total: item.total
+            }
+            const _dataDate = {
+                room: item._id,
+                checkins: dateFrom,
+                checkouts: dateTo,
+            }
+            setdatebook(_dataDate);
+            setdataorder(_dataOrder);
         },
         comment: (item: any, type: any) => {
 
         }
     }))
 
-    const startDate = new Date(dataDate[0].startDate);
-    const endDate = new Date(dataDate[0].endDate);
+    const submit = async () => {
+        const _dataDate = { ...datebook };
+        const _dataOrder = { ...dataorder };
 
-    const diffInSeconds = differenceInSeconds(endDate, startDate);
+        await creat(_dataDate)
+            .then(async(res) => {
+                const newdataOrder = {
+                    ..._dataOrder,
+                    status: res.data._id
+                }
+                await creatOrder(newdataOrder)
+            })
+            .catch((res) => {
+                console.log(res);
+
+            })
+
+    }
+
+    const formatCurrency = (currency: number) => {
+        const tempCurrency = +currency >= 0 ? currency : 0;
+        return new Intl.NumberFormat("de-DE", { style: "currency", currency: "VND" }).format(tempCurrency);
+      };
 
     const formCheckout = () => {
         return (
@@ -67,8 +114,8 @@ const Checkout = (props: any, ref: any) => {
                 {/* Header */}
                 <div
                     onClick={() => handleClose()}
-                    className="p-4 border-b flex items-center">
-                    <ChevronLeftRoundedIcon className="h-6 w-6 text-gray-700" />
+                    className="p-4 border-b flex items-center cursor-pointer">
+                    <CloseTwoToneIcon className="h-6 w-6 text-gray-700" />
                     <h1 className="text-lg font-medium ml-2">Xác nhận & Thanh toán</h1>
                 </div>
                 <div className="flex flex-col md:flex-row">
@@ -78,11 +125,19 @@ const Checkout = (props: any, ref: any) => {
                         <div className="p-6 border-b">
                             <h2 className="text-base font-medium mb-4">Lựa chọn của bạn</h2>
                             <div className="flex">
-                                <img
-                                    src="https://uploadthingy.s3.us-west-1.amazonaws.com/4KcCU3eePgyftWj2SotWcM/image.png"
-                                    alt="Royal Hotel Room"
-                                    className="w-32 h-32 object-cover rounded-md"
-                                />
+                                <div className="">
+                                    {
+                                        dataorder.image && (
+                                            <Image
+                                                src={dataorder.image[0]}
+                                                alt="Royal Hotel Room"
+                                                className="rounded-md"
+                                                width={100}
+                                                height={100}
+                                            />
+                                        )
+                                    }
+                                </div>
                                 <div className="ml-4">
                                     <div className="flex items-center">
                                         <svg
@@ -100,24 +155,7 @@ const Checkout = (props: any, ref: any) => {
                                                 strokeLinejoin="round"
                                             />
                                         </svg>
-                                        <span className="text-base font-medium">Royal Hotel</span>
-                                    </div>
-                                    <div className="flex items-center mt-2">
-                                        <svg
-                                            className="w-5 h-5 mr-2"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                        >
-                                            <path
-                                                d="M4 12H20M4 12C2.89543 12 2 11.1046 2 10V6C2 4.89543 2.89543 4 4 4H20C21.1046 4 22 4.89543 22 6V10C22 11.1046 21.1046 12 20 12M4 12V18C4 19.1046 4.89543 20 6 20H18C19.1046 20 20 19.1046 20 18V12"
-                                                stroke="currentColor"
-                                                strokeWidth="2"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                            />
-                                        </svg>
-                                        <span className="text-base">Superior Room</span>
+                                        <span className="text-base font-medium">{dataorder.roomName}</span>
                                     </div>
                                     <div className="flex items-start mt-2">
                                         <svg
@@ -135,8 +173,7 @@ const Checkout = (props: any, ref: any) => {
                                             />
                                         </svg>
                                         <span className="text-sm text-gray-600">
-                                            28 Đường số 9 - Khu dân cư Trung Sơn, Xã Bình Hưng, Bình
-                                            Chánh, TP. HCM
+                                            {dataorder.address}
                                         </span>
                                     </div>
                                 </div>
@@ -165,7 +202,7 @@ const Checkout = (props: any, ref: any) => {
                                             strokeLinejoin="round"
                                         />
                                     </svg>
-                                    <span className="text-sm mt-1">{diffInSeconds / 60 / 60 / 24} ngày</span>
+                                    <span className="text-sm mt-1">{diffInSeconds} ngày</span>
                                 </div>
                                 <div>
                                     <div className="text-base text-gray-700">Nhận phòng</div>
@@ -180,13 +217,13 @@ const Checkout = (props: any, ref: any) => {
                             <h2 className="text-base font-medium mb-4">Người đặt phòng</h2>
                             <div className="flex justify-between items-center mb-4">
                                 <div className="text-base text-gray-700">Số điện thoại</div>
-                                <div className="text-base">+84 354170252</div>
+                                <div className="text-base">{dataorder.phone}</div>
                             </div>
                             <div className="flex justify-between items-center">
                                 <div className="text-base text-gray-700">Họ tên</div>
                                 <div className="flex items-center">
-                                    <span className="text-base">Thành</span>
-                                    <ModeTwoToneIcon className="h-5 w-5 text-orange-500 ml-2" />
+                                    <span className="text-base">{dataorder.name}</span>
+                                    {/* <ModeTwoToneIcon className="h-5 w-5 text-orange-500 ml-2" /> */}
                                 </div>
                             </div>
                         </div>
@@ -218,11 +255,11 @@ const Checkout = (props: any, ref: any) => {
                                     <span className="text-base">Tiền phòng</span>
                                     <InfoTwoToneIcon className="h-5 w-5 text-orange-500 ml-1" />
                                 </div>
-                                <div className="text-base">480.000đ</div>
+                                <div className="text-base">{formatCurrency(dataorder.total)}</div>
                             </div>
                             <div className="flex justify-between items-center font-medium text-lg border-t pt-4">
                                 <div>Tổng thanh toán</div>
-                                <div>480.000đ</div>
+                                <div>{formatCurrency(dataorder.total)}</div>
                             </div>
                         </div>
                         {/* Payment Methods */}
@@ -304,7 +341,7 @@ const Checkout = (props: any, ref: any) => {
                                     Chính sách hủy phòng
                                 </a>
                             </div>
-                            <button className="bg-orange-500 text-white px-8 py-3 rounded-lg font-medium text-base">
+                            <button onClick={submit} className="bg-orange-500 text-white px-8 py-3 rounded-lg font-medium text-base">
                                 Đặt phòng
                             </button>
                         </div>
