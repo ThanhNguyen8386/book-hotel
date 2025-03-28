@@ -6,7 +6,7 @@ import Link from "next/link";
 import TextField from "@material-ui/core/TextField";
 import { DateRangePicker, DateRangeDelimiter, LocalizationProvider, DateTimePicker } from "@material-ui/pickers";
 // import DateFnsUtils from "@material-ui/pickers/adapter/date-fns"; // choose your lib
-import { InputAdornment, Skeleton } from "@mui/material";
+import { CardActionArea, InputAdornment, Skeleton } from "@mui/material";
 import LoginIcon from "@mui/icons-material/Login";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -47,11 +47,10 @@ const Home = () => {
 
   // thời gian trả phòng - form tìm kiếm theo giờ
   const [hours, setHours] = useState<number>(2);
-
-  const room = useProducts("");
-  const category = useCategory()
   const { data, mutate } = useSWR(`${API_URL}/getAllCategoryWithImage`, fetcher);
   const [indexTab, setIndexTab] = useState(1);
+  const [checkinDate, setCheckinDate] = useState("");
+  const [checkoutDate, setCheckoutDate] = useState("");
 
   useEffect(() => {
     window.addEventListener("scroll", toggleVisible);
@@ -94,7 +93,14 @@ const Home = () => {
   // search room.
   const handleSearch = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const query = hanldeTimeToSearch();
+    router.push({
+      pathname: "search",
+      query,
+    });
+  };
 
+  const hanldeTimeToSearch = () => {
     if (!selectedDate[0] || !selectedDate[1]) {
       toastr.info("Vui lòng chọn thời gian trả phòng!");
       return;
@@ -140,12 +146,10 @@ const Home = () => {
         ).toISOString(),
       };
     }
-
-    router.push({
-      pathname: "search",
-      query,
-    });
-  };
+    setCheckinDate(query.checkin) 
+    setCheckoutDate(query.checkout) 
+    return query;
+  }
 
   const DateRangerPicker = () => {
     return (
@@ -356,7 +360,40 @@ const Home = () => {
       </div>
       <div className="mb:w-[80%] mbs:w-[95%] mx-auto pt-2">
         <h1 className='text-3xl font-semibold text-[orange] py-6'>Danh sách các phòng </h1>
-        {data ? <SimpleSwiper newsList={data.data} /> : skeletonLoadingRoom()}
+        {data
+          ? (
+            <div className={`flex mb:justify-between flex-wrap mbs:justify-center`}>
+              {
+                data.data.map((item: any, index: any) => {
+                  return (
+                    <div className={`mb-4 ${item.status ? '' : 'hidden'}`} key={index}>
+                      <Link href={`/booking_detail/${item.slug}?checkin=${checkinDate}&checkout=${checkoutDate}`}>
+                        <CardActionArea sx={{ display: "flex", flexDirection: "column", alignContent: "space-between", justifyContent: "space-between" }}>
+                          <div className="max-w-sm bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700">
+                            <div className='h-[200px] overflow-hidden'>
+                              <img className="rounded-t-lg " src={item.representativeImage ? item.representativeImage : ''} alt="" />
+                            </div>
+                            <div className="p-3">
+                              <div className="flex justify-between items-start h-[50px]">
+                                <h5 className="mb-2 text-xl font-bold tracking-tight text-gray-900 dark:text-white">{item.name}</h5>
+                                {/* <p className='text-[green] font-semibold basis-1/4 flex justify-end'>{item.price ? `${item.price} VND` : ""}</p> */}
+                              </div>
+                              {/* <p className="mb-3 font-normal text-gray-700 dark:text-gray-400">{item.category?.name}</p> */}
+                              <a href="#" className="inline-flex items-center py-2 px-3 text-sm font-medium text-center text-white bg-[#ffa500] rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                                Xem thêm
+                                <svg aria-hidden="true" className="ml-2 -mr-1 w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd"></path></svg>
+                              </a>
+                            </div>
+                          </div>
+                        </CardActionArea>
+                      </Link>
+                    </div>
+                  )
+                })
+              }
+            </div>
+          )
+          : skeletonLoadingRoom()}
       </div>
       <div className="mb:w-[80%] mbs:w-[95%] mx-auto pt-2">
         <p className="text-2xl text-amber-400 py-6 font-bold">Trải nghiệm cùng HappyWeekendHotel</p>
