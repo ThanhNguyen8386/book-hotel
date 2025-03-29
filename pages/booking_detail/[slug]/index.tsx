@@ -53,6 +53,8 @@ type FormComment = {
 const BookingDetail = () => {
   const router = useRouter();
   const { slug } = router.query;
+  console.log(router.query);
+  
   const { data: product, mutate } = useSWR(
     slug ? `${API_URL}/roomsbyCategory/${slug}` : null,
     fetcher
@@ -95,12 +97,6 @@ const BookingDetail = () => {
   // trạng thái user đã sử dụng - trả phòng chưa.
   const [isBooked, setIsBooked] = useState(false);
   const [isCommented, setIsCommented] = useState(false);
-
-  // voucher code
-  const [voucher, setVoucher] = useState<string>("");
-  const [errVoucher, setErrVoucher] = useState<string>();
-
-  const [voucherData, setVoucherData] = useState<Voucher | null>(null);
   const [active, setActive] = useState('overview')
 
   useEffect(() => {

@@ -73,8 +73,8 @@ const Checkout = (props: any, ref: any) => {
             }
             const _dataDate = {
                 room: item._id,
-                checkins: dateFrom,
-                checkouts: dateTo,
+                dateFrom: dateFrom,
+                dateTo: dateTo,
             }
             setdatebook(_dataDate);
             setdataorder(_dataOrder);

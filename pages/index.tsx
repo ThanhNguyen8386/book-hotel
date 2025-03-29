@@ -48,9 +48,9 @@ const Home = () => {
   // thời gian trả phòng - form tìm kiếm theo giờ
   const [hours, setHours] = useState<number>(2);
   const { data, mutate } = useSWR(`${API_URL}/getAllCategoryWithImage`, fetcher);
-  const [indexTab, setIndexTab] = useState(1);
-  const [checkinDate, setCheckinDate] = useState("");
-  const [checkoutDate, setCheckoutDate] = useState("");
+  const [indexTab, setIndexTab] = useState(2);
+  const [checkinDate, setCheckinDate] = useState(defaultSelectedDate[0]);
+  const [checkoutDate, setCheckoutDate] = useState(defaultSelectedDate[1]);
 
   useEffect(() => {
     window.addEventListener("scroll", toggleVisible);
@@ -109,7 +109,7 @@ const Home = () => {
     let query = {};
 
     // tìm kiếm theo giờ.
-    if (indexTab === 1) {
+    if (indexTab === 0) {
       const timeCheckin = new Date(dateTimeStart as any);
 
       query = {
@@ -146,10 +146,14 @@ const Home = () => {
         ).toISOString(),
       };
     }
-    setCheckinDate(query.checkin) 
-    setCheckoutDate(query.checkout) 
     return query;
   }
+
+  useEffect(()=>{
+    const query = hanldeTimeToSearch();
+    setCheckinDate(query.checkin);
+    setCheckoutDate(query.checkout)
+  }, [selectedDate])
 
   const DateRangerPicker = () => {
     return (
@@ -262,10 +266,10 @@ const Home = () => {
           <div className="flex justify-center">
             <button
               type="button"
-              className={`${indexTab == 1 ? "text-[red] border-b border-[red]" : "border-b border-[white]"
+              className={`${indexTab == 0 ? "text-[red] border-b border-[red]" : "border-b border-[white]"
                 } duration-150 hover:text-[red] flex flex-col items-center px-4`}
               onClick={() => {
-                setIndexTab(1);
+                setIndexTab(0);
               }}
             >
               <svg
@@ -283,10 +287,10 @@ const Home = () => {
 
             <button
               type="button"
-              className={`${indexTab == 2 ? "text-[red] border-b border-[red]" : null
+              className={`${indexTab == 1 ? "text-[red] border-b border-[red]" : null
                 } duration-150 hover:text-[red] flex flex-col items-center px-4`}
               onClick={() => {
-                setIndexTab(2);
+                setIndexTab(1);
                 setSelectedDate(defaultSelectedDate);
               }}
             >
@@ -309,10 +313,10 @@ const Home = () => {
 
             <button
               type="button"
-              className={`${indexTab == 3 ? "text-[red] border-b border-[red]" : null
+              className={`${indexTab == 2 ? "text-[red] border-b border-[red]" : null
                 } duration-150 hover:text-[red] flex flex-col items-center px-4`}
               onClick={() => {
-                setIndexTab(3);
+                setIndexTab(2);
                 setSelectedDate(defaultSelectedDate);
               }}
             >
@@ -334,9 +338,9 @@ const Home = () => {
             </button>
           </div>
           <div className={`border rounded-full p-4 mt-4 relative flex justify-center`}>
-            {indexTab == 1 && <DateTimePickers />}
+            {indexTab == 0 && <DateTimePickers />}
+            {indexTab == 1 && <DateRangerPicker />}
             {indexTab == 2 && <DateRangerPicker />}
-            {indexTab == 3 && <DateRangerPicker />}
 
             <button className="flex px-4 py-2 bg-[orange] rounded-full text-white cursor-pointer items-center justify-center">
               <svg
@@ -367,7 +371,7 @@ const Home = () => {
                 data.data.map((item: any, index: any) => {
                   return (
                     <div className={`mb-4 ${item.status ? '' : 'hidden'}`} key={index}>
-                      <Link href={`/booking_detail/${item.slug}?checkin=${checkinDate}&checkout=${checkoutDate}`}>
+                      <Link href={`/booking_detail/${item.slug}?checkin=${checkinDate}&checkout=${checkoutDate}&type=${indexTab}`}>
                         <CardActionArea sx={{ display: "flex", flexDirection: "column", alignContent: "space-between", justifyContent: "space-between" }}>
                           <div className="max-w-sm bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700">
                             <div className='h-[200px] overflow-hidden'>
