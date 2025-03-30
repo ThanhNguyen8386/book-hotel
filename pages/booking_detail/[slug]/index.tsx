@@ -34,7 +34,8 @@ import 'swiper/css/thumbs';
 import { Navigation, Pagination } from 'swiper/modules';
 import Image from 'next/image';
 import Checkout from "./Checkout";
-import { differenceInSeconds } from "date-fns";
+import { differenceInSeconds, parseISO } from "date-fns";
+import { getRoomAvailabe } from "../../../api/rooms";
 
 type Form = {
   name: string;
@@ -52,18 +53,19 @@ type FormComment = {
 
 const BookingDetail = () => {
   const router = useRouter();
-  const { slug } = router.query;
-  console.log(router.query);
-  
+  const dataQuery = router.query;
   const { data: product, mutate } = useSWR(
-    slug ? `${API_URL}/roomsbyCategory/${slug}` : null,
+    dataQuery.slug ? `${API_URL}/roomsbyCategory/${dataQuery.slug}` : null,
     fetcher
   );
   const {
     inputValue,
     setUpdateBooking,
     setRoomName,
-    selectedType } = useLayout()
+    selectedType,
+    setSelectedType,
+    handleInputChange
+  } = useLayout()
   const LIMIT_SHOW_COMMENT = 6;
   const sectionRefs = {
     overview: useRef<HTMLDivElement>(null),
@@ -87,9 +89,7 @@ const BookingDetail = () => {
     formState: { errors: errors2 },
     reset: reset2,
   } = useForm<FormComment>();
-  // const { creatstatus } = useStatus(setstatus)
   const [open, setOpen] = useState(false);
-  const steps = ["Select campaign settings", "Create an ad group", "Create an ad"];
   const [facilities, setfacilities] = useState<any[]>([]);
   const [chaprice, setchaprice] = useState<any>();
   const [currentUser, setCurrentUser] = useState<UserType>();
@@ -98,6 +98,39 @@ const BookingDetail = () => {
   const [isBooked, setIsBooked] = useState(false);
   const [isCommented, setIsCommented] = useState(false);
   const [active, setActive] = useState('overview')
+  const [dataRoom, setDataRoom] = useState()
+  const [isMount, setIsMount] = useState(false)
+
+  const load = async () => {
+    try {
+      await getRoomAvailabe({
+        dateFrom: new Date(inputValue[0].startDate).toISOString(),
+        dateTo: new Date(inputValue[0].endDate).toISOString(),
+        categoryId: product._id
+      })
+        .then((res) => {
+          setDataRoom(res.data)
+        })
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  useEffect(() => {
+    setIsMount(true)
+  }, [])
+
+  // useEffect(() => {
+  //   if (router.isReady && product) {
+  //     load()
+  //     setSelectedType(dataQuery.type)
+  //     handleInputChange([{
+  //       endDate: parseISO(dataQuery.checkout),
+  //       startDate: parseISO(dataQuery.checkin),
+  //       key: "selection"
+  //     }])
+  //   }
+  // }, [isMount, product])
 
   useEffect(() => {
     const getfacilities = async () => {
@@ -118,7 +151,7 @@ const BookingDetail = () => {
       phone: currentUser?.phone,
     };
     reset(currentUser);
-  }, [open, slug]);
+  }, [open, dataQuery.slug]);
 
   // set giá phòng.
   useEffect(() => {
@@ -150,9 +183,7 @@ const BookingDetail = () => {
 
   // Function để gọi API đặt phòng khi click cập nhật ngày giờ
   const callBookingAPI = async () => {
-    console.log("Gọi API với ngày:", inputValue);
-    // Ví dụ call API
-    // await fetch('/api/booking', { method: 'POST', body: JSON.stringify(inputValue) });
+    load()
   };
 
   useEffect(() => {
@@ -180,7 +211,7 @@ const BookingDetail = () => {
 
   const startDate = new Date(inputValue[0].startDate);
   const endDate = new Date(inputValue[0].endDate);
-  const diffInSeconds = differenceInSeconds(endDate, startDate) / 60 / 60 / 24;
+  const diffInSeconds = Math.ceil(differenceInSeconds(endDate, startDate) / 60 / 60 / 24);
 
   const actionOpenDialog = {
     checkout: (item: any, type: any) => {
@@ -304,9 +335,9 @@ const BookingDetail = () => {
           {/* phòng */}
           <div ref={sectionRefs.rooms} className="scroll-mt-[160px] my-8">
             <p className="font-semibold text-2xl mb-4">Danh sách phòng</p>
-            {product && (
+            {dataRoom && (
               <div className="space-y-6">
-                {product.roomList.map((item: any, index: any) => {
+                {dataRoom.map((item: any, index: any) => {
                   const prevId = `prev-${item._id}`;
                   const nextId = `next-${item._id}`;
                   return (

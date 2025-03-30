@@ -6,7 +6,7 @@ import Link from "next/link";
 import TextField from "@material-ui/core/TextField";
 import { DateRangePicker, DateRangeDelimiter, LocalizationProvider, DateTimePicker } from "@material-ui/pickers";
 // import DateFnsUtils from "@material-ui/pickers/adapter/date-fns"; // choose your lib
-import { CardActionArea, InputAdornment, Skeleton } from "@mui/material";
+import { Button, CardActionArea, InputAdornment, Skeleton } from "@mui/material";
 import LoginIcon from "@mui/icons-material/Login";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -19,13 +19,31 @@ import Select from "@material-ui/core/Select";
 import { useRouter } from "next/router";
 import toastr from "toastr";
 import "toastr/build/toastr.min.css";
-import useCategory from "../hook/useCategory";
 import useSWR from "swr";
 import { fetcher } from "../api/instance";
 import { API_URL } from "../constants";
+import RoomTwoToneIcon from '@mui/icons-material/RoomTwoTone';
+import SearchTwoToneIcon from '@mui/icons-material/SearchTwoTone';
+import CalendarMonthTwoToneIcon from '@mui/icons-material/CalendarMonthTwoTone';
+import AccessTimeTwoToneIcon from '@mui/icons-material/AccessTimeTwoTone';
+import DarkModeTwoToneIcon from '@mui/icons-material/DarkModeTwoTone';
+import { useLayout } from "../contexts/LayoutContext";
+import { DateRange } from 'react-date-range';
+import 'react-date-range/dist/styles.css'; // style mặc định
+import 'react-date-range/dist/theme/default.css'; // theme mặc định
+import { vi } from "date-fns/locale";
+import { format } from 'date-fns';
 
 const Home = () => {
   const router = useRouter();
+  const {
+    inputValue,
+    handleInputChange,
+    updateBooking,
+    selectedType,
+    setSelectedType,
+    roomName
+  } = useLayout();
 
   const defaultSelectedDate = useMemo(() => {
     const currentDate = new Date();
@@ -33,7 +51,8 @@ const Home = () => {
 
     return [dayjs(currentDate.toISOString()), dayjs(futureDate.toISOString())];
   }, []);
-
+  const [isMounted, setIsMounted] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState<any>(defaultSelectedDate);
   const [visible, setVisible] = useState(true);
 
@@ -47,14 +66,29 @@ const Home = () => {
 
   // thời gian trả phòng - form tìm kiếm theo giờ
   const [hours, setHours] = useState<number>(2);
-  const { data, mutate } = useSWR(`${API_URL}/getAllCategoryWithImage`, fetcher);
+  const { data } = useSWR(`${API_URL}/getAllCategoryWithImage`, fetcher);
   const [indexTab, setIndexTab] = useState(2);
   const [checkinDate, setCheckinDate] = useState(defaultSelectedDate[0]);
   const [checkoutDate, setCheckoutDate] = useState(defaultSelectedDate[1]);
 
   useEffect(() => {
     window.addEventListener("scroll", toggleVisible);
+    setIsMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (!showDatePicker) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.date-picker-container') && !target.closest('.date-fields')) {
+        setShowDatePicker(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showDatePicker]);
 
   const skeletonLoadingRoom = () => {
     return (
@@ -149,11 +183,13 @@ const Home = () => {
     return query;
   }
 
-  useEffect(()=>{
+  useEffect(() => {
     const query = hanldeTimeToSearch();
-    setCheckinDate(query.checkin);
-    setCheckoutDate(query.checkout)
-  }, [selectedDate])
+    if (query?.checkin || query?.checkout) {
+      setCheckinDate(query.checkin);
+      setCheckoutDate(query.checkout);
+    }
+  }, [selectedDate[0], selectedDate[1]])
 
   const DateRangerPicker = () => {
     return (
@@ -248,6 +284,103 @@ const Home = () => {
     );
   };
 
+  const bookingSearch = () => {
+    return (
+      <div className="w-[80%] mx-auto translate-x-[-50%] translate-y-[-60%] absolute top-[100%] left-[50%] bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] overflow-hidden border border-gray-100">
+        <div className="flex border-b bg-gray-50/80">
+          <button
+            className={`flex-1 py-6 px-2 flex flex-col items-center text-sm transition-all duration-300 ease-in-out
+            ${indexTab === 0 ? 'text-orange-500 border-b-2 border-orange-500 bg-white font-medium shadow-sm' : 'text-gray-600 hover:text-orange-500 hover:bg-white/80 border-b-2 border-white'}`}
+            onClick={() => setIndexTab(0)}
+          >
+            <AccessTimeTwoToneIcon />
+            <span className="tracking-wide">Theo giờ</span>
+          </button>
+          <button
+            className={`flex-1 py-6 px-2 flex flex-col items-center text-sm transition-all duration-300 ease-in-out
+            ${indexTab === 1 ? 'text-orange-500 border-b-2 border-orange-500 bg-white font-medium shadow-sm' : 'text-gray-600 hover:text-orange-500 hover:bg-white/80 border-b-2 border-white'}`}
+            onClick={() => setIndexTab(1)}
+          >
+            <DarkModeTwoToneIcon />
+            <span className="tracking-wide">Qua đêm</span>
+          </button>
+          <button
+            className={`flex-1 py-6 px-2 flex flex-col items-center text-sm transition-all duration-300 ease-in-out
+            ${indexTab === 2 ? 'text-orange-500 border-b-2 border-orange-500 bg-white font-medium shadow-sm' : 'text-gray-600 hover:text-orange-500 hover:bg-white/80 border-b-2 border-white'}`}
+            onClick={() => setIndexTab(2)}
+          >
+            <CalendarMonthTwoToneIcon />
+            <span className="tracking-wide">Theo ngày</span>
+          </button>
+        </div>
+        <div className="flex flex-col md:flex-row p-6 gap-4">
+          <div className="flex-1 border hover:border-orange-500 rounded-xl flex items-center p-4 transition-all duration-200 bg-gray-50 hover:bg-white group hover:shadow-sm">
+            <RoomTwoToneIcon className="mr-2" />
+            <div className="flex flex-col flex-1">
+              <label className="text-xs font-medium text-gray-500 mb-0.5">
+                Địa điểm
+              </label>
+              <input
+                type="text"
+                placeholder="Bạn muốn đi đâu?"
+                className="outline-none text-gray-700 bg-transparent placeholder:text-gray-400 w-full font-medium placeholder:font-normal"
+              />
+            </div>
+          </div>
+          <div
+            className="flex md:w-[38%] gap-3"
+            onClick={() => setShowDatePicker(true)}
+          >
+            <div className="flex-1 border hover:border-orange-500 rounded-xl flex items-center p-4 transition-all duration-200 bg-gray-50 hover:bg-white cursor-pointer group hover:shadow-sm">
+              <div className="flex items-center w-full">
+                <CalendarMonthTwoToneIcon className="mr-2" />
+                <div className="flex flex-col">
+                  <label className="text-xs font-medium text-gray-500 mb-0.5">
+                    Nhận phòng
+                  </label>
+                  <span className="font-medium text-gray-800">{format(inputValue[0].startDate, 'dd/MM/yyyy')}</span>
+                </div>
+              </div>
+            </div>
+            <div className="flex-1 border hover:border-orange-500 rounded-xl flex items-center p-4 transition-all duration-200 bg-gray-50 hover:bg-white cursor-pointer group hover:shadow-sm">
+              <div className="flex items-center w-full">
+                <CalendarMonthTwoToneIcon className="mr-2" />
+                <div className="flex flex-col">
+                  <label className="text-xs font-medium text-gray-500 mb-0.5">
+                    Trả phòng
+                  </label>
+                  <span className="font-medium text-gray-800">{format(inputValue[0].endDate, 'dd/MM/yyyy')}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <button className="bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl p-6 flex items-center justify-center hover:from-orange-600 hover:to-orange-700 transition-all duration-300 shadow-sm hover:shadow-md active:scale-[0.98] font-medium">
+            <SearchTwoToneIcon />
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  const dateRange = () => {
+    return (
+      <div className="date-picker-container absolute top-[370px] right-[90px] z-50 mt-2">
+        <div className="bg-white shadow-xl rounded-lg p-4 border">
+          <DateRange
+            ranges={inputValue}
+            onChange={(item: any) => handleInputChange([item.selection])}
+            moveRangeOnFirstSelection={false}
+            months={2}
+            direction="horizontal"
+            minDate={new Date()}
+            locale={vi}
+            rangeColors={["#f97316"]}
+            color="#f97316"
+          />
+        </div>
+      </div>
+    )
+  }
   return (
     <div className="">
       <div className="w-[80%] mx-auto relative mb-[50px] z-10">
@@ -256,9 +389,12 @@ const Home = () => {
             Đặt phòng nhà nghỉ nhanh - tiện lợi
           </h1>
         </div>
-
+        {bookingSearch()}
+        {
+          isMounted && showDatePicker && dateRange()
+        }
         {/* search */}
-        <form
+        {/* <form
           onSubmit={handleSearch}
           className={`${visible ? "visible scale-100 opacity-100" : "invisible scale-50 opacity-0"
             } duration-300 translate-x-[-50%] translate-y-[-80%] absolute top-[100%] left-[50%] w-[80%] mx-auto bg-white shadow-xl rounded-xl p-4`}
@@ -360,9 +496,9 @@ const Home = () => {
               <p>Tìm kiếm</p>
             </button>
           </div>
-        </form>
+        </form> */}
       </div>
-      <div className="mb:w-[80%] mbs:w-[95%] mx-auto pt-2">
+      <div className="mb:w-[80%] mbs:w-[95%] mx-auto pt-12">
         <h1 className='text-3xl font-semibold text-[orange] py-6'>Danh sách các phòng </h1>
         {data
           ? (

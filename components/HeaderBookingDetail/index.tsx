@@ -101,7 +101,7 @@ const HeaderBookingDetail = (props: Props) => {
             console.error("🚨 Không tìm thấy hàm gọi API!");
         }
     };
-
+        
     return (
         <header className='sticky w-[90%] border-b mx-auto top-0 z-[90] bg-[#fff]'>
             <div className="flex justify-between items-center py-2 mb:flex mbs:block ">
@@ -117,19 +117,19 @@ const HeaderBookingDetail = (props: Props) => {
                                 {/* === Kiểu thuê === */}
                                 <div className="flex items-center gap-6 rounded-full border-r pr-4">
                                     {[
-                                        { label: 'Theo giờ', value: 2, icon: <HourglassFullTwoToneIcon /> },
+                                        { label: 'Theo giờ', value: 0, icon: <HourglassFullTwoToneIcon /> },
                                         { label: 'Qua đêm', value: 1, icon: <DarkModeTwoToneIcon /> },
-                                        { label: 'Theo ngày', value: 0, icon: <CalendarMonthTwoToneIcon /> },
+                                        { label: 'Theo ngày', value: 2, icon: <CalendarMonthTwoToneIcon /> },
                                     ].map(({ label, value, icon }) => (
                                         <div
                                             key={value}
                                             onClick={() => setSelectedType(value as any)}
-                                            className={`flex flex-col items-center cursor-pointer text-sm font-semibold transition ${selectedType === value ? 'text-orange-500' : 'text-black'
+                                            className={`flex flex-col items-center cursor-pointer text-sm font-semibold transition ${selectedType == value ? 'text-orange-500' : 'text-black'
                                                 }`}
                                         >
                                             <div className="text-lg">{icon}</div>
                                             <span>{label}</span>
-                                            {selectedType === value && <div className="w-4 h-[2px] bg-orange-500 rounded-full mt-1" />}
+                                            {selectedType == value && <div className="w-4 h-[2px] bg-orange-500 rounded-full mt-1" />}
                                         </div>
                                     ))}
                                 </div>
@@ -137,7 +137,9 @@ const HeaderBookingDetail = (props: Props) => {
                                 {/* === Địa điểm === */}
                                 <div className="text-sm font-semibold text-gray-400 border-r pr-4">
                                     <div>Địa điểm</div>
-                                    <div className="text-gray-600 whitespace-nowrap truncate w-40">{roomName}</div>
+                                    <div className="text-gray-600 whitespace-nowrap truncate w-40">
+                                        <p className='text-xl truncate'>{roomName}</p>
+                                    </div>
                                 </div>
 
                                 {/* === Nhận và trả phòng === */}
@@ -153,7 +155,7 @@ const HeaderBookingDetail = (props: Props) => {
                                         </div>
                                         {isMounted ? (
                                             <div className="text-gray-700">
-                                                {format(inputValue[0].startDate, 'dd/MM/yyyy')}
+                                                <p className='text-xl'>{format(inputValue[0].startDate, 'dd/MM/yyyy')}</p>
                                             </div>
                                         ) : (
                                             <div className="outline-none text-black">--/--/----</div>
@@ -170,7 +172,7 @@ const HeaderBookingDetail = (props: Props) => {
                                         </div>
                                         {isMounted ? (
                                             <div className="text-gray-700">
-                                                {format(inputValue[0].endDate, 'dd/MM/yyyy')}
+                                                <p className='text-xl'>{format(inputValue[0].endDate, 'dd/MM/yyyy')}</p>
                                             </div>
                                         ) : (
                                             <div className="outline-none text-black">--/--/----</div>

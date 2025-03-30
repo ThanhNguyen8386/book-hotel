@@ -3,7 +3,7 @@ import { RoomType } from "../types/room";
 import instance from "./instance";
 
 
-export const remove = (_id:number) => {
+export const remove = (_id: number) => {
     const url = `rooms/${_id}/delete`;
     return instance.delete(url)
 }
@@ -29,5 +29,10 @@ export const update = (product: ProductType) => {
 
 export const searchRoom = (data: { checkInDate: string, checkOutDate: string }): Promise<RoomType[]> => {
     const url = `rooms/search`;
+    return instance.post(url, data);
+}
+
+export const getRoomAvailabe = (data: any) => {
+    const url = `roomsAvailabe`;
     return instance.post(url, data);
 }

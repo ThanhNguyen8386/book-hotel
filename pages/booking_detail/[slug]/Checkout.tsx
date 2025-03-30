@@ -49,7 +49,7 @@ const Checkout = (props: any, ref: any) => {
 
     const startDate = new Date(dataDate[0].startDate);
     const endDate = new Date(dataDate[0].endDate);
-    const diffInSeconds = differenceInSeconds(endDate, startDate) / 60 / 60 / 24;
+    const diffInSeconds = Math.ceil(differenceInSeconds(endDate, startDate) / 60 / 60 / 24);
 
     useImperativeHandle(ref, () => ({
         checkout: (item: any, type: any) => {
@@ -87,9 +87,9 @@ const Checkout = (props: any, ref: any) => {
     const submit = async () => {
         const _dataDate = { ...datebook };
         const _dataOrder = { ...dataorder };
-        
+
         await creat(_dataDate)
-            .then(async(res) => {
+            .then(async (res) => {
                 const newdataOrder = {
                     ..._dataOrder,
                     status: res.data._id
@@ -106,7 +106,7 @@ const Checkout = (props: any, ref: any) => {
     const formatCurrency = (currency: number) => {
         const tempCurrency = +currency >= 0 ? currency : 0;
         return new Intl.NumberFormat("de-DE", { style: "currency", currency: "VND" }).format(tempCurrency);
-      };
+    };
 
     const formCheckout = () => {
         return (
