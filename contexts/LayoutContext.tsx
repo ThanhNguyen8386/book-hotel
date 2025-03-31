@@ -15,7 +15,7 @@ export const LayoutProvider = ({ children }: any) => {
   const handleInputChange = (e: any) => setInputValue(e);
 
   const [updateBooking, setUpdateBooking] = useState<(() => void) | null>(null);
-  const [selectedType, setSelectedType] = useState<2 | 1 | 0>(0);
+  const [selectedType, setSelectedType] = useState<0 | 1 | 2>(2);
   const [roomName, setRoomName] = useState<string | null>(null);
 
   return (

@@ -99,7 +99,6 @@ const BookingDetail = () => {
   const [isCommented, setIsCommented] = useState(false);
   const [active, setActive] = useState('overview')
   const [dataRoom, setDataRoom] = useState()
-  const [isMount, setIsMount] = useState(false)
 
   const load = async () => {
     try {
@@ -117,20 +116,10 @@ const BookingDetail = () => {
   }
 
   useEffect(() => {
-    setIsMount(true)
-  }, [])
-
-  // useEffect(() => {
-  //   if (router.isReady && product) {
-  //     load()
-  //     setSelectedType(dataQuery.type)
-  //     handleInputChange([{
-  //       endDate: parseISO(dataQuery.checkout),
-  //       startDate: parseISO(dataQuery.checkin),
-  //       key: "selection"
-  //     }])
-  //   }
-  // }, [isMount, product])
+    if (product) {
+      load()
+    }
+  }, [product])
 
   useEffect(() => {
     const getfacilities = async () => {
@@ -346,10 +335,6 @@ const BookingDetail = () => {
                         {/* Room Image */}
                         <div className="relative w-full h-full md:w-72 h-72 md:h-auto overflow-hidden">
                           <Swiper
-                            pagination={{
-                              clickable: true,
-                              dynamicBullets: true,
-                            }}
                             navigation={{
                               nextEl: `#${nextId}`,
                               prevEl: `#${prevId}`,

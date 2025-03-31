@@ -286,28 +286,28 @@ const Home = () => {
 
   const bookingSearch = () => {
     return (
-      <div className="w-[80%] mx-auto translate-x-[-50%] translate-y-[-60%] absolute top-[100%] left-[50%] bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] overflow-hidden border border-gray-100">
+      <div className={`${visible ? "visible scale-100 opacity-100" : "invisible scale-50 opacity-0"} duration-300 w-[80%] mx-auto translate-x-[-50%] translate-y-[-60%] absolute top-[100%] left-[50%] bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] overflow-hidden border border-gray-100`}>
         <div className="flex border-b bg-gray-50/80">
           <button
             className={`flex-1 py-6 px-2 flex flex-col items-center text-sm transition-all duration-300 ease-in-out
-            ${indexTab === 0 ? 'text-orange-500 border-b-2 border-orange-500 bg-white font-medium shadow-sm' : 'text-gray-600 hover:text-orange-500 hover:bg-white/80 border-b-2 border-white'}`}
-            onClick={() => setIndexTab(0)}
+            ${selectedType === 0 ? 'text-orange-500 border-b-2 border-orange-500 bg-white font-medium shadow-sm' : 'text-gray-600 hover:text-orange-500 hover:bg-white/80 border-b-2 border-white'}`}
+            onClick={() => setSelectedType(0)}
           >
             <AccessTimeTwoToneIcon />
             <span className="tracking-wide">Theo giờ</span>
           </button>
           <button
             className={`flex-1 py-6 px-2 flex flex-col items-center text-sm transition-all duration-300 ease-in-out
-            ${indexTab === 1 ? 'text-orange-500 border-b-2 border-orange-500 bg-white font-medium shadow-sm' : 'text-gray-600 hover:text-orange-500 hover:bg-white/80 border-b-2 border-white'}`}
-            onClick={() => setIndexTab(1)}
+            ${selectedType === 1 ? 'text-orange-500 border-b-2 border-orange-500 bg-white font-medium shadow-sm' : 'text-gray-600 hover:text-orange-500 hover:bg-white/80 border-b-2 border-white'}`}
+            onClick={() => setSelectedType(1)}
           >
             <DarkModeTwoToneIcon />
             <span className="tracking-wide">Qua đêm</span>
           </button>
           <button
             className={`flex-1 py-6 px-2 flex flex-col items-center text-sm transition-all duration-300 ease-in-out
-            ${indexTab === 2 ? 'text-orange-500 border-b-2 border-orange-500 bg-white font-medium shadow-sm' : 'text-gray-600 hover:text-orange-500 hover:bg-white/80 border-b-2 border-white'}`}
-            onClick={() => setIndexTab(2)}
+            ${selectedType === 2 ? 'text-orange-500 border-b-2 border-orange-500 bg-white font-medium shadow-sm' : 'text-gray-600 hover:text-orange-500 hover:bg-white/80 border-b-2 border-white'}`}
+            onClick={() => setSelectedType(2)}
           >
             <CalendarMonthTwoToneIcon />
             <span className="tracking-wide">Theo ngày</span>
@@ -396,8 +396,7 @@ const Home = () => {
         {/* search */}
         {/* <form
           onSubmit={handleSearch}
-          className={`${visible ? "visible scale-100 opacity-100" : "invisible scale-50 opacity-0"
-            } duration-300 translate-x-[-50%] translate-y-[-80%] absolute top-[100%] left-[50%] w-[80%] mx-auto bg-white shadow-xl rounded-xl p-4`}
+          className={`${visible ? "visible scale-100 opacity-100" : "invisible scale-50 opacity-0"} duration-300 translate-x-[-50%] translate-y-[-80%] absolute top-[100%] left-[50%] w-[80%] mx-auto bg-white shadow-xl rounded-xl p-4`}
         >
           <div className="flex justify-center">
             <button
@@ -507,7 +506,7 @@ const Home = () => {
                 data.data.map((item: any, index: any) => {
                   return (
                     <div className={`mb-4 ${item.status ? '' : 'hidden'}`} key={index}>
-                      <Link href={`/booking_detail/${item.slug}?checkin=${checkinDate}&checkout=${checkoutDate}&type=${indexTab}`}>
+                      <Link href={`/booking_detail/${item.slug}`}>
                         <CardActionArea sx={{ display: "flex", flexDirection: "column", alignContent: "space-between", justifyContent: "space-between" }}>
                           <div className="max-w-sm bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700">
                             <div className='h-[200px] overflow-hidden'>
