@@ -75,6 +75,7 @@ const Header = (props: Props) => {
   const [status, setStatus] = useState(false)
   const [user, setUser] = useState<any>({})
   const [showSearch, setShowSearch] = useState(false)
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   useEffect(() => {
     const getUser = JSON.parse(localStorage.getItem('user') as string)
@@ -91,6 +92,8 @@ const Header = (props: Props) => {
   const [openBookingSearch, setOpenBookingSearch] = useState(false)
 
   const toggleVisible = () => {
+    setOpenBookingSearch(false)
+    setShowDatePicker(false)
     const scrolled = document.documentElement.scrollTop;
     if (scrolled > 150) {
       setOpen(true)
@@ -112,6 +115,19 @@ const Header = (props: Props) => {
       setShowSearch(true)
     }
   }, [query])
+  useEffect(() => {
+    if (!showDatePicker) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.date-picker-container') && !target.closest('.date-fields')) {
+        setShowDatePicker(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showDatePicker]);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open1 = Boolean(anchorEl);
@@ -126,7 +142,7 @@ const Header = (props: Props) => {
   const handleSearch = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!selectedDate[0] || !selectedDate[1]) {
+    if (!inputValue[0].startDate || !inputValue[0].endDate) {
       toastr.info("Vui lòng chọn thời gian trả phòng!");
       return;
     }
@@ -134,7 +150,7 @@ const Header = (props: Props) => {
     let query = {};
 
     // tìm kiếm theo giờ.
-    if (indexTab === 1) {
+    if (selectedType === 0) {
       const timeCheckin = new Date(dateTimeStart as any);
 
       query = {
@@ -156,9 +172,8 @@ const Header = (props: Props) => {
         ).toISOString(),
       };
     } else {
-      const [checkin, checkout] = selectedDate;
-      const dateCheckin = new Date(checkin);
-      const dateCheckout = new Date(checkout);
+      const dateCheckin = new Date(inputValue[0].startDate);
+      const dateCheckout = new Date(inputValue[0].endDate);
 
       // tìm kiếm phòng qua đêm, theo ngày mặc định thời gian checkin là 14h và checkout là 12h trưa hôm sau.
       query = {
@@ -182,7 +197,7 @@ const Header = (props: Props) => {
 
   const searchBar = () => {
     return (
-      <div className="w-full transform transition-all duration-300">
+      <div className={`w-full transform transition-all duration-300`}>
         <div className="flex flex-col sm:flex-row items-center bg-white rounded-full border shadow-sm hover:shadow-md transition-all duration-300">
 
           <div className="flex-grow flex-1 max-w-[50%] p-2 pl-4 group">
@@ -239,7 +254,7 @@ const Header = (props: Props) => {
           </div>
           <div
             className="flex md:w-[38%] gap-3"
-          // onClick={() => setShowDatePicker(true)}
+            onClick={() => setShowDatePicker(true)}
           >
             <div className="flex-1 border hover:border-orange-500 rounded-xl flex items-center p-4 transition-all duration-200 bg-gray-50 hover:bg-white cursor-pointer group hover:shadow-sm">
               <div className="flex items-center w-full">
@@ -264,7 +279,7 @@ const Header = (props: Props) => {
               </div>
             </div>
           </div>
-          <button className="bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl p-6 flex items-center justify-center hover:from-orange-600 hover:to-orange-700 transition-all duration-300 shadow-sm hover:shadow-md active:scale-[0.98] font-medium">
+          <button onClick={(e:any) => handleSearch(e)} className="bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl p-6 flex items-center justify-center hover:from-orange-600 hover:to-orange-700 transition-all duration-300 shadow-sm hover:shadow-md active:scale-[0.98] font-medium">
             <SearchTwoToneIcon />
           </button>
         </div>
@@ -299,17 +314,20 @@ const Header = (props: Props) => {
           </div>
 
           {
-            !showSearch && open ? (
-              <div
-                onClick={() => {
-                  setOpenBookingSearch(true)
-                  setOpen(false)
-                }}
-                className={`${open ? "visible scale-100 translate-y-0 opacity-100" : "invisible scale-150 translate-y-10 opacity-0"} flex-auto max-w-[35%] cursor-pointer duration-300`}
-              >
-                {searchBar()}
-              </div>
-            ) : ""
+            !showSearch
+              ? open ? (
+                <div
+                  onClick={() => {
+                    setOpenBookingSearch(true)
+                    setOpen(false)
+                  }}
+                  className={`${open ? "visible scale-100 translate-y-0 opacity-100" : "invisible scale-150 translate-y-10 opacity-0"} flex-auto h-full max-w-[35%] cursor-pointer duration-300`}
+                >
+                  {searchBar()}
+                </div>
+              )
+                : ""
+              : ""
           }
 
           {
@@ -426,8 +444,8 @@ const Header = (props: Props) => {
         </div>
         <div
           className='absolute top-[87px] left-[50%] translate-x-[-50%] w-[80%]'>
-          {openBookingSearch && !open ? bookingSearch() : ""}
-          <DateRangPicker style="date-picker-container absolute top-[115px] right-[50px] z-50 mt-2" />
+          {openBookingSearch ? bookingSearch() : ""}
+          {showDatePicker ? <DateRangPicker style="date-picker-container absolute top-[115px] right-[50px] z-50 mt-2" /> : ""}
         </div>
       </div>
     </header>

@@ -116,6 +116,7 @@ const Home = () => {
   };
 
   const toggleVisible = () => {
+    setShowDatePicker(false)
     const scrolled = document.documentElement.scrollTop;
     if (scrolled > 150) {
       setVisible(false);
@@ -135,7 +136,7 @@ const Home = () => {
   };
 
   const hanldeTimeToSearch = () => {
-    if (!selectedDate[0] || !selectedDate[1]) {
+    if (!inputValue[0].endDate || !inputValue[0].startDate) {
       toastr.info("Vui lòng chọn thời gian trả phòng!");
       return;
     }
@@ -143,7 +144,7 @@ const Home = () => {
     let query = {};
 
     // tìm kiếm theo giờ.
-    if (indexTab === 0) {
+    if (selectedType === 0) {
       const timeCheckin = new Date(dateTimeStart as any);
 
       query = {
@@ -165,9 +166,8 @@ const Home = () => {
         ).toISOString(),
       };
     } else {
-      const [checkin, checkout] = selectedDate;
-      const dateCheckin = new Date(checkin);
-      const dateCheckout = new Date(checkout);
+      const dateCheckin = new Date(inputValue[0].startDate);
+      const dateCheckout = new Date(inputValue[0].endDate);
 
       // tìm kiếm phòng qua đêm, theo ngày mặc định thời gian checkin là 14h và checkout là 12h trưa hôm sau.
       query = {
@@ -191,102 +191,9 @@ const Home = () => {
     }
   }, [selectedDate[0], selectedDate[1]])
 
-  const DateRangerPicker = () => {
-    return (
-      <LocalizationProvider dateAdapter={AdapterDayjs as any}>
-        <DateRangePicker
-          startText="Nhận phòng"
-          inputFormat="dd/MM/YYY"
-          endText="Trả phòng"
-          value={selectedDate}
-          disablePast
-          onChange={(date: any) => setSelectedDate(date)}
-          renderInput={(startProps, endProps) => (
-            <>
-              <TextField
-                {...startProps}
-                size="small"
-                variant="standard"
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <LoginIcon />
-                    </InputAdornment>
-                  ),
-                }}
-                helperText=""
-              />
-              <DateRangeDelimiter> to </DateRangeDelimiter>
-              <TextField
-                {...endProps}
-                size="small"
-                variant="standard"
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <LogoutIcon />
-                    </InputAdornment>
-                  ),
-                }}
-                error={!selectedDate[1]}
-                helperText=""
-              />
-            </>
-          )}
-        />
-      </LocalizationProvider>
-      // <div></div>
-    );
-  };
-
-  const DateTimePickers = () => {
-    return (
-      <>
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <DateTimePicker
-            disablePast
-            label="Nhận phòng"
-            inputFormat="HH:mm, DD [tháng] MM"
-            renderInput={(params) => <TextField {...params} size="small" helperText="" />}
-            value={dateTimeStart}
-            onChange={(newValue) => {
-              setDateTimeStart(newValue);
-            }}
-          />
-        </LocalizationProvider>
-
-        <div className="ml-2 mr-3 min-w-[150px]">
-          <FormControl fullWidth>
-            <InputLabel id="demo-simple-select-label">Số giờ sử dụng</InputLabel>
-            <Select
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
-              value={hours as any}
-              label="Age"
-              onChange={(e: ChangeEvent<any>) => {
-                setHours(+e.target.value);
-              }}
-            >
-              <MenuItem value={1}>1 giờ</MenuItem>
-              <MenuItem value={2}>2 giờ</MenuItem>
-              <MenuItem value={3}>3 giờ</MenuItem>
-              <MenuItem value={4}>4 giờ</MenuItem>
-              <MenuItem value={5}>5 giờ</MenuItem>
-              <MenuItem value={6}>6 giờ</MenuItem>
-              <MenuItem value={7}>7 giờ</MenuItem>
-              <MenuItem value={8}>8 giờ</MenuItem>
-              <MenuItem value={9}>9 giờ</MenuItem>
-              <MenuItem value={10}>10 giờ</MenuItem>
-            </Select>
-          </FormControl>
-        </div>
-      </>
-    );
-  };
-
   const bookingSearch = () => {
     return (
-      <div className={`${visible ? "visible scale-100 opacity-100" : "invisible scale-50 opacity-0"} duration-300 w-[80%] mx-auto translate-x-[-50%] translate-y-[-60%] absolute top-[100%] left-[50%] bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] overflow-hidden border border-gray-100`}>
+      <div className={`${visible ? "visible scale-100 opacity-100 translate-y-20" : "invisible scale-50 opacity-0 translate-y-0"} duration-300 w-[80%] mx-auto translate-x-[-50%] absolute top-[30%] left-[50%] bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] overflow-hidden border border-gray-100`}>
         <div className="flex border-b bg-gray-50/80">
           <button
             className={`flex-1 py-6 px-2 flex flex-col items-center text-sm transition-all duration-300 ease-in-out
@@ -354,7 +261,7 @@ const Home = () => {
               </div>
             </div>
           </div>
-          <button className="bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl p-6 flex items-center justify-center hover:from-orange-600 hover:to-orange-700 transition-all duration-300 shadow-sm hover:shadow-md active:scale-[0.98] font-medium">
+          <button onClick={(e:any)=>handleSearch(e)} className="bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl p-6 flex items-center justify-center hover:from-orange-600 hover:to-orange-700 transition-all duration-300 shadow-sm hover:shadow-md active:scale-[0.98] font-medium">
             <SearchTwoToneIcon />
           </button>
         </div>
