@@ -215,7 +215,7 @@ const Header = (props: Props) => {
                 <CalendarMonthTwoToneIcon
                   className="text-orange-500"
                 />
-                <span className="font-medium">Theo ngày•</span>
+                <span className="font-medium">{selectedType == 0 ? "Theo giờ" : selectedType == 1 ? "Qua đêm" : "Theo ngày"}•</span>
               </div>
               <div className="flex items-center">
                 <span className="text-sm font-medium text-gray-700">

@@ -2,15 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 * {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 .rdrDefinedRangesWrapper {
   display: none !important;
 }
 
 .rdrCalendarWrapper {
-  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1),
-    0 8px 10px -6px rgb(0 0 0 / 0.1);
+  font-size: 13px !important;
+}
+
+.rdrDay {
+  width: 48px !important;
+  height: 48px !important;
 }
 
 .swal2-container {
