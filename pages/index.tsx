@@ -272,25 +272,24 @@ const Home = () => {
 
   const dateRange = () => {
     return (
-      <div className="date-picker-container">
-        <div className="bg-white shadow-xl rounded-lg p-4 border">
-          <DateRange
-            ranges={inputValue}
-            onChange={(item: any) => handleInputChange([item.selection])}
-            moveRangeOnFirstSelection={false}
-            months={2}
-            direction="horizontal"
-            minDate={new Date()}
-            locale={vi}
-            rangeColors={["#f97316"]}
-            color="#f97316"
-          />
-        </div>
+      <div className="bg-white shadow-xl rounded-lg p-4 border">
+        <DateRange
+          ranges={inputValue}
+          onChange={(item: any) => handleInputChange([item.selection])}
+          moveRangeOnFirstSelection={false}
+          months={2}
+          direction="horizontal"
+          minDate={new Date()}
+          locale={vi}
+          rangeColors={["#f97316"]}
+          color="#f97316"
+        />
       </div>
     )
   }
   return (
     <div className="">
+      {/* <DateTimesPicker /> */}
       <div className="w-[80%] mx-auto relative mb-[50px] z-10">
         <div className="flex justify-center h-[286px] bg-[url('https://res.cloudinary.com/dkhutgvlb/image/upload/v1669818180/33_1654843382_62a2e7f6b03fb_brxw7x.png')] bg-no-repeat bg-cover">
           <h1 className="text-5xl text-center font-semibold text-white mt-5 w-[65%]">
@@ -298,7 +297,7 @@ const Home = () => {
           </h1>
         </div>
         {bookingSearch()}
-        <div className="absolute top-[370px] right-[90px] z-50 mt-2">
+        <div className="absolute top-[370px] right-[90px] z-50 mt-2 date-picker-container">
           {
             isMounted && showDatePicker ?
               selectedType == 0 ? <DateTimesPicker /> : selectedType == 1 ? dateRange() : dateRange()

@@ -89,7 +89,6 @@ const Carousel = ({ images }: []) => {
                         }
                     </Swiper>
                 </div>
-
             </div>
             <Dialog
                 open={open}
@@ -172,7 +171,7 @@ const Carousel = ({ images }: []) => {
                                                         layout='fill'
                                                         priority
                                                         objectFit="cover"
-                                                        className='cursor-grab hover:opacity-75 transition border rounded-xl'
+                                                        className=' border rounded-xl'
                                                     />
                                                 </div>
                                             </SwiperSlide>

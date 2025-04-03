@@ -32,6 +32,7 @@ const HeaderBookingDetail = (props: Props) => {
         setSelectedType,
         roomName
     } = useLayout();
+    
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
     useEffect(() => {

@@ -11,8 +11,6 @@ import CommentItem from "../../../components/CommentItem";
 import { UserType } from "../../../types/user";
 import useComment from "../../../hook/use-comment";
 import { CommentType, CommentType2 } from "../../../types/comment";
-import { getVoucherByCode } from "../../../api/voucher";
-import { Voucher } from "../../../types/voucher";
 import { useRouter } from "next/router";
 import { API_URL } from "../../../constants";
 import { fetcher } from "../../../api/instance";

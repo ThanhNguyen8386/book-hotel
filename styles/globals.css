@@ -17,6 +17,16 @@
   height: 48px !important;
 }
 
+.rdrDayNumber span {
+  font-size: 13px !important;
+  font-weight: 400;
+}
+
+.rdrWeekDay {
+  font-weight: 600 !important;
+  color: black !important;
+}
+
 .swal2-container {
   z-index: 1400 !important;
 }
