@@ -8,6 +8,10 @@
   display: none !important;
 }
 
+.rdrDateDisplayWrapper {
+  display: none !important;
+}
+
 .rdrCalendarWrapper {
   font-size: 13px !important;
 }

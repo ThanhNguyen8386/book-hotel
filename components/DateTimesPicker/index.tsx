@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Calendar, DateRange } from "react-date-range";
 import { addHours, format } from "date-fns";
 import AccessTimeTwoToneIcon from '@mui/icons-material/AccessTimeTwoTone';
@@ -21,19 +21,62 @@ const DateTimesPicker = () => {
     inputValue,
     handleInputChange
   } = useLayout();
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [selectedTime, setSelectedTime] = useState("15:00");
+  const [selectedTime, setSelectedTime] = useState("");
   const [selectedHours, setSelectedHours] = useState(2);
+  const [isMounted, setIsMounted] = useState(false)
+  const hoursOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
-  const times = ["15:00", "16:00", "17:00", "18:00", "19:00", "19:00", "19:00", "19:00", "19:00"];
-  const hoursOptions = [1, 2, 3, 4];
+  const checkoutTime = (() => {
+    if (!inputValue[0]?.startDate || !selectedTime) return "Chưa chọn thời gian";
 
-  const checkoutTime = addHours(
-    new Date(selectedDate.setHours(parseInt(selectedTime))),
-    selectedHours
-  );
+    const [hours, minutes] = selectedTime.split(":").map(Number); // Lấy giờ và phút
+    const startDate = new Date(inputValue[0].startDate); // Tạo bản sao để tránh sửa dữ liệu gốc
 
-  return (
+    startDate.setHours(hours, minutes, 0, 0); // Cập nhật giờ, phút
+
+    return addHours(startDate, selectedHours);
+  })();
+
+  const generateTimeSlot = (selectedDate: Date) => {
+    const now = new Date();
+    const isToday = now.toDateString() === selectedDate.toDateString(); // Kiểm tra nếu ngày chọn là hôm nay
+  
+    let startHour = isToday ? now.getHours() + (now.getMinutes() > 0 ? 1 : 0) : 0; // Hôm nay thì bắt đầu từ giờ gần nhất, ngày khác thì từ 00:00
+  
+    if (startHour >= 24) {
+      return ["00:00"]; // Nếu đã qua 23:59, chỉ có "00:00"
+    }
+  
+    return Array.from({ length: 24 - startHour }, (_, i) =>
+      `${String(startHour + i).padStart(2, "0")}:00`
+    );
+  };  
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
+  useEffect(() => {
+    const timeSlots = generateTimeSlot(inputValue[0].startDate);
+    setSelectedTime(timeSlots[0])
+  }, [])
+  
+  const applyChange = (date: any) => {
+    const [hours, minutes] = selectedTime.split(":").map(Number); // Lấy giờ và phút
+    const startDate = new Date(date); // Tạo bản sao để tránh sửa dữ liệu gốc
+
+    startDate.setHours(hours, minutes, 0, 0); // Cập nhật giờ, phút
+
+    handleInputChange([
+      {
+        startDate: date,
+        endDate: addHours(startDate, selectedHours),
+        key: 'selection',
+      },
+    ])
+  }
+
+  return isMounted && (
     <div className="p-6 bg-white rounded-2xl shadow-lg flex gap-6">
       <div className="w-1/2">
         <h3 className="font-semibold mb-2 text-lg">Chọn ngày</h3>
@@ -41,13 +84,7 @@ const DateTimesPicker = () => {
           <Calendar
             date={inputValue[0].startDate}
             onChange={date => {
-              handleInputChange([
-                {
-                  startDate: date,
-                  endDate: date,
-                  key: 'selection',
-                },
-              ])
+              applyChange(date)
             }}
             color="#f97316"
             className="custom-datepicker"
@@ -92,7 +129,7 @@ const DateTimesPicker = () => {
               watchSlidesProgress={true}
             >
               {
-                times.map((i: any, index: any) => {
+                generateTimeSlot(inputValue[0].startDate).map((i: any, index: any) => {
                   return (
                     <SwiperSlide key={index}>
                       <button
@@ -130,7 +167,7 @@ const DateTimesPicker = () => {
               onSwiper={(swiper) => (swiperRefHour.current = swiper)}
               modules={[FreeMode]}
               className="mySwiper w-[80%]"
-              spaceBetween={20}
+              spaceBetween={10}
               slidesPerView={3}
               freeMode={true}
               watchSlidesProgress={true}
@@ -164,7 +201,7 @@ const DateTimesPicker = () => {
         </div>
       </div>
     </div>
-  );
+  )
 };
 
 export default DateTimesPicker;
