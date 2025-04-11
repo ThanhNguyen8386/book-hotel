@@ -29,6 +29,7 @@ import AccessTimeTwoToneIcon from '@mui/icons-material/AccessTimeTwoTone';
 import DarkModeTwoToneIcon from '@mui/icons-material/DarkModeTwoTone';
 import { format } from 'date-fns';
 import DateRangPicker from '../DateRangPicker';
+import DateTimesPicker from '../DateTimesPicker';
 
 type Props = {}
 
@@ -279,7 +280,7 @@ const Header = (props: Props) => {
               </div>
             </div>
           </div>
-          <button onClick={(e:any) => handleSearch(e)} className="bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl p-6 flex items-center justify-center hover:from-orange-600 hover:to-orange-700 transition-all duration-300 shadow-sm hover:shadow-md active:scale-[0.98] font-medium">
+          <button onClick={(e: any) => handleSearch(e)} className="bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl p-6 flex items-center justify-center hover:from-orange-600 hover:to-orange-700 transition-all duration-300 shadow-sm hover:shadow-md active:scale-[0.98] font-medium">
             <SearchTwoToneIcon />
           </button>
         </div>
@@ -375,8 +376,8 @@ const Header = (props: Props) => {
                   />
                   : (
                     <div className='flex'>
-                      <button onClick={()=>{router.push("/signin")}} type="button" className="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Đăng nhập</button>
-                      <button onClick={()=>{router.push("/signup")}} type="button" className="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Đăng kí</button>
+                      <button onClick={() => { router.push("/signin") }} type="button" className="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Đăng nhập</button>
+                      <button onClick={() => { router.push("/signup") }} type="button" className="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Đăng kí</button>
                     </div>
                   )
               }
@@ -445,7 +446,9 @@ const Header = (props: Props) => {
         <div
           className='absolute top-[87px] left-[50%] translate-x-[-50%] w-[80%]'>
           {openBookingSearch ? bookingSearch() : ""}
-          {showDatePicker ? <DateRangPicker style="date-picker-container absolute top-[115px] right-[50px] z-50 mt-2" /> : ""}
+          {showDatePicker ? <div className="date-picker-container absolute top-[115px] right-[50px] z-50 mt-2">
+            {selectedType == 0 ? <DateTimesPicker /> : selectedType == 1 ? <DateRangPicker /> : <DateRangPicker />}
+          </div> : ""}
         </div>
       </div>
     </header>

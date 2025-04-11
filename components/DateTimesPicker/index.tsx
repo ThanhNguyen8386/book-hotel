@@ -40,17 +40,17 @@ const DateTimesPicker = () => {
   const generateTimeSlot = (selectedDate: Date) => {
     const now = new Date();
     const isToday = now.toDateString() === selectedDate.toDateString(); // Kiểm tra nếu ngày chọn là hôm nay
-  
+
     let startHour = isToday ? now.getHours() + (now.getMinutes() > 0 ? 1 : 0) : 0; // Hôm nay thì bắt đầu từ giờ gần nhất, ngày khác thì từ 00:00
-  
+
     if (startHour >= 24) {
       return ["00:00"]; // Nếu đã qua 23:59, chỉ có "00:00"
     }
-  
+
     return Array.from({ length: 24 - startHour }, (_, i) =>
       `${String(startHour + i).padStart(2, "0")}:00`
     );
-  };  
+  };
 
   useEffect(() => {
     setIsMounted(true)
@@ -60,7 +60,7 @@ const DateTimesPicker = () => {
     const timeSlots = generateTimeSlot(inputValue[0].startDate);
     setSelectedTime(timeSlots[0])
   }, [])
-  
+
   const applyChange = (date: any) => {
     const [hours, minutes] = selectedTime.split(":").map(Number); // Lấy giờ và phút
     const startDate = new Date(date); // Tạo bản sao để tránh sửa dữ liệu gốc
@@ -134,7 +134,10 @@ const DateTimesPicker = () => {
                     <SwiperSlide key={index}>
                       <button
                         className={`px-4 py-2 rounded-lg border text-sm font-medium transition-all ${selectedTime === i ? "bg-orange-500 text-white" : "bg-gray-100 hover:bg-gray-200"}`}
-                        onClick={() => setSelectedTime(i)}
+                        onClick={() => {
+                          applyChange(inputValue[0].startDate)
+                          setSelectedTime(i)
+                        }}
                       >
                         {i}
                       </button>

@@ -20,6 +20,8 @@ import 'react-date-range/dist/theme/default.css'; // theme mặc định
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { useLayout } from '../../contexts/LayoutContext';
+import DateTimesPicker from '../DateTimesPicker';
+import DateRangPicker from '../DateRangPicker';
 
 type Props = {}
 
@@ -32,7 +34,7 @@ const HeaderBookingDetail = (props: Props) => {
         setSelectedType,
         roomName
     } = useLayout();
-    
+
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
     useEffect(() => {
@@ -91,10 +93,6 @@ const HeaderBookingDetail = (props: Props) => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [showDatePicker]);
 
-    const handleApplyDates = () => {
-        setShowDatePicker(false);
-    };
-
     const handleUpdateBooking = () => {
         if (updateBooking) {
             updateBooking(); // Gọi API từ BookingDetail
@@ -102,7 +100,7 @@ const HeaderBookingDetail = (props: Props) => {
             console.error("🚨 Không tìm thấy hàm gọi API!");
         }
     };
-        
+
     return (
         <header className='sticky w-[90%] border-b mx-auto top-0 z-[90] bg-[#fff]'>
             <div className="flex justify-between items-center py-2 mb:flex mbs:block ">
@@ -189,31 +187,11 @@ const HeaderBookingDetail = (props: Props) => {
                                 </button>
 
                                 {/* === Date Range Picker Popup === */}
-                                {isMounted && showDatePicker && (
+                                {(isMounted && showDatePicker) ?
                                     <div className="date-picker-container absolute top-16 right-12 z-50 mt-2">
-                                        <div className="bg-white shadow-xl rounded-lg p-4 border">
-                                            <DateRange
-                                                ranges={inputValue}
-                                                onChange={(item: any) => handleInputChange([item.selection])}
-                                                moveRangeOnFirstSelection={false}
-                                                months={2}
-                                                direction="horizontal"
-                                                minDate={new Date()}
-                                                locale={vi}
-                                                rangeColors={["#f97316"]}
-                                                color="#f97316"
-                                            />
-                                            <div className="flex justify-end mt-2">
-                                                <button
-                                                    onClick={handleApplyDates}
-                                                    className="bg-orange-500 text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-orange-600 transition"
-                                                >
-                                                    Áp dụng
-                                                </button>
-                                            </div>
-                                        </div>
+                                        {selectedType == 0 ? <DateTimesPicker /> : selectedType == 1 ? <DateRangPicker /> : <DateRangPicker />}
                                     </div>
-                                )}
+                                    : ""}
                             </div>
                         )
                     }
