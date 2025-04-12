@@ -2,7 +2,6 @@
 import { Avatar, Chip } from '@mui/material'
 import { useRouter } from 'next/router'
 import React, { useEffect, useMemo, useState } from 'react'
-import { listOrderUser } from '../../../api/order'
 import ProfileLayout from '../../../components/Layout/ProfileLayout'
 import { DataGrid } from '@mui/x-data-grid'
 import dayjs from 'dayjs'
@@ -10,6 +9,8 @@ import Order_detail from './Order_detail'
 import useSWR from 'swr'
 import { API_URL } from '../../../constants'
 import { fetcher } from '../../../api/instance'
+import { Hotel, WatchLater, LocationOn } from '@mui/icons-material';
+import Image from 'next/image'
 
 type Props = {}
 
@@ -21,9 +22,9 @@ const Orderlisst = (props: Props) => {
     const router = useRouter();
     // const { data, mutate } = useSWR(`${API_URL}/orders/${user?._id}`, fetcher);
     const { data, mutate } = useSWR(
-        user?._id ? `${API_URL}/orders/${user._id}` : null, 
+        user?._id ? `${API_URL}/orders/${user._id}` : null,
         fetcher
-      );
+    );
     useEffect(() => {
         const getUser = JSON.parse(localStorage.getItem('user') as string)
         if (getUser == 0 || getUser == null) {
@@ -75,6 +76,31 @@ const Orderlisst = (props: Props) => {
             }
         }
     }
+
+    const methodPay = (key: string) => {
+        if (key == "0") {
+            return <div className="">
+                <span className="">
+                    Thanh toán trực tiếp
+                </span>
+            </div>
+        } else if (key == "1") {
+            return <div className="flex items-center justify-between">
+                <span className="">Thanh toán trực tuyến</span>
+                <span className=" text-red-500">Chưa thanh toán</span>
+            </div>
+        } else if (key == "2") {
+            return <div className="flex items-center justify-between">
+                <span className="">Thanh toán trực tuyến</span>
+                <span className="">Đã thanh toán</span>
+            </div>
+        }
+    }
+
+    const formatCurrency = (currency: number) => {
+        const tempCurrency = +currency >= 0 ? currency : 0;
+        return new Intl.NumberFormat("de-DE", { style: "currency", currency: "VND" }).format(tempCurrency);
+    };
     return (
         <div className="w-full pl-4">
             <div className="border-b border-gray-100">
@@ -90,89 +116,80 @@ const Orderlisst = (props: Props) => {
                 </div>
             </div>
             <Order_detail ref={refDetail} />
-            <div className='flex-col flex'>
-                <DataGrid
-                    rowHeight={70}
-                    rows={rows}
-                    getRowId={(row) => {
-                        if (row.data) {
-                            return row.data._id
-                        }
-                        return row._id
+            <div className="max-h-[600px] overflow-y-auto pr-2 space-y-4">
+                {
+                    rows && rows?.map((item: any, index: any) => {
+                        return (
+                            <div key={index} className="border rounded-xl p-4 space-y-3 my-4">
+                                {/* Mã đặt phòng */}
+                                <div className="flex justify-between items-center text-sm">
+                                    <span>
+                                        Mã đặt phòng: <span className="text-blue-600 font-semibold">{item._id}</span>
+                                    </span>
+                                    <Chip
+                                        label={statuss(item?.statusorder).name}
+                                        size="small"
+                                        color={statuss(item?.statusorder).color}
+                                    />
+                                </div>
 
-                    }}
-                    columns={React.useMemo(
-                        () => [
-                            {
-                                field: 'name',
-                                headerName: "Tên phòng",
-                                align: "left",
-                                type: 'string',
-                                minWidth: 150,
-                                flex: 1,
-                                renderCell: (params: any) => {
-                                    return (
-                                        <div className='flex items-center'>
-                                            <Avatar
-                                                alt="Remy Sharp"
-                                                src={params.row.room && params.row.room.image[0]}
-                                                // sx={{ width: 56, height: 56 }}
-                                                variant="rounded"
-                                            />
-                                            <span className='pl-2'>{params.row.room && params.row.room.name}</span>
+                                {/* Nội dung chính */}
+                                <div className="bg-gray-50 rounded-lg p-3 flex gap-3 items-start">
+                                    <Image
+                                        src={item.room && item?.room.image[0]}
+                                        alt="Phòng"
+                                        width={100}
+                                        height={80}
+                                        className="rounded-md object-cover"
+                                    />
+
+                                    <div className="flex-1 space-y-1 text-sm">
+                                        <div className="flex items-center gap-1 text-purple-600">
+                                            <WatchLater fontSize="small" />
+                                            <span className="font-medium">Qua đêm</span>
+                                            <span className="mx-1 text-gray-400">|</span>
+                                            <span>
+                                                {dayjs(item?.checkins).format("HH:mm DD/MM/YYYY")} - {dayjs(item?.checkouts).format("HH:mm DD/MM/YYYY")}
+                                            </span>
                                         </div>
 
-                                    )
-                                }
-                            },
-                            {
-                                field: 'checkin',
-                                headerName: "Thời gian đặt nhận",
-                                align: "left",
-                                type: 'string',
-                                minWidth: 150,
-                                flex: 1,
-                                renderCell: (params: any) => {
-                                    return (
-                                        <div className="text-sm h-full flex flex-col justify-center">
-                                            <p className="text-gray-800 font-medium">{params.row && dayjs(params.row.checkins).format("HH:mm DD/MM/YYYY")}</p>
-                                            <p className="text-gray-500 mt-1">đến {params.row && dayjs(params.row.checkouts).format("HH:mm DD/MM/YYYY")}</p>
+                                        <div className="flex items-center gap-2">
+                                            <Hotel fontSize="small" />
+                                            <span>{item.room && item?.room?.name}</span>
                                         </div>
-                                    )
-                                }
-                            },
-                            {
-                                minWidth: 150,
-                                headerName: "Trạng thái phòng",
-                                field: 'actions',
-                                type: 'actions',
-                                flex: 1,
-                                align: "center",
-                                renderCell: (params: any) => {
-                                    if (params.row.statusorder) {
-                                        return (
-                                            <p>
-                                                <Chip
-                                                    label={statuss(params.row.statusorder).name}
-                                                    size="small"
-                                                    color={statuss(params.row.statusorder).color}
-                                                />
-                                                <Chip
-                                                    className='pl-2'
-                                                    clickable
-                                                    label="Chi tiết"
-                                                    size="small"
-                                                    variant="outlined"
-                                                    onClick={() => actionCrud.updateOrder(params.row, "UPDATE")}
-                                                />
-                                            </p>
-                                        )
-                                    }
-                                }
-                            },
-                        ]
-                    )}
-                />
+
+                                        <div className="flex items-center gap-2 text-gray-700">
+                                            <LocationOn fontSize="small" />
+                                            <span>{item && item?.address || "Address"}</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Giá + Chi tiết */}
+                                    <div className="text-right text-sm min-w-[100px]">
+                                        <p className="font-semibold text-lg">{formatCurrency(item?.total)}</p>
+                                        <p className="flex items-center justify-end gap-1 text-orange-600">
+                                            <LocationOn fontSize="small" className="text-orange-600" />
+                                            {methodPay(item?.methodpay)}
+                                        </p>
+                                        <Chip
+                                            className='pl-2'
+                                            clickable
+                                            label="Chi tiết"
+                                            size="small"
+                                            variant="outlined"
+                                            onClick={() => actionCrud.updateOrder(item, "UPDATE")}
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Thời gian huỷ */}
+                                <p className="text-xs text-gray-600">
+                                    Đã huỷ đặt phòng vào <span className="text-black font-semibold">15:24, 12/04/2025</span>
+                                </p>
+                            </div>
+                        )
+                    })
+                }
             </div>
         </div>
 

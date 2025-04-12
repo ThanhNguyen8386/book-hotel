@@ -1,23 +1,13 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from 'next/link'
-import React, { ChangeEvent, FormEvent, MouseEvent, useEffect, useMemo, useState } from 'react'
-import Button from '@mui/material/Button';
+import React, { FormEvent, MouseEvent, useEffect, useMemo, useState } from 'react'
 import Menu from '@mui/material/Menu';
-import { DateRangePicker, DateRangeDelimiter, LocalizationProvider, DateTimePicker } from "@material-ui/pickers";
-import { Avatar, InputAdornment } from "@mui/material";
-import InputLabel from "@material-ui/core/InputLabel";
+import { Avatar } from "@mui/material";
 import MenuItem from "@material-ui/core/MenuItem";
-import FormControl from "@material-ui/core/FormControl";
-import Select from "@material-ui/core/Select";
 import { useRouter } from 'next/router';
 import { USER_ROLE } from '../../constants';
 import dayjs, { Dayjs } from 'dayjs';
-import TextField from "@material-ui/core/TextField";
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import LogoutIcon from "@mui/icons-material/Logout";
 // import DateFnsUtils from "@material-ui/pickers/adapter/date-fns";
-import LoginIcon from "@mui/icons-material/Login";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import toastr from "toastr";
 import "toastr/build/toastr.min.css";
 import RoomTwoToneIcon from '@mui/icons-material/RoomTwoTone';
@@ -30,6 +20,7 @@ import DarkModeTwoToneIcon from '@mui/icons-material/DarkModeTwoTone';
 import { format } from 'date-fns';
 import DateRangPicker from '../DateRangPicker';
 import DateTimesPicker from '../DateTimesPicker';
+import CardGiftcardIcon from '@mui/icons-material/CardGiftcard';
 
 type Props = {}
 
@@ -292,12 +283,19 @@ const Header = (props: Props) => {
     <header className='sticky top-0 z-[90] bg-[#fff]'>
       <div className="w-[80%] border-b mx-auto py-2 mb:w-[80%] mbs:[100%] relative">
         <div className="flex justify-between items-center my-2 mb:flex mbs:block ">
-          <div className="flex">
+          <div className="flex items-center">
             <Link href="/" >
               <img className='w-[100px] cursor-pointer' src="https://res.cloudinary.com/fptpolytechnic/image/upload/v1673543047/samples/325042297_711092773955485_5422088835829082377_n_ejizf3.png" alt="" />
             </Link>
+            <p
+              aria-controls={open ? 'ava-control' : undefined}
+              aria-haspopup="true"
+              aria-expanded={open ? 'true' : undefined}
+              onClick={handleClick2}
+              className='ml-6 font-semibold cursor-pointer hover:text-gray-500 duration-300'
+            >Danh mục nhà nghỉ <ExpandMoreTwoToneIcon /></p>
             <Menu
-              className='w-[100%]'
+              className='w-[100%] mt-[20px]'
               id="basic-menu"
               anchorEl={anchorEl2}
               open={open2}
@@ -363,13 +361,17 @@ const Header = (props: Props) => {
           }
 
           <div className="flex items-center">
+            <div className="mr-6 flex items-center hover:text-gray-500 duration-200 cursor-pointer">
+              <CardGiftcardIcon />
+              <p className='font-semibold pl-2'>Ưu đãi</p>
+            </div>
             <div className=''>
               {
                 status && user !== null ?
                   <Avatar
                     alt="Remy Sharp"
                     src={user.avatar}
-                    aria-controls={open ? 'basic-menu' : undefined}
+                    aria-controls={open ? 'ava-control' : undefined}
                     aria-haspopup="true"
                     aria-expanded={open ? 'true' : undefined}
                     onClick={handleClick}
@@ -385,13 +387,21 @@ const Header = (props: Props) => {
             {
               user && status && (
                 <Menu
-                  className='mt-[25px] left-[-125px]'
-                  id="basic-menu"
+                  className='mt-[20px] rounded-xl'
+                  id="ava-control"
                   anchorEl={anchorEl}
                   open={open1}
                   onClose={handleClose}
                   MenuListProps={{
                     'aria-labelledby': 'basic-button',
+                  }}
+                  anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'center',
+                  }}
+                  transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'center',
                   }}
                 >
                   <Link href={`${user.role === USER_ROLE ? '/profile' : '/admin'}`}>

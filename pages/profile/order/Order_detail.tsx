@@ -1,6 +1,6 @@
 import { AppBar, Button, Chip, Dialog, DialogContent, IconButton, Toolbar, Typography } from "@mui/material";
 import { forwardRef, useImperativeHandle, useState } from "react";
-import CloseIcon from '@mui/icons-material/Close';
+import CloseTwoToneIcon from '@mui/icons-material/CloseTwoTone';
 import {
     Wifi,
     LocalParking,
@@ -143,23 +143,14 @@ const Order_detail = (props: any, ref: any) => {
             aria-describedby="alert-dialog-description"
             fullWidth
             maxWidth="lg"
+
         >
-            <AppBar sx={{ position: 'sticky', display: 'flex', flex: 'justify-between' }}>
-                <Toolbar>
-                    <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-                        Chi tiết
-                    </Typography>
-                    <IconButton
-                        edge="start"
-                        color="inherit"
-                        onClick={handleClose}
-                        aria-label="close"
-                    >
-                        <CloseIcon />
-                    </IconButton>
-                </Toolbar>
-            </AppBar>
             <DialogContent>
+                <div
+                    onClick={() => handleClose()}
+                    className=" flex items-center cursor-pointer absolute top-10 right-10">
+                    <CloseTwoToneIcon className="h-6 w-6 text-gray-700" />
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-8">
                     <div>
                         <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-6">

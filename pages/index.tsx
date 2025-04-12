@@ -34,7 +34,8 @@ import 'react-date-range/dist/theme/default.css'; // theme mặc định
 import { vi } from "date-fns/locale";
 import { format } from 'date-fns';
 import DateTimesPicker from "../components/DateTimesPicker";
-
+import Image from "next/image";
+import FavoriteTwoToneIcon from '@mui/icons-material/FavoriteTwoTone';
 const Home = () => {
   const router = useRouter();
   const {
@@ -315,7 +316,7 @@ const Home = () => {
                   return (
                     <div className={`mb-4 ${item.status ? '' : 'hidden'}`} key={index}>
                       <Link href={`/booking_detail/${item.slug}`}>
-                        <CardActionArea sx={{ display: "flex", flexDirection: "column", alignContent: "space-between", justifyContent: "space-between" }}>
+                        {/* <CardActionArea sx={{ display: "flex", flexDirection: "column", alignContent: "space-between", justifyContent: "space-between" }}>
                           <div className="max-w-sm bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700">
                             <div className='h-[200px] overflow-hidden'>
                               <img className="rounded-t-lg " src={item.representativeImage ? item.representativeImage : ''} alt="" />
@@ -323,16 +324,34 @@ const Home = () => {
                             <div className="p-3">
                               <div className="flex justify-between items-start h-[50px]">
                                 <h5 className="mb-2 text-xl font-bold tracking-tight text-gray-900 dark:text-white">{item.name}</h5>
-                                {/* <p className='text-[green] font-semibold basis-1/4 flex justify-end'>{item.price ? `${item.price} VND` : ""}</p> */}
                               </div>
-                              {/* <p className="mb-3 font-normal text-gray-700 dark:text-gray-400">{item.category?.name}</p> */}
                               <a href="#" className="inline-flex items-center py-2 px-3 text-sm font-medium text-center text-white bg-[#ffa500] rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                                 Xem thêm
                                 <svg aria-hidden="true" className="ml-2 -mr-1 w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd"></path></svg>
                               </a>
                             </div>
                           </div>
-                        </CardActionArea>
+                        </CardActionArea> */}
+
+                        <div className="w-[280px] rounded-xl hover:shadow-lg transition overflow-hidden cursor-pointer">
+                          <div className="relative">
+                            <Image
+                              src={item.representativeImage ? item.representativeImage : ''}
+                              alt="Ba Vì"
+                              width={280}
+                              height={200}
+                              className="rounded-xl object-cover"
+                            />
+                            <div className="absolute top-2 right-2">
+                              <FavoriteTwoToneIcon className="text-gray-600 hover:text-red-600 duration-300" />
+                            </div>
+                          </div>
+
+                          <div className="p-3">
+                            <h3 className="font-semibold">{item.name}</h3>
+                            <p className="text-gray-500 text-sm">{item.address}</p>
+                          </div>
+                        </div>
                       </Link>
                     </div>
                   )

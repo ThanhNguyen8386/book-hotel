@@ -22,7 +22,7 @@ const SiteLayout = ({ children }: LayoutProps) => {
     window.addEventListener("scroll", toggleVisible)
   }, [])
   return (
-    <div className="">
+    <div className="w-[90%] mx-auto">
       <Header />
       {children}
       <BackToTop visible={visible} />
