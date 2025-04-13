@@ -2,7 +2,7 @@
     height: 100vh;
     overflow: hidden;;
     width: 60%;
-    background-color: #f2f2f7;
+    /* background-color: #f2f2f7; */
 }
 .content_left,.box{
     overflow-x: hidden;
@@ -17,7 +17,7 @@
     overflow: hidden;
     ;
     width: 100%;
-    background-color: #f2f2f7;
+    /* background-color: #f2f2f7; */
 }
 
 .content_left1,

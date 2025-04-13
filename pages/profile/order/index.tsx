@@ -3,7 +3,6 @@ import { Avatar, Chip } from '@mui/material'
 import { useRouter } from 'next/router'
 import React, { useEffect, useMemo, useState } from 'react'
 import ProfileLayout from '../../../components/Layout/ProfileLayout'
-import { DataGrid } from '@mui/x-data-grid'
 import dayjs from 'dayjs'
 import Order_detail from './Order_detail'
 import useSWR from 'swr'
@@ -11,6 +10,7 @@ import { API_URL } from '../../../constants'
 import { fetcher } from '../../../api/instance'
 import { Hotel, WatchLater, LocationOn } from '@mui/icons-material';
 import Image from 'next/image'
+import useFavoriteRoom from '../../../hook/favoriteRoom'
 
 type Props = {}
 
@@ -106,7 +106,7 @@ const Orderlisst = (props: Props) => {
             <div className="border-b border-gray-100">
                 <div className="">
                     <div>
-                        <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+                        <h2 className="text-4xl pb-[32px] font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
                             Phòng Đặt của tôi
                         </h2>
                         <p className="text-gray-500 mt-2">

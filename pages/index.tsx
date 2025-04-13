@@ -1,21 +1,10 @@
 import React, { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
-import SimpleSwiper from "../components/Slide";
 import ActionAreaCard from "../components/Card";
-import useProducts from "../hook/use-product";
 import Link from "next/link";
-import TextField from "@material-ui/core/TextField";
-import { DateRangePicker, DateRangeDelimiter, LocalizationProvider, DateTimePicker } from "@material-ui/pickers";
 // import DateFnsUtils from "@material-ui/pickers/adapter/date-fns"; // choose your lib
-import { Button, CardActionArea, InputAdornment, Skeleton } from "@mui/material";
-import LoginIcon from "@mui/icons-material/Login";
-import LogoutIcon from "@mui/icons-material/Logout";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { Skeleton } from "@mui/material";
 import dayjs, { Dayjs } from "dayjs";
 import SiteLayout from "../components/Layout";
-import InputLabel from "@material-ui/core/InputLabel";
-import MenuItem from "@material-ui/core/MenuItem";
-import FormControl from "@material-ui/core/FormControl";
-import Select from "@material-ui/core/Select";
 import { useRouter } from "next/router";
 import toastr from "toastr";
 import "toastr/build/toastr.min.css";
@@ -36,6 +25,7 @@ import { format } from 'date-fns';
 import DateTimesPicker from "../components/DateTimesPicker";
 import Image from "next/image";
 import FavoriteTwoToneIcon from '@mui/icons-material/FavoriteTwoTone';
+import useFavoriteRoom from "../hook/favoriteRoom";
 const Home = () => {
   const router = useRouter();
   const {
@@ -57,6 +47,7 @@ const Home = () => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState<any>(defaultSelectedDate);
   const [visible, setVisible] = useState(true);
+  const [user, setUser] = useState();
 
   // thời gian nhận phòng - form tìm kiếm theo giờ
   const [dateTimeStart, setDateTimeStart] = useState<Dayjs | null>(() => {
@@ -69,7 +60,7 @@ const Home = () => {
   // thời gian trả phòng - form tìm kiếm theo giờ
   const [hours, setHours] = useState<number>(2);
   const { data } = useSWR(`${API_URL}/getAllCategoryWithImage`, fetcher);
-  const [indexTab, setIndexTab] = useState(2);
+  const { data: favoriteRoomData, addFavoriteRooms, deleFavoriteRooms } = useFavoriteRoom(user);
   const [checkinDate, setCheckinDate] = useState(defaultSelectedDate[0]);
   const [checkoutDate, setCheckoutDate] = useState(defaultSelectedDate[1]);
 
@@ -77,6 +68,13 @@ const Home = () => {
     window.addEventListener("scroll", toggleVisible);
     setIsMounted(true);
   }, []);
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user'))
+    if (user !== null) {
+      setUser(user._id)
+    }
+  }, [])
 
   useEffect(() => {
     if (!showDatePicker) return;
@@ -183,6 +181,12 @@ const Home = () => {
       };
     }
     return query;
+  }
+
+  const handleChangeFavoriteRoom = async (e: any) => {
+    favoriteRoomData.some(fav => fav?.category?._id === e.category)
+      ? await deleFavoriteRooms(user, e.category)
+      : await addFavoriteRooms(e)
   }
 
   useEffect(() => {
@@ -314,27 +318,25 @@ const Home = () => {
               {
                 data.data.map((item: any, index: any) => {
                   return (
-                    <div className={`mb-4 ${item.status ? '' : 'hidden'}`} key={index}>
+                    <div className={`mb-4 ${item.status ? '' : 'hidden'} relative w-[280px] rounded-xl hover:shadow-lg transition overflow-hidden cursor-pointer`} key={index}>
+                      <div
+                        onClick={() => {
+                          if (user == null) {
+                            return;
+                          }
+                          return handleChangeFavoriteRoom({
+                            category: item._id,
+                            user: user
+                          })
+                        }}
+                        className="absolute top-2 right-2 z-50">
+                        <p className={`${favoriteRoomData.some(fav => fav?.category?._id === item._id) ? "text-red-600" : ""} text-gray-600 hover:text-red-600 hover:scale-125 duration-300`}>
+                          <FavoriteTwoToneIcon className="" />
+                        </p>
+                      </div>
                       <Link href={`/booking_detail/${item.slug}`}>
-                        {/* <CardActionArea sx={{ display: "flex", flexDirection: "column", alignContent: "space-between", justifyContent: "space-between" }}>
-                          <div className="max-w-sm bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700">
-                            <div className='h-[200px] overflow-hidden'>
-                              <img className="rounded-t-lg " src={item.representativeImage ? item.representativeImage : ''} alt="" />
-                            </div>
-                            <div className="p-3">
-                              <div className="flex justify-between items-start h-[50px]">
-                                <h5 className="mb-2 text-xl font-bold tracking-tight text-gray-900 dark:text-white">{item.name}</h5>
-                              </div>
-                              <a href="#" className="inline-flex items-center py-2 px-3 text-sm font-medium text-center text-white bg-[#ffa500] rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                                Xem thêm
-                                <svg aria-hidden="true" className="ml-2 -mr-1 w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd"></path></svg>
-                              </a>
-                            </div>
-                          </div>
-                        </CardActionArea> */}
-
-                        <div className="w-[280px] rounded-xl hover:shadow-lg transition overflow-hidden cursor-pointer">
-                          <div className="relative">
+                        <div className="">
+                          <div className="">
                             <Image
                               src={item.representativeImage ? item.representativeImage : ''}
                               alt="Ba Vì"
@@ -342,9 +344,6 @@ const Home = () => {
                               height={200}
                               className="rounded-xl object-cover"
                             />
-                            <div className="absolute top-2 right-2">
-                              <FavoriteTwoToneIcon className="text-gray-600 hover:text-red-600 duration-300" />
-                            </div>
                           </div>
 
                           <div className="p-3">
