@@ -4,7 +4,6 @@ import BackToTop from '../BackToTop'
 import Footer from '../Footer'
 import Header from '../Header'
 import HeaderBookingDetail from '../HeaderBookingDetail'
-import { RoomContext } from '../../contexts/LayoutContext'
 
 type Props = {}
 type RoomDetailLayoutProps = LayoutProps & {

@@ -116,7 +116,7 @@ const Orderlisst = (props: Props) => {
                 </div>
             </div>
             <Order_detail ref={refDetail} />
-            <div className="max-h-[600px] overflow-y-auto pr-2 space-y-4">
+            <div className="overflow-auto pr-2 space-y-4" style={{ maxHeight: 'calc(100vh - 300px)' }}>
                 {
                     rows && rows?.map((item: any, index: any) => {
                         return (

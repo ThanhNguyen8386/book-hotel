@@ -100,11 +100,13 @@ const Header = (props: Props) => {
     isClient && window.addEventListener("scroll", toggleVisible)
   }, [])
   useEffect(() => {
-    if (query === "/") {
-      setShowSearch(false)
-    }
-    else {
-      setShowSearch(true)
+    switch (query) {
+      case "/":
+        setShowSearch(false);
+        break;
+      default:
+        setShowSearch(true);
+        break;
     }
   }, [query])
   useEffect(() => {

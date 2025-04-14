@@ -2,7 +2,7 @@ import React, { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "rea
 import ActionAreaCard from "../components/Card";
 import Link from "next/link";
 // import DateFnsUtils from "@material-ui/pickers/adapter/date-fns"; // choose your lib
-import { Skeleton } from "@mui/material";
+import { Button, Popover, Skeleton, Typography } from "@mui/material";
 import dayjs, { Dayjs } from "dayjs";
 import SiteLayout from "../components/Layout";
 import { useRouter } from "next/router";
@@ -17,15 +17,12 @@ import CalendarMonthTwoToneIcon from '@mui/icons-material/CalendarMonthTwoTone';
 import AccessTimeTwoToneIcon from '@mui/icons-material/AccessTimeTwoTone';
 import DarkModeTwoToneIcon from '@mui/icons-material/DarkModeTwoTone';
 import { useLayout } from "../contexts/LayoutContext";
-import { DateRange } from 'react-date-range';
-import 'react-date-range/dist/styles.css'; // style mặc định
-import 'react-date-range/dist/theme/default.css'; // theme mặc định
-import { vi } from "date-fns/locale";
 import { format } from 'date-fns';
 import DateTimesPicker from "../components/DateTimesPicker";
 import Image from "next/image";
 import FavoriteTwoToneIcon from '@mui/icons-material/FavoriteTwoTone';
 import useFavoriteRoom from "../hook/favoriteRoom";
+import DateRangPicker from "../components/DateRangPicker";
 const Home = () => {
   const router = useRouter();
   const {
@@ -75,20 +72,6 @@ const Home = () => {
       setUser(user._id)
     }
   }, [])
-
-  useEffect(() => {
-    if (!showDatePicker) return;
-
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      if (!target.closest('.date-picker-container') && !target.closest('.date-fields')) {
-        setShowDatePicker(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [showDatePicker]);
 
   const skeletonLoadingRoom = () => {
     return (
@@ -241,8 +224,9 @@ const Home = () => {
             </div>
           </div>
           <div
+            aria-describedby={id}
             className="flex md:w-[38%] gap-3"
-            onClick={() => setShowDatePicker(true)}
+            onClick={handleClick}
           >
             <div className="flex-1 border hover:border-orange-500 rounded-xl flex items-center p-4 transition-all duration-200 bg-gray-50 hover:bg-white cursor-pointer group hover:shadow-sm">
               <div className="flex items-center w-full">
@@ -275,23 +259,19 @@ const Home = () => {
     )
   }
 
-  const dateRange = () => {
-    return (
-      <div className="bg-white shadow-xl rounded-lg p-4 border">
-        <DateRange
-          ranges={inputValue}
-          onChange={(item: any) => handleInputChange([item.selection])}
-          moveRangeOnFirstSelection={false}
-          months={2}
-          direction="horizontal"
-          minDate={new Date()}
-          locale={vi}
-          rangeColors={["#f97316"]}
-          color="#f97316"
-        />
-      </div>
-    )
-  }
+  const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+    setShowDatePicker(true)
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const open = Boolean(anchorEl);
+  const id = open ? 'simple-popover' : undefined;
   return (
     <div className="">
       {/* <DateTimesPicker /> */}
@@ -302,13 +282,30 @@ const Home = () => {
           </h1>
         </div>
         {bookingSearch()}
-        <div className="absolute top-[370px] right-[90px] z-50 mt-2 date-picker-container">
-          {
-            isMounted && showDatePicker ?
-              selectedType == 0 ? <DateTimesPicker /> : selectedType == 1 ? dateRange() : dateRange()
-              : ""
-          }
-        </div>
+        {
+          isMounted && showDatePicker ?
+            (
+              <Popover
+                id={id}
+                open={open}
+                anchorEl={anchorEl}
+                onClose={handleClose}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'center',
+                }}
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'center',
+                }}
+                className="rounded-xl"
+              >
+                {selectedType == 0 ? <DateTimesPicker /> : selectedType == 1 ? <DateRangPicker /> : <DateRangPicker />}
+              </Popover>
+            )
+            : ""
+        }
+
       </div>
       <div className="mb:w-[80%] mbs:w-[95%] mx-auto pt-12">
         <h1 className='text-3xl font-semibold text-[orange] py-6'>Danh sách các phòng </h1>
@@ -329,7 +326,7 @@ const Home = () => {
                             user: user
                           })
                         }}
-                        className="absolute top-2 right-2 z-50">
+                        className="absolute top-2 right-2 z-10">
                         <p className={`${favoriteRoomData.some(fav => fav?.category?._id === item._id) ? "text-red-600" : ""} text-gray-600 hover:text-red-600 hover:scale-125 duration-300`}>
                           <FavoriteTwoToneIcon className="" />
                         </p>
