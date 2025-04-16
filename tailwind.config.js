@@ -35,11 +35,21 @@ module.exports = {
           '100%': { transform: 'scale-100' },
           '50%': { transform: 'scale-125' },
           '0%': { transform: 'scale-150' },
-        }
+        },
+        fadeIn: {
+          '0%': { opacity: 0, transform: 'translateY(20px) scale(1.5)' },
+          '100%': { opacity: 1, transform: 'translateY(0px) scale(1)' },
+        },
+        fadeOut: {
+          '0%': { opacity: 0, transform: 'translateY(-50px) scale(0.75)' },
+          '100%': { opacity: 1, transform: 'translateY(0px) scale(1)' },
+        },
       },
       animation: {
         wiggle: 'wiggle 1s ease-in-out',
-        grow: 'grow 1s ease'
+        grow: 'grow 1s ease',
+        'fade-in': 'fadeIn 0.3s ease-out forwards',
+        'fade-out': 'fadeOut 0.3s ease-out forwards',
       }
     },
   },

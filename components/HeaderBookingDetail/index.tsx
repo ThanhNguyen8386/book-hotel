@@ -197,100 +197,103 @@ const HeaderBookingDetail = (props: Props) => {
                     }
                 </div>
 
-                <div className="">
-                    <div className='px-4 py-2 border-[1px] ml-[10px] border-black rounded-full text-[#777]'>
-                        <Button
-                            id="basic-button"
-                            aria-controls={open ? 'basic-menu' : undefined}
-                            aria-haspopup="true"
-                            aria-expanded={open ? 'true' : undefined}
-                            onClick={handleClick}
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className=" text-[black] mr-2 w-6 h-6">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-                            </svg>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className=" text-[black] w-6 h-6">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-                            </svg>
-                        </Button>
-                        <div className=''>
-                            {
-                                status ? (
-                                    <Menu
-                                        className='mt-[25px] left-[-125px]'
-                                        id="basic-menu"
-                                        anchorEl={anchorEl}
-                                        open={open1}
-                                        onClose={handleClose}
-                                        MenuListProps={{
-                                            'aria-labelledby': 'basic-button',
-                                        }}
-                                    >
-                                        <Link href={`${user.role === USER_ROLE ? '/profile' : '/admin'}`}>
-                                            <MenuItem>
-                                                <div className='contents'>
-                                                    <Avatar
-                                                        alt="Remy Sharp"
-                                                        sx={{ width: 56, height: 56 }}
-                                                        src={user.avatar || "https://go2joy.vn/images/icons/user-placeholder.svg"} />
+                <div className=''>
+                    {
+                        status && user !== null ?
+                            <Avatar
+                                alt="Remy Sharp"
+                                src={user.avatar}
+                                aria-controls={open ? 'ava-control' : undefined}
+                                aria-haspopup="true"
+                                aria-expanded={open ? 'true' : undefined}
+                                onClick={handleClick}
+                                className='ml-2'
+                            />
+                            : (
+                                <div className='flex items-center ml-4'>
+                                    <button
+                                        onClick={() => { router.push("/signin") }}
+                                        type="button"
+                                        className="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2 text-center me-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                                        Đăng nhập
+                                    </button>
+                                    <button
+                                        onClick={() => { router.push("/signup") }}
+                                        type="button"
+                                        className="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2 text-center me-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                                        Đăng kí
+                                    </button>
+                                </div>
+                            )
+                    }
 
-                                                </div>
-                                                <div className="flex-col pl-3 w-[100%] items-start">
-                                                    <p>+{user.phone}</p>
-                                                    <p className='text-left'>xem hồ sơ</p>
-                                                </div>
-                                            </MenuItem>
-                                        </Link>
-                                        <hr className="my-[10px]" />
-                                        <MenuItem className='w-[240px]'>
-                                            <Link href={'/profile/order'}  >
-                                                <span className='w-[100%] flex flex-row font-semibold'>
-                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6 mr-2">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                    </svg>Đặt phòng của tôi
-                                                </span>
-                                            </Link>
-                                        </MenuItem>
-                                        <MenuItem className='w-[240px]'>
-                                            <Link href={'/profile/room_like'} >
-                                                <span className='w-[100%] font-semibold flex flex-row'>
-                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6 mr-2">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-                                                    </svg>
-                                                    Danh sách yêu thích</span>
-                                            </Link>
-                                        </MenuItem>
-                                        <MenuItem className='w-[240px]'>
-                                            <Link href={'/'}  >
-                                                <span className='w-[100%] flex flex-row block font-semibold'
-                                                    onClick={() => {
-                                                        setStatus(false)
-                                                        localStorage.removeItem('user')
-                                                    }}>
-                                                    Đăng xuất
-                                                </span>
-                                            </Link>
-                                        </MenuItem>
-                                    </Menu>
-
-                                ) : (
-                                    <Menu
-                                        className='mt-[5px] left-[-150px]   '
-                                        id="basic-menu"
-                                        anchorEl={anchorEl}
-                                        open={open1}
-                                        onClose={handleClose}
-                                        MenuListProps={{
-                                            'aria-labelledby': 'basic-button',
-                                        }}
-                                    >
-                                        <MenuItem className='w-[240px]' onClick={handleClose}><Link href={'/signup'}  ><a className='w-[100%] block'>Đăng ký</a></Link></MenuItem>
-                                        <MenuItem className='w-[240px]' onClick={handleClose}><Link href={'/signin'}  ><a className='w-[100%] block'>Đăng nhâp</a></Link></MenuItem>
-                                    </Menu>
-                                )
-                            }
-                        </div>
-                    </div>
+                    {
+                        user && status && (
+                            <Menu
+                                className='mt-[20px] rounded-xl'
+                                id="ava-control"
+                                anchorEl={anchorEl}
+                                open={open1}
+                                onClose={handleClose}
+                                MenuListProps={{
+                                    'aria-labelledby': 'basic-button',
+                                }}
+                                anchorOrigin={{
+                                    vertical: 'bottom',
+                                    horizontal: 'center',
+                                }}
+                                transformOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'center',
+                                }}
+                            >
+                                <Link href={`${user.role === USER_ROLE ? '/profile' : '/admin'}`}>
+                                    <MenuItem>
+                                        <div className='contents'>
+                                            <Avatar
+                                                alt="Remy Sharp"
+                                                sx={{ width: 56, height: 56 }}
+                                                src={user.avatar || "https://go2joy.vn/images/icons/user-placeholder.svg"} />
+                                        </div>
+                                        <div className="flex-col pl-3 w-[100%] items-start">
+                                            <p>+{user.phone}</p>
+                                            <p className='text-left'>xem hồ sơ</p>
+                                        </div>
+                                    </MenuItem>
+                                </Link>
+                                <hr className="my-[10px]" />
+                                <MenuItem className='w-[240px]'>
+                                    <Link href={'/profile/order'}  >
+                                        <span className='w-[100%] flex flex-row font-semibold'>
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6 mr-2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>Đặt phòng của tôi
+                                        </span>
+                                    </Link>
+                                </MenuItem>
+                                <MenuItem className='w-[240px]'>
+                                    <Link href={'/profile/room_like'} >
+                                        <span className='w-[100%] font-semibold flex flex-row'>
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6 mr-2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                                            </svg>
+                                            Danh sách yêu thích</span>
+                                    </Link>
+                                </MenuItem>
+                                <MenuItem className='w-[240px]'>
+                                    <Link href={'/'}  >
+                                        <span className='w-[100%] flex flex-row block font-semibold'
+                                            onClick={() => {
+                                                setStatus(false)
+                                                localStorage.removeItem('user')
+                                            }}>
+                                            Đăng xuất
+                                        </span>
+                                    </Link>
+                                </MenuItem>
+                            </Menu>
+                        )
+                    }
                 </div>
             </div>
         </header>

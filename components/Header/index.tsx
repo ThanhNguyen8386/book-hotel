@@ -79,7 +79,6 @@ const Header = (props: Props) => {
     setUser(getUser)
   }, [])
 
-  const [indexTab, setIndexTab] = useState(1);
   const [open, setOpen] = useState(false)
   const [openBookingSearch, setOpenBookingSearch] = useState(false)
 
@@ -191,7 +190,7 @@ const Header = (props: Props) => {
 
   const searchBar = () => {
     return (
-      <div className={`w-full transform transition-all duration-300`}>
+      <div className={`w-full transition-all duration-300 ease-in-out transform scale-95 opacity-0 translate-y-2 animate-fade-in`}>
         <div className="flex flex-col sm:flex-row items-center bg-white rounded-full border shadow-sm hover:shadow-md transition-all duration-300">
 
           <div className="flex-grow flex-1 max-w-[50%] p-2 pl-4 group">
@@ -231,7 +230,7 @@ const Header = (props: Props) => {
 
   const bookingSearch = () => {
     return (
-      <div className={`duration-300 bg-white rounded-b-2xl shadow-[0_15px_50px_rgb(0,0,0,0.1)] overflow-hidden border border-gray-100`}>
+      <div className={`duration-300 ease-in-out transform scale-95 opacity-0 translate-y-2 animate-fade-out bg-white rounded-b-2xl shadow-[0_15px_50px_rgb(0,0,0,0.1)] overflow-hidden border border-gray-100`}>
         <div className="flex flex-col md:flex-row p-6 gap-4">
           <div className="flex-1 border hover:border-orange-500 rounded-xl flex items-center p-4 transition-all duration-200 bg-gray-50 hover:bg-white group hover:shadow-sm">
             <RoomTwoToneIcon className="mr-2" />
@@ -322,7 +321,7 @@ const Header = (props: Props) => {
                     setOpenBookingSearch(true)
                     setOpen(false)
                   }}
-                  className={`${open ? "visible scale-100 translate-y-0 opacity-100" : "invisible scale-150 translate-y-10 opacity-0"} flex-auto h-full max-w-[35%] cursor-pointer duration-300`}
+                  className={`flex-auto h-full max-w-[35%] cursor-pointer`}
                 >
                   {searchBar()}
                 </div>
@@ -333,7 +332,7 @@ const Header = (props: Props) => {
 
           {
             openBookingSearch && !open ? (
-              <div className="flex flex-auto max-w-[35%] cursor-pointer">
+              <div className="flex flex-auto max-w-[35%] cursor-pointer duration-300 ease-in-out animate-fade-out">
                 <button
                   className={`flex-1 px-2 flex flex-col items-center text-sm transition-all duration-300 ease-in-out
             ${selectedType === 0 ? 'text-orange-500 border-b-2 border-orange-500 bg-white font-medium shadow-sm' : 'text-gray-600 hover:text-orange-500 hover:bg-white/80 border-b-2 border-white'}`}
@@ -386,7 +385,7 @@ const Header = (props: Props) => {
                   )
               }
             </div>
-            {
+            {              
               user && status && (
                 <Menu
                   className='mt-[20px] rounded-xl'

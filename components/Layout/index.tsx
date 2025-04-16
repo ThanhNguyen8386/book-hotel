@@ -11,8 +11,6 @@ const SiteLayout = ({ children }: LayoutProps) => {
   const [visible, setVisible] = useState(true);
   const [showFooter, setShowFooter] = useState(false)
   const router = useRouter()
-  const query = router.asPath
-
   const toggleVisible = () => {
     const scrolled = document.documentElement.scrollTop;
     if (scrolled > 150) {
@@ -26,13 +24,10 @@ const SiteLayout = ({ children }: LayoutProps) => {
     window.addEventListener("scroll", toggleVisible)
   }, [])
   useEffect(() => {
-    switch (query) {
-      case "/profile":
-        setShowFooter(false);
-        break;
-      default:
-        setShowFooter(true);
-        break;
+    if (router.isReady) {
+      const isProfilePage = router.pathname.startsWith('/profile')
+      if (isProfilePage) setShowFooter(false)
+      else setShowFooter(true)
     }
   }, [])
   return (

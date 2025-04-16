@@ -5,9 +5,8 @@ import { fetcher } from '../api/instance';
 import { addFavoriteRoom, deleteFavoriteRoom } from "../api/favoriteRoom";
 
 const useFavoriteRoom = (id: any) => {
-
     // const fetcher = (args: string) => axios.get(args).then(res => res.data)
-    const { data, error, mutate } = useSWR(id ? `${API_URL}/getFavoritesByUser/${id}` : `${API_URL}/getAllFavorites`, fetcher);
+    const { data, error, mutate } = useSWR(id && `${API_URL}/getFavoritesByUser/${id}`, fetcher);
 
     // create
     const addFavoriteRooms = async (item: facilities) => {

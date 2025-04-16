@@ -23,6 +23,7 @@ import Image from "next/image";
 import FavoriteTwoToneIcon from '@mui/icons-material/FavoriteTwoTone';
 import useFavoriteRoom from "../hook/favoriteRoom";
 import DateRangPicker from "../components/DateRangPicker";
+import CustomCalendar from "../components/DatePicker";
 const Home = () => {
   const router = useRouter();
   const {
@@ -298,14 +299,16 @@ const Home = () => {
                   vertical: 'top',
                   horizontal: 'center',
                 }}
-                className="rounded-xl"
+                sx={{
+                  borderRadius: '16px',
+                  overflow: "hidden"
+                }}
               >
-                {selectedType == 0 ? <DateTimesPicker /> : selectedType == 1 ? <DateRangPicker /> : <DateRangPicker />}
+                {selectedType == 0 ? <DateTimesPicker /> : selectedType == 1 ? <CustomCalendar /> : <DateRangPicker />}
               </Popover>
             )
             : ""
         }
-
       </div>
       <div className="mb:w-[80%] mbs:w-[95%] mx-auto pt-12">
         <h1 className='text-3xl font-semibold text-[orange] py-6'>Danh sách các phòng </h1>
@@ -319,6 +322,7 @@ const Home = () => {
                       <div
                         onClick={() => {
                           if (user == null) {
+                            router.push("/signin")
                             return;
                           }
                           return handleChangeFavoriteRoom({
@@ -327,7 +331,7 @@ const Home = () => {
                           })
                         }}
                         className="absolute top-2 right-2 z-10">
-                        <p className={`${favoriteRoomData.some(fav => fav?.category?._id === item._id) ? "text-red-600" : ""} text-gray-600 hover:text-red-600 hover:scale-125 duration-300`}>
+                        <p className={`${favoriteRoomData?.some(fav => fav?.category?._id === item._id) ? "text-red-600" : ""} text-gray-600 hover:text-red-600 hover:scale-125 duration-300`}>
                           <FavoriteTwoToneIcon className="" />
                         </p>
                       </div>
@@ -361,51 +365,51 @@ const Home = () => {
         <p className="text-2xl text-amber-400 py-6 font-bold">Trải nghiệm cùng HappyWeekendHotel</p>
 
       </div>
-      {/* list news */}
-      <div className="py-8">
-        <div className="w-[80%] mx-auto">
-          <div className="flex justify-between items-center ">
-            <h1 className="relative"><img className="rounded-lg" src="https://s3.go2joy.vn/1000w/cover_photo/33_14148447441.jpg" alt="" /></h1>
-            <h1 className="absolute pb-20 ml-[40px] text-white text-3xl mb:pb-20 ml-[40px] mbs:pb-10 ml-[20px] font-bold mb:text-3xl mbs:text-xl">Những điều thú vị có thể bạn chưa biết</h1>
-            <h1 className="text-normal font-semibold text-[orange] py-6 mx-auto group hover:opacity-50 duration-300 flex items-center cursor-pointer absolute ml-[40px] bg-slate-200 w-[200px] rounded-lg mbs: mb:mt-[60px] ml-[20px] w-[100px] py-2 h-[30px]">
-              <Link href="/blog">Danh sách các bài blog</Link>
+      {/* list news */ }
+  <div className="py-8">
+    <div className="w-[80%] mx-auto">
+      <div className="flex justify-between items-center ">
+        <h1 className="relative"><img className="rounded-lg" src="https://s3.go2joy.vn/1000w/cover_photo/33_14148447441.jpg" alt="" /></h1>
+        <h1 className="absolute pb-20 ml-[40px] text-white text-3xl mb:pb-20 ml-[40px] mbs:pb-10 ml-[20px] font-bold mb:text-3xl mbs:text-xl">Những điều thú vị có thể bạn chưa biết</h1>
+        <h1 className="text-normal font-semibold text-[orange] py-6 mx-auto group hover:opacity-50 duration-300 flex items-center cursor-pointer absolute ml-[40px] bg-slate-200 w-[200px] rounded-lg mbs: mb:mt-[60px] ml-[20px] w-[100px] py-2 h-[30px]">
+          <Link href="/blog">Danh sách các bài blog</Link>
 
 
-            </h1>
-          </div>
-          <ActionAreaCard
-            newsList={[
-              [
-                {
-                  _id: "63613e3ec5b015dc3665246c",
-                  name: "ThanhntOk",
-                  slug: "thanhntok",
-                  image: {
-                    _id: "63613e50c5b015dc3665246f",
-                    image: [
-                      "https://a0.muscache.com/im/pictures/beec3be2-ad2b-423b-a9a5-75070f905d0b.jpg?im_w=720",
-                      "https://a0.muscache.com/im/pictures/235d56fe-4241-4267-a24c-c70fdb4f8711.jpg?im_w=1200",
-                    ],
-                    room: "63613e3ec5b015dc3665246c",
-                    createdAt: "2022-11-01T15:42:08.949Z",
-                    updatedAt: "2022-11-01T15:48:25.010Z",
-                    __v: 0,
-                  },
-                  price: 150,
-                  description: "<p>ABCLGVSBDKVBSDLVHOSBDVSBDIUSDIUCBSDHVSDIYFVDS</p>",
-                  coc: true,
-                  category: "6352172dcdb05980122fdcb0",
-                  date: "635e9b7c5dee23ec01e8f4e6",
-                  createdAt: "2022-11-01T15:41:50.511Z",
-                  updatedAt: "2022-11-01T15:46:43.167Z",
-                  __v: 0,
-                },
-              ],
-            ]}
-          />
-        </div>
+        </h1>
       </div>
+      <ActionAreaCard
+        newsList={[
+          [
+            {
+              _id: "63613e3ec5b015dc3665246c",
+              name: "ThanhntOk",
+              slug: "thanhntok",
+              image: {
+                _id: "63613e50c5b015dc3665246f",
+                image: [
+                  "https://a0.muscache.com/im/pictures/beec3be2-ad2b-423b-a9a5-75070f905d0b.jpg?im_w=720",
+                  "https://a0.muscache.com/im/pictures/235d56fe-4241-4267-a24c-c70fdb4f8711.jpg?im_w=1200",
+                ],
+                room: "63613e3ec5b015dc3665246c",
+                createdAt: "2022-11-01T15:42:08.949Z",
+                updatedAt: "2022-11-01T15:48:25.010Z",
+                __v: 0,
+              },
+              price: 150,
+              description: "<p>ABCLGVSBDKVBSDLVHOSBDVSBDIUSDIUCBSDHVSDIYFVDS</p>",
+              coc: true,
+              category: "6352172dcdb05980122fdcb0",
+              date: "635e9b7c5dee23ec01e8f4e6",
+              createdAt: "2022-11-01T15:41:50.511Z",
+              updatedAt: "2022-11-01T15:46:43.167Z",
+              __v: 0,
+            },
+          ],
+        ]}
+      />
     </div>
+  </div>
+    </div >
   );
 };
 

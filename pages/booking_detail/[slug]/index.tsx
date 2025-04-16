@@ -61,9 +61,7 @@ const BookingDetail = () => {
     setUpdateBooking,
     setRoomName,
     selectedType,
-    setSelectedType,
-    handleInputChange
-  } = useLayout()
+  } = useLayout()  
   const LIMIT_SHOW_COMMENT = 6;
   const sectionRefs = {
     overview: useRef<HTMLDivElement>(null),
