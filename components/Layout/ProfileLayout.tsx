@@ -1,10 +1,10 @@
 import { useRouter } from "next/router";
-import SiteLayout from "./siteLayout";
 import { RECEPTIONIST_ROLE, USER_ROLE } from "../../constants";
 import PrivateRouter from "../Private/privateRouter";
 import React, { useEffect, useMemo, useState } from 'react'
 import { listOrderUser } from "../../api/order";
 import Link from "next/link";
+import SiteLayout from ".";
 
 const ProfileLayout = ({ children }: ProfileLayoutProps) => {
   const [user, setUser] = useState<any>({})

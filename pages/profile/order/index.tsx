@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Avatar, Chip } from '@mui/material'
+import {  Chip } from '@mui/material'
 import { useRouter } from 'next/router'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import ProfileLayout from '../../../components/Layout/ProfileLayout'
 import dayjs from 'dayjs'
 import Order_detail from './Order_detail'

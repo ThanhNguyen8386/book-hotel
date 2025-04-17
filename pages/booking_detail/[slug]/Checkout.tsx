@@ -10,15 +10,24 @@ import Image from "next/image";
 import dayjs from "dayjs";
 import { creat } from "../../../api/bookedDate";
 import { creatOrder } from "../../../api/order";
+import { CheckCircle, Hotel, AccessTime, CreditCardOff } from '@mui/icons-material';
 
 const Checkout = (props: any, ref: any) => {
-    const { comments, removeComment, currentUser, isLogged, dataDate } = props;
+    const { comments, removeComment, currentUser, isLogged, dataDate, load } = props;
 
     const [open, setOpen] = useState(false);
+    const [checkoutType, setCheckoutType] = useState({
+        status: false,
+        dataCheckout: {}
+    });
     const handleClose = () => {
         setOpen(false);
         setdatebook(defaultDateBook);
         setdataorder(defaultOrder)
+        setCheckoutType({
+            status: false,
+            dataCheckout: {}
+        })
     };
     const refMode = useRef(null);
 
@@ -94,7 +103,13 @@ const Checkout = (props: any, ref: any) => {
                     ..._dataOrder,
                     status: res.data._id
                 }
-                await creatOrder(newdataOrder)
+                await creatOrder(newdataOrder).then((res) => {
+                    load()
+                    setCheckoutType({
+                        status: true,
+                        dataCheckout: res
+                    })
+                })
             })
             .catch((res) => {
                 console.log(res);
@@ -102,16 +117,83 @@ const Checkout = (props: any, ref: any) => {
             })
 
     }
+    // console.log(checkoutType);
 
     const formatCurrency = (currency: number) => {
         const tempCurrency = +currency >= 0 ? currency : 0;
         return new Intl.NumberFormat("de-DE", { style: "currency", currency: "VND" }).format(tempCurrency);
     };
 
-    const formCheckout = () => {
+    const bookingSuccess = () => {
+        return (
+            <div className=" bg-white rounded-xl shadow-md p-6 text-center space-y-6">
+                {/* Ảnh + check icon */}
+                <div className="relative">
+                    <div className="bg-orange-50 rounded-full w-40 h-40 mx-auto flex items-center justify-center">
+                        {
+                            dataorder.image && (
+                                <Image
+                                    src={dataorder.image[0]}
+                                    alt="Royal Hotel Room"
+                                    className="rounded-md"
+                                    width={100}
+                                    height={100}
+                                />
+                            )
+                        }
+                    </div>
+                    <CheckCircle className="text-green-500 text-5xl absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 bg-white rounded-full" />
+                </div>
+
+                {/* Thông báo */}
+                <div>
+                    <h2 className="text-xl font-semibold text-gray-800">Đặt phòng thành công</h2>
+                    <p className="text-sm text-gray-600">
+                        Chúc mừng bạn đã đặt thành công phòng tại <br />
+                        <span className="font-semibold">Lá Hotel Phú Nhuận</span>
+                    </p>
+                </div>
+
+                {/* Thông tin phòng */}
+                <div className="bg-gray-50 rounded-xl p-4 text-left space-y-3">
+                    <div className="flex items-center space-x-2 text-gray-700">
+                        <Hotel className="text-gray-500" />
+                        <span>Superior Room</span>
+                    </div>
+
+                    <div className="flex items-center space-x-2 text-gray-700">
+                        <AccessTime className="text-gray-500" />
+                        <span>21:00 - 12:00, 23/04</span>
+                    </div>
+
+                    <div className="flex items-center space-x-2 text-gray-700">
+                        <CreditCardOff className="text-orange-500" />
+                        <span>Trả tại khách sạn</span>
+                    </div>
+
+                    <div className="text-sm text-gray-600 pl-7">
+                        Hủy miễn phí trước <span className="text-black font-semibold">19:00, 22/04/2025</span>
+                    </div>
+                </div>
+
+                {/* Nút */}
+                <div className="flex justify-between items-center gap-4">
+                    <button
+                        onClick={handleClose}
+                        className="text-orange-500 border border-orange-500 px-4 py-2 rounded-lg w-full">
+                        Tiếp tục xem
+                    </button>
+                    <button className="bg-orange-500 text-white px-4 py-2 rounded-lg w-full">
+                        Xem thông tin đặt phòng
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    const detailBooking = () => {
         return (
             <div className="max-w-6xl mx-auto bg-white">
-                {/* Header */}
                 <div
                     onClick={() => handleClose()}
                     className="p-4 border-b flex items-center cursor-pointer">
@@ -119,9 +201,7 @@ const Checkout = (props: any, ref: any) => {
                     <h1 className="text-lg font-medium ml-2">Xác nhận & Thanh toán</h1>
                 </div>
                 <div className="flex flex-col md:flex-row">
-                    {/* Left Column */}
                     <div className="md:w-1/2 border-r">
-                        {/* Booking Summary */}
                         <div className="p-6 border-b">
                             <h2 className="text-base font-medium mb-4">Lựa chọn của bạn</h2>
                             <div className="flex">
@@ -178,7 +258,6 @@ const Checkout = (props: any, ref: any) => {
                                     </div>
                                 </div>
                             </div>
-                            {/* Check-in/Check-out */}
                             <div className="mt-6 bg-orange-100 rounded-lg p-4 flex">
                                 <div className="w-20 h-20 bg-orange-400 rounded-lg flex flex-col items-center justify-center text-white mr-4">
                                     <svg
@@ -212,7 +291,6 @@ const Checkout = (props: any, ref: any) => {
                                 </div>
                             </div>
                         </div>
-                        {/* Guest Information */}
                         <div className="p-6 border-b">
                             <h2 className="text-base font-medium mb-4">Người đặt phòng</h2>
                             <div className="flex justify-between items-center mb-4">
@@ -223,14 +301,11 @@ const Checkout = (props: any, ref: any) => {
                                 <div className="text-base text-gray-700">Họ tên</div>
                                 <div className="flex items-center">
                                     <span className="text-base">{dataorder.name}</span>
-                                    {/* <ModeTwoToneIcon className="h-5 w-5 text-orange-500 ml-2" /> */}
                                 </div>
                             </div>
                         </div>
                     </div>
-                    {/* Right Column */}
                     <div className="md:w-1/2">
-                        {/* Payment Details */}
                         <div className="p-6 border-b">
                             <h2 className="text-base font-medium mb-4">Chi tiết thanh toán</h2>
                             <div className="flex justify-between items-center mb-4">
@@ -262,14 +337,11 @@ const Checkout = (props: any, ref: any) => {
                                 <div>{formatCurrency(dataorder.total)}</div>
                             </div>
                         </div>
-                        {/* Payment Methods */}
                         <div className="p-6 border-b">
                             <h2 className="text-base font-medium mb-4">
                                 Chọn phương thức thanh toán
                             </h2>
-                            {/* Payment options with larger touch targets */}
                             <div className="space-y-4">
-                                {/* MoMo */}
                                 <div className="flex items-center p-3 border rounded-lg hover:bg-gray-50">
                                     <div className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center mr-4">
                                         <div className="w-3 h-3 rounded-full"></div>
@@ -281,7 +353,6 @@ const Checkout = (props: any, ref: any) => {
                                         <span className="text-base">Ví MoMo</span>
                                     </div>
                                 </div>
-                                {/* ZaloPay */}
                                 <div className="flex items-center p-3 border rounded-lg hover:bg-gray-50">
                                     <div className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center mr-4">
                                         <div className="w-3 h-3 rounded-full"></div>
@@ -293,7 +364,6 @@ const Checkout = (props: any, ref: any) => {
                                         <span className="text-base">Ví ZaloPay</span>
                                     </div>
                                 </div>
-                                {/* Pay at Hotel */}
                                 <div className="flex items-center p-3 border rounded-lg hover:bg-gray-50">
                                     <div className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center mr-4">
                                         <div className="w-3 h-3 rounded-full bg-gray-600"></div>
@@ -324,7 +394,6 @@ const Checkout = (props: any, ref: any) => {
                                 <span>Khách sạn có thể hủy phòng tùy theo tình trạng phòng</span>
                             </div>
                         </div>
-                        {/* Promotions */}
                         <div className="p-6 border-b">
                             <div className="flex justify-between items-center">
                                 <h2 className="text-base font-medium">Ưu đãi</h2>
@@ -334,7 +403,6 @@ const Checkout = (props: any, ref: any) => {
                                 </div>
                             </div>
                         </div>
-                        {/* Bottom Actions */}
                         <div className="p-6 flex justify-between items-center">
                             <div className="text-base text-gray-700">
                                 <a href="#" className="text-gray-700 underline">
@@ -347,6 +415,14 @@ const Checkout = (props: any, ref: any) => {
                         </div>
                     </div>
                 </div>
+            </div>
+        )
+    }
+
+    const formCheckout = () => {
+        return (
+            <div>
+                {checkoutType.status ? bookingSuccess() : detailBooking()}
             </div>
         )
     }
