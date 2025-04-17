@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useEffect, useState } from 'react'
 import { LayoutProps } from '../../models/layout'
 import BackToTop from '../BackToTop'
