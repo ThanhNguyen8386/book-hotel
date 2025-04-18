@@ -134,7 +134,6 @@ function CategoryAdmin() {
                                             checked={params.row.status}
                                             color='success'
                                             onChange={(e) => {
-                                                console.log(e);
                                                 setOpenDialog(true)
                                                 handleCheckStatus(e, params.row);
                                             }} />

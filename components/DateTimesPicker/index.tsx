@@ -60,8 +60,10 @@ const DateTimesPicker = () => {
     const timeSlots = generateTimeSlot(inputValue[0].startDate);
     setSelectedTime(timeSlots[0])
   }, [])
+  console.log(inputValue);
 
   const applyChange = (date: any) => {
+    
     const [hours, minutes] = selectedTime.split(":").map(Number); // Lấy giờ và phút
     const startDate = new Date(date); // Tạo bản sao để tránh sửa dữ liệu gốc
 

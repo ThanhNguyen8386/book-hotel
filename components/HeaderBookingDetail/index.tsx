@@ -1,27 +1,24 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from 'next/link'
 import React, { MouseEvent, useEffect, useMemo, useState } from 'react'
-import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import { Avatar } from "@mui/material";
 import MenuItem from "@material-ui/core/MenuItem";
 import { useRouter } from 'next/router';
 import { USER_ROLE } from '../../constants';
-import dayjs, { Dayjs } from 'dayjs';
 import "toastr/build/toastr.min.css";
 import HourglassFullTwoToneIcon from '@mui/icons-material/HourglassFullTwoTone';
 import DarkModeTwoToneIcon from '@mui/icons-material/DarkModeTwoTone';
 import CalendarMonthTwoToneIcon from '@mui/icons-material/CalendarMonthTwoTone';
 import LoginTwoToneIcon from '@mui/icons-material/LoginTwoTone';
 import LogoutTwoToneIcon from '@mui/icons-material/LogoutTwoTone';
-import { DateRange } from 'react-date-range';
 import 'react-date-range/dist/styles.css'; // style mặc định
 import 'react-date-range/dist/theme/default.css'; // theme mặc định
 import { format } from 'date-fns';
-import { vi } from 'date-fns/locale';
 import { useLayout } from '../../contexts/LayoutContext';
 import DateTimesPicker from '../DateTimesPicker';
 import DateRangPicker from '../DateRangPicker';
+import CustomCalendar from '../DatePicker';
 
 type Props = {}
 
@@ -112,38 +109,45 @@ const HeaderBookingDetail = (props: Props) => {
                 <div className="flex-1">
                     {
                         isMounted && (
-                            <div className="relative flex items-center rounded-full border px-4 py-2 gap-4 shadow-sm bg-white">
+                            <div className="relative flex justify-between items-center rounded-full border px-4 py-2 gap-4 shadow-sm bg-white">
                                 {/* === Kiểu thuê === */}
                                 <div className="flex items-center gap-6 rounded-full border-r pr-4">
                                     {[
                                         { label: 'Theo giờ', value: 0, icon: <HourglassFullTwoToneIcon /> },
                                         { label: 'Qua đêm', value: 1, icon: <DarkModeTwoToneIcon /> },
                                         { label: 'Theo ngày', value: 2, icon: <CalendarMonthTwoToneIcon /> },
-                                    ].map(({ label, value, icon }) => (
-                                        <div
-                                            key={value}
-                                            onClick={() => setSelectedType(value as any)}
-                                            className={`flex flex-col items-center cursor-pointer text-sm font-semibold transition ${selectedType == value ? 'text-orange-500' : 'text-black'
-                                                }`}
-                                        >
-                                            <div className="text-lg">{icon}</div>
-                                            <span>{label}</span>
-                                            {selectedType == value && <div className="w-4 h-[2px] bg-orange-500 rounded-full mt-1" />}
-                                        </div>
-                                    ))}
+                                    ].map(({ label, value, icon }) => {
+                                        const isActive = selectedType === value;
+                                        return (
+                                            <div
+                                                key={value}
+                                                onClick={() => setSelectedType(value)}
+                                                className={`
+                                                    flex flex-col items-center cursor-pointer px-3 py-1.5 rounded-full
+                                                    transition-all duration-200 ease-in-out
+                                                    ${isActive
+                                                        ? 'text-orange-600 bg-orange-50 shadow-inner'
+                                                        : 'text-gray-600 hover:text-orange-500 hover:bg-orange-50'}
+                                                        `}
+                                            >
+                                                <div className="text-lg">{icon}</div>
+                                                <span className="text-xs font-medium">{label}</span>
+                                            </div>
+                                        );
+                                    })}
                                 </div>
 
                                 {/* === Địa điểm === */}
-                                <div className="text-sm font-semibold text-gray-400 border-r pr-4">
+                                <div className="text-sm flex-1 font-semibold text-gray-400 border-r pr-4 max-w-[20%]">
                                     <div>Địa điểm</div>
-                                    <div className="text-gray-600 whitespace-nowrap truncate w-40">
+                                    <div className="text-gray-600 whitespace-nowrap truncate">
                                         <p className='text-xl truncate'>{roomName}</p>
                                     </div>
                                 </div>
 
                                 {/* === Nhận và trả phòng === */}
                                 <div
-                                    className="date-fields flex-1 flex justify-evenly items-center border-r pr-4 cursor-pointer"
+                                    className="date-fields flex flex-1 justify-evenly items-center border-r pr-4 cursor-pointer"
                                     onClick={() => setShowDatePicker(true)}
                                 >
                                     {/* Nhận phòng */}
@@ -154,7 +158,7 @@ const HeaderBookingDetail = (props: Props) => {
                                         </div>
                                         {isMounted ? (
                                             <div className="text-gray-700">
-                                                <p className='text-xl'>{format(inputValue[0].startDate, 'dd/MM/yyyy')}</p>
+                                                <p className='text-xl'>{format(inputValue[0].startDate, "HH:mm, dd/MM/yyyy")}</p>
                                             </div>
                                         ) : (
                                             <div className="outline-none text-black">--/--/----</div>
@@ -171,7 +175,7 @@ const HeaderBookingDetail = (props: Props) => {
                                         </div>
                                         {isMounted ? (
                                             <div className="text-gray-700">
-                                                <p className='text-xl'>{format(inputValue[0].endDate, 'dd/MM/yyyy')}</p>
+                                                <p className='text-xl'>{format(inputValue[0].endDate, "HH:mm, dd/MM/yyyy")}</p>
                                             </div>
                                         ) : (
                                             <div className="outline-none text-black">--/--/----</div>
@@ -182,14 +186,14 @@ const HeaderBookingDetail = (props: Props) => {
                                 {/* === Button === */}
                                 <button
                                     onClick={() => { handleUpdateBooking() }}
-                                    className="bg-orange-500 text-white text-sm font-semibold px-5 py-2 rounded-full hover:bg-orange-600 transition ml-auto">
+                                    className="bg-orange-500 text-white text-sm font-semibold px-5 py-2 rounded-full hover:bg-orange-600 transition">
                                     Cập nhật
                                 </button>
 
                                 {/* === Date Range Picker Popup === */}
                                 {(isMounted && showDatePicker) ?
                                     <div className="date-picker-container absolute top-16 right-12 z-50 mt-2">
-                                        {selectedType == 0 ? <DateTimesPicker /> : selectedType == 1 ? <DateRangPicker /> : <DateRangPicker />}
+                                        {selectedType == 0 ? <DateTimesPicker /> : selectedType == 1 ? <CustomCalendar /> : <DateRangPicker />}
                                     </div>
                                     : ""}
                             </div>

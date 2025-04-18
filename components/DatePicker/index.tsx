@@ -3,7 +3,7 @@
 import { DateRange } from 'react-date-range';
 import { vi } from 'date-fns/locale';
 import { useState } from 'react';
-import { addDays, isSameDay } from 'date-fns';
+import { addDays, isSameDay, set } from 'date-fns';
 import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
 import { useLayout } from '../../contexts/LayoutContext';
@@ -30,8 +30,8 @@ export default function CustomCalendar() {
         const selected = ranges.selection;
         handleInputChange([
             {
-                startDate: selected.startDate,
-                endDate: addDays(selected.startDate, 1),
+                startDate: set(selected.startDate, {hours: 22}),
+                endDate: set(addDays(selected.startDate, 1), { hours: 12 }),
                 key: 'selection',
             },
         ]);

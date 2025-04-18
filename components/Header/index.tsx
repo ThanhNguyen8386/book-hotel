@@ -246,7 +246,7 @@ const Header = (props: Props) => {
             </div>
           </div>
           <div
-            className="flex md:w-[38%] gap-3"
+            className="flex flex-1 md:w-[38%] gap-3"
             onClick={() => setShowDatePicker(true)}
           >
             <div className="flex-1 border hover:border-orange-500 rounded-xl flex items-center p-4 transition-all duration-200 bg-gray-50 hover:bg-white cursor-pointer group hover:shadow-sm">
@@ -256,7 +256,7 @@ const Header = (props: Props) => {
                   <label className="text-xs font-medium text-gray-500 mb-0.5">
                     Nhận phòng
                   </label>
-                  <span className="font-medium text-gray-800">{format(inputValue[0].startDate, 'dd/MM/yyyy')}</span>
+                  <span className="font-medium text-gray-800">{format(inputValue[0].startDate, "HH:mm, dd/MM/yyyy")}</span>
                 </div>
               </div>
             </div>
@@ -267,7 +267,7 @@ const Header = (props: Props) => {
                   <label className="text-xs font-medium text-gray-500 mb-0.5">
                     Trả phòng
                   </label>
-                  <span className="font-medium text-gray-800">{format(inputValue[0].endDate, 'dd/MM/yyyy')}</span>
+                  <span className="font-medium text-gray-800">{format(inputValue[0].endDate, "HH:mm, dd/MM/yyyy")}</span>
                 </div>
               </div>
             </div>

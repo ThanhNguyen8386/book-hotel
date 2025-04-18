@@ -55,6 +55,7 @@ const Checkout = (props: any, ref: any) => {
     const handleClickOpen = () => {
         setOpen(true);
     };
+    // console.log(dataorder);
 
     const startDate = new Date(dataDate[0].startDate);
     const endDate = new Date(dataDate[0].endDate);
@@ -113,7 +114,6 @@ const Checkout = (props: any, ref: any) => {
             })
             .catch((res) => {
                 console.log(res);
-
             })
 
     }
