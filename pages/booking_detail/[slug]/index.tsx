@@ -32,7 +32,7 @@ import 'swiper/css/thumbs';
 import { Navigation, Pagination } from 'swiper/modules';
 import Image from 'next/image';
 import Checkout from "./Checkout";
-import { differenceInSeconds, parseISO } from "date-fns";
+import { differenceInSeconds } from "date-fns";
 import { getRoomAvailabe } from "../../../api/rooms";
 
 type Form = {
@@ -203,7 +203,8 @@ const BookingDetail = () => {
       const _item = {
         ...item,
         address: product.address,
-        total: diffInSeconds * item.price[selectedType].value
+        // item.price.find((item:any) => item.brand === 'daily').value
+        total: diffInSeconds * item.price.find((item: any) => item.brand === selectedType).value
       }
       refCheckout.current.checkout(_item, type)
     },
@@ -415,7 +416,7 @@ const BookingDetail = () => {
                                 <div className="flex items-baseline gap-1 justify-end">
                                   <div className="flex items-end">
                                     <p className="text-gray-800 font-semibold text-2xl">{
-                                      formatCurrency((item.price[selectedType].value) * diffInSeconds)
+                                      formatCurrency(item.price.find((item: any) => item.brand === selectedType).value * diffInSeconds)
                                     }</p>
                                     <span className="text-orange-500">/{diffInSeconds}</span>
                                   </div>
@@ -426,7 +427,12 @@ const BookingDetail = () => {
                               </div>
                               <button
                                 onClick={() => {
-                                  actionOpenDialog.checkout(item, "CHECKOUT")
+                                  // actionOpenDialog.checkout(item, "CHECKOUT")
+                                  localStorage.setItem('dataOrder', JSON.stringify({
+                                    item,
+                                    inputValue
+                                  }))
+                                  router.push("/checkout")
                                 }}
                                 className="w-full md:w-auto mt-4 px-8 py-2.5 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-lg hover:from-orange-600 hover:to-orange-500 transition-all duration-300 font-medium shadow-lg shadow-orange-500/20 hover:shadow-orange-500/30">
                                 Đặt phòng

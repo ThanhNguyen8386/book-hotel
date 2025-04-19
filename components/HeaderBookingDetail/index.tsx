@@ -5,7 +5,7 @@ import Menu from '@mui/material/Menu';
 import { Avatar } from "@mui/material";
 import MenuItem from "@material-ui/core/MenuItem";
 import { useRouter } from 'next/router';
-import { USER_ROLE } from '../../constants';
+import { TYPE_BOOKING, USER_ROLE } from '../../constants';
 import "toastr/build/toastr.min.css";
 import HourglassFullTwoToneIcon from '@mui/icons-material/HourglassFullTwoTone';
 import DarkModeTwoToneIcon from '@mui/icons-material/DarkModeTwoTone';
@@ -113,9 +113,9 @@ const HeaderBookingDetail = (props: Props) => {
                                 {/* === Kiểu thuê === */}
                                 <div className="flex items-center gap-6 rounded-full border-r pr-4">
                                     {[
-                                        { label: 'Theo giờ', value: 0, icon: <HourglassFullTwoToneIcon /> },
-                                        { label: 'Qua đêm', value: 1, icon: <DarkModeTwoToneIcon /> },
-                                        { label: 'Theo ngày', value: 2, icon: <CalendarMonthTwoToneIcon /> },
+                                        { label: 'Theo giờ', value: TYPE_BOOKING.hourly, icon: <HourglassFullTwoToneIcon /> },
+                                        { label: 'Qua đêm', value: TYPE_BOOKING.overNight, icon: <DarkModeTwoToneIcon /> },
+                                        { label: 'Theo ngày', value: TYPE_BOOKING.daily, icon: <CalendarMonthTwoToneIcon /> },
                                     ].map(({ label, value, icon }) => {
                                         const isActive = selectedType === value;
                                         return (
@@ -193,7 +193,7 @@ const HeaderBookingDetail = (props: Props) => {
                                 {/* === Date Range Picker Popup === */}
                                 {(isMounted && showDatePicker) ?
                                     <div className="date-picker-container absolute top-16 right-12 z-50 mt-2">
-                                        {selectedType == 0 ? <DateTimesPicker /> : selectedType == 1 ? <CustomCalendar /> : <DateRangPicker />}
+                                        {selectedType == TYPE_BOOKING.hourly ? <DateTimesPicker /> : selectedType == TYPE_BOOKING.overNight ? <CustomCalendar /> : <DateRangPicker />}
                                     </div>
                                     : ""}
                             </div>

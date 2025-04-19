@@ -12,11 +12,7 @@ import { useLayout } from '../../contexts/LayoutContext';
 export default function CustomCalendar() {
     const {
         inputValue,
-        handleInputChange,
-        updateBooking,
-        selectedType,
-        setSelectedType,
-        roomName
+        handleInputChange
     } = useLayout();
     const [range, setRange] = useState([
         {

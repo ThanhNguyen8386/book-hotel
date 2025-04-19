@@ -4,3 +4,9 @@ export const ADMIN_ROLE = 1; // admin
 export const RECEPTIONIST_ROLE = 2; // lễ tân
 
 export const API_URL = "http://localhost:4000/api";
+
+export const TYPE_BOOKING = {
+    daily: 'daily',
+    overNight: 'overnight',
+    hourly: 'hourly'
+}

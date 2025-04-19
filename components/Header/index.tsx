@@ -5,7 +5,7 @@ import Menu from '@mui/material/Menu';
 import { Avatar } from "@mui/material";
 import MenuItem from "@material-ui/core/MenuItem";
 import { useRouter } from 'next/router';
-import { USER_ROLE } from '../../constants';
+import { TYPE_BOOKING, USER_ROLE } from '../../constants';
 import dayjs, { Dayjs } from 'dayjs';
 // import DateFnsUtils from "@material-ui/pickers/adapter/date-fns";
 import toastr from "toastr";
@@ -143,7 +143,7 @@ const Header = (props: Props) => {
     let query = {};
 
     // tìm kiếm theo giờ.
-    if (selectedType === 0) {
+    if (selectedType === TYPE_BOOKING.hourly) {
       const timeCheckin = new Date(dateTimeStart as any);
 
       query = {
@@ -208,7 +208,7 @@ const Header = (props: Props) => {
                 <CalendarMonthTwoToneIcon
                   className="text-orange-500"
                 />
-                <span className="font-medium">{selectedType == 0 ? "Theo giờ" : selectedType == 1 ? "Qua đêm" : "Theo ngày"}•</span>
+                <span className="font-medium">{selectedType == TYPE_BOOKING.hourly ? "Theo giờ" : selectedType == TYPE_BOOKING.overNight ? "Qua đêm" : "Theo ngày"}•</span>
               </div>
               <div className="flex items-center">
                 <span className="text-sm font-medium text-gray-700">
@@ -335,24 +335,24 @@ const Header = (props: Props) => {
               <div className="flex flex-auto max-w-[35%] cursor-pointer duration-300 ease-in-out animate-fade-out">
                 <button
                   className={`flex-1 px-2 flex flex-col items-center text-sm transition-all duration-300 ease-in-out
-            ${selectedType === 0 ? 'text-orange-500 border-b-2 border-orange-500 bg-white font-medium shadow-sm' : 'text-gray-600 hover:text-orange-500 hover:bg-white/80 border-b-2 border-white'}`}
-                  onClick={() => setSelectedType(0)}
+            ${selectedType === TYPE_BOOKING.hourly ? 'text-orange-500 border-b-2 border-orange-500 bg-white font-medium shadow-sm' : 'text-gray-600 hover:text-orange-500 hover:bg-white/80 border-b-2 border-white'}`}
+                  onClick={() => setSelectedType(TYPE_BOOKING.hourly)}
                 >
                   <AccessTimeTwoToneIcon />
                   <span className="tracking-wide">Theo giờ</span>
                 </button>
                 <button
                   className={`flex-1 px-2 flex flex-col items-center text-sm transition-all duration-300 ease-in-out
-            ${selectedType === 1 ? 'text-orange-500 border-b-2 border-orange-500 bg-white font-medium shadow-sm' : 'text-gray-600 hover:text-orange-500 hover:bg-white/80 border-b-2 border-white'}`}
-                  onClick={() => setSelectedType(1)}
+            ${selectedType === TYPE_BOOKING.overNight ? 'text-orange-500 border-b-2 border-orange-500 bg-white font-medium shadow-sm' : 'text-gray-600 hover:text-orange-500 hover:bg-white/80 border-b-2 border-white'}`}
+                  onClick={() => setSelectedType(TYPE_BOOKING.overNight)}
                 >
                   <DarkModeTwoToneIcon />
                   <span className="tracking-wide">Qua đêm</span>
                 </button>
                 <button
                   className={`flex-1 px-2 flex flex-col items-center text-sm transition-all duration-300 ease-in-out
-            ${selectedType === 2 ? 'text-orange-500 border-b-2 border-orange-500 bg-white font-medium shadow-sm' : 'text-gray-600 hover:text-orange-500 hover:bg-white/80 border-b-2 border-white'}`}
-                  onClick={() => setSelectedType(2)}
+            ${selectedType === TYPE_BOOKING.daily ? 'text-orange-500 border-b-2 border-orange-500 bg-white font-medium shadow-sm' : 'text-gray-600 hover:text-orange-500 hover:bg-white/80 border-b-2 border-white'}`}
+                  onClick={() => setSelectedType(TYPE_BOOKING.daily)}
                 >
                   <CalendarMonthTwoToneIcon />
                   <span className="tracking-wide">Theo ngày</span>
@@ -385,7 +385,7 @@ const Header = (props: Props) => {
                   )
               }
             </div>
-            {              
+            {
               user && status && (
                 <Menu
                   className='mt-[20px] rounded-xl'
@@ -458,7 +458,7 @@ const Header = (props: Props) => {
           className='absolute top-[87px] left-[50%] translate-x-[-50%] w-[80%]'>
           {openBookingSearch ? bookingSearch() : ""}
           {showDatePicker ? <div className="date-picker-container absolute top-[115px] right-[50px] z-50 mt-2">
-            {selectedType == 0 ? <DateTimesPicker /> : selectedType == 1 ? <DateRangPicker /> : <DateRangPicker />}
+            {selectedType == TYPE_BOOKING.hourly ? <DateTimesPicker /> : selectedType == TYPE_BOOKING.overNight ? <DateRangPicker /> : <DateRangPicker />}
           </div> : ""}
         </div>
       </div>

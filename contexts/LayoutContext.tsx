@@ -15,7 +15,7 @@ export const LayoutProvider = ({ children }: any) => {
   const handleInputChange = (e: any) => setInputValue(e);
 
   const [updateBooking, setUpdateBooking] = useState<(() => void) | null>(null);
-  const [selectedType, setSelectedType] = useState<0 | 1 | 2>(2);
+  const [selectedType, setSelectedType] = useState<"daily" | "overnight" | "hourly">("hourly");
   const [roomName, setRoomName] = useState<string | null>(null);
 
   return (

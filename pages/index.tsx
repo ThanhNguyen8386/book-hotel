@@ -10,7 +10,7 @@ import toastr from "toastr";
 import "toastr/build/toastr.min.css";
 import useSWR from "swr";
 import { fetcher } from "../api/instance";
-import { API_URL } from "../constants";
+import { API_URL, TYPE_BOOKING } from "../constants";
 import RoomTwoToneIcon from '@mui/icons-material/RoomTwoTone';
 import SearchTwoToneIcon from '@mui/icons-material/SearchTwoTone';
 import CalendarMonthTwoToneIcon from '@mui/icons-material/CalendarMonthTwoTone';
@@ -128,7 +128,7 @@ const Home = () => {
     let query = {};
 
     // tìm kiếm theo giờ.
-    if (selectedType === 0) {
+    if (selectedType === TYPE_BOOKING.hourly) {
       const timeCheckin = new Date(dateTimeStart as any);
 
       query = {
@@ -187,24 +187,24 @@ const Home = () => {
         <div className="flex border-b bg-gray-50/80">
           <button
             className={`flex-1 py-6 px-2 flex flex-col items-center text-sm transition-all duration-300 ease-in-out
-            ${selectedType === 0 ? 'text-orange-500 border-b-2 border-orange-500 bg-white font-medium shadow-sm' : 'text-gray-600 hover:text-orange-500 hover:bg-white/80 border-b-2 border-white'}`}
-            onClick={() => setSelectedType(0)}
+            ${selectedType === TYPE_BOOKING.hourly ? 'text-orange-500 border-b-2 border-orange-500 bg-white font-medium shadow-sm' : 'text-gray-600 hover:text-orange-500 hover:bg-white/80 border-b-2 border-white'}`}
+            onClick={() => setSelectedType(TYPE_BOOKING.hourly)}
           >
             <AccessTimeTwoToneIcon />
             <span className="tracking-wide">Theo giờ</span>
           </button>
           <button
             className={`flex-1 py-6 px-2 flex flex-col items-center text-sm transition-all duration-300 ease-in-out
-            ${selectedType === 1 ? 'text-orange-500 border-b-2 border-orange-500 bg-white font-medium shadow-sm' : 'text-gray-600 hover:text-orange-500 hover:bg-white/80 border-b-2 border-white'}`}
-            onClick={() => setSelectedType(1)}
+            ${selectedType === TYPE_BOOKING.overNight ? 'text-orange-500 border-b-2 border-orange-500 bg-white font-medium shadow-sm' : 'text-gray-600 hover:text-orange-500 hover:bg-white/80 border-b-2 border-white'}`}
+            onClick={() => setSelectedType(TYPE_BOOKING.overNight)}
           >
             <DarkModeTwoToneIcon />
             <span className="tracking-wide">Qua đêm</span>
           </button>
           <button
             className={`flex-1 py-6 px-2 flex flex-col items-center text-sm transition-all duration-300 ease-in-out
-            ${selectedType === 2 ? 'text-orange-500 border-b-2 border-orange-500 bg-white font-medium shadow-sm' : 'text-gray-600 hover:text-orange-500 hover:bg-white/80 border-b-2 border-white'}`}
-            onClick={() => setSelectedType(2)}
+            ${selectedType === TYPE_BOOKING.daily ? 'text-orange-500 border-b-2 border-orange-500 bg-white font-medium shadow-sm' : 'text-gray-600 hover:text-orange-500 hover:bg-white/80 border-b-2 border-white'}`}
+            onClick={() => setSelectedType(TYPE_BOOKING.daily)}
           >
             <CalendarMonthTwoToneIcon />
             <span className="tracking-wide">Theo ngày</span>
@@ -304,7 +304,7 @@ const Home = () => {
                   overflow: "hidden"
                 }}
               >
-                {selectedType == 0 ? <DateTimesPicker /> : selectedType == 1 ? <CustomCalendar /> : <DateRangPicker />}
+                {selectedType == TYPE_BOOKING.hourly ? <DateTimesPicker /> : selectedType == TYPE_BOOKING.overNight ? <CustomCalendar /> : <DateRangPicker />}
               </Popover>
             )
             : ""

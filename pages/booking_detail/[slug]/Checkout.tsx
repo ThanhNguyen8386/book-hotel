@@ -1,7 +1,6 @@
 import { Dialog } from "@mui/material"
 import { forwardRef, useImperativeHandle, useRef, useState } from "react"
 import InfoTwoToneIcon from '@mui/icons-material/InfoTwoTone';
-import ModeTwoToneIcon from '@mui/icons-material/ModeTwoTone';
 import CloseTwoToneIcon from '@mui/icons-material/CloseTwoTone';
 import ChevronRightTwoToneIcon from '@mui/icons-material/ChevronRightTwoTone';
 import CommentItem from "../../../components/CommentItem";
@@ -55,14 +54,14 @@ const Checkout = (props: any, ref: any) => {
     const handleClickOpen = () => {
         setOpen(true);
     };
-    // console.log(dataorder);
+    console.log(defaultDateBook);
 
     const startDate = new Date(dataDate[0].startDate);
     const endDate = new Date(dataDate[0].endDate);
     const diffInSeconds = Math.ceil(differenceInSeconds(endDate, startDate) / 60 / 60 / 24);
 
     useImperativeHandle(ref, () => ({
-        checkout: (item: any, type: any) => {
+        checkout: (item: any, type: any) => {            
             refMode.current = type;
             handleClickOpen();
             const dateFrom = dayjs(dataDate[0].startDate).hour(14).minute(0).second(0).millisecond(0).toISOString();
@@ -285,9 +284,9 @@ const Checkout = (props: any, ref: any) => {
                                 </div>
                                 <div>
                                     <div className="text-base text-gray-700">Nhận phòng</div>
-                                    <div className="text-base font-medium">14:00 • {format(dataDate[0].startDate, 'dd/MM/yyyy')}</div>
+                                    <div className="text-base font-medium">{format(dataDate[0].startDate, "HH:mm")} • {format(dataDate[0].startDate, 'dd/MM/yyyy')}</div>
                                     <div className="text-base text-gray-700 mt-2">Trả phòng</div>
-                                    <div className="text-base font-medium">12:00 • {format(dataDate[0].endDate, 'dd/MM/yyyy')}</div>
+                                    <div className="text-base font-medium">{format(dataDate[0].endDate, "HH:mm")} • {format(dataDate[0].endDate, 'dd/MM/yyyy')}</div>
                                 </div>
                             </div>
                         </div>

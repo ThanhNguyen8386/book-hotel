@@ -55,9 +55,9 @@ function Room_admin_detail(props: any, ref: any) {
     };
 
     const prepareToPreview = (e: any) => {
-        const dayPrice = e.price[0].value;
-        const nightPrice = e.price[1].value;
-        const hourPrice = e.price[2].value;
+        const dayPrice = e.price.find((item:any) => item.brand === 'daily').value;
+        const nightPrice = e.price.find((item:any) => item.brand === 'overnight').value;
+        const hourPrice = e.price.find((item:any) => item.brand === 'hourly').value;
         const imgUrl = Array(9).fill(null);
         if (e.image) {
             for (let i = 0; i < 9; i++) {
@@ -183,17 +183,17 @@ function Room_admin_detail(props: any, ref: any) {
             status: true,
             price: [
                 {
-                    brand: 0,
+                    brand: "daily",
                     title: "Giá theo ngày",
                     value: data.dayPrice
                 },
                 {
-                    brand: 1,
+                    brand: "overnight",
                     title: "Giá qua đêm",
                     value: data.nightPrice
                 },
                 {
-                    brand: 2,
+                    brand: "hourly",
                     title: "Giá theo giờ",
                     value: data.hourPrice
                 },

@@ -27,7 +27,8 @@ const SiteLayout = ({ children }: LayoutProps) => {
   }, [])
   useEffect(() => {
     if (router.isReady) {
-      const isProfilePage = router.pathname.startsWith('/profile')
+      const matchPaths = ['/profile', '/checkout', '/dashboard'];
+      const isProfilePage = matchPaths.some((path) => router.pathname.startsWith(path));
       if (isProfilePage) setShowFooter(false)
       else setShowFooter(true)
     }

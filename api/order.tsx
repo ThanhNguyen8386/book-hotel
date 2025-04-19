@@ -28,13 +28,18 @@ export const update = (item: OrderType) => {
   return instance.put(url, item);
 };
 
-export const checkUserBookRoom = (data: { user: string; room?: string }): Promise<{ isBooked: boolean  }> => {
+export const checkUserBookRoom = (data: { user: string; room?: string }): Promise<{ isBooked: boolean }> => {
   const url = "order/checkUserBookRoom";
   return instance.post(url, data);
 };
 
 // kiểm tra trạng thái phòng trước khi đặt phòng.
-export const checkStatusRoom = (data: { checkin: Date, checkout: Date, room: string }): Promise<{isRoomEmpty: boolean}> => {
+export const checkStatusRoom = (data: { checkin: Date, checkout: Date, room: string }): Promise<{ isRoomEmpty: boolean }> => {
   const url = "order/checkStatusRoom";
+  return instance.post(url, data);
+}
+
+export const calculateBooking = (data: { checkIn: string, checkOut: string, roomId: string, bookingType: any, voucher: string }): Promise<{ isRoomEmpty: boolean }> => {
+  const url = "calculateBooking";
   return instance.post(url, data);
 }
