@@ -7,12 +7,15 @@ import Image from "next/image";
 import { creat } from "../../api/bookedDate";
 import { calculateBooking, creatOrder } from "../../api/order";
 import { differenceInSeconds, format } from 'date-fns';
+import { TYPE_BOOKING } from "../../constants";
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import { useRouter } from "next/router";
 
 const CheckOut = () => {
     const defaultDateBook = {
         room: "",
-        dateFrom: new Date().toISOString(),
-        dateTo: new Date().toISOString(),
+        dateFrom: "",
+        dateTo: "",
     };
     const defaultOrder = {
         checkins: "",
@@ -35,6 +38,7 @@ const CheckOut = () => {
         discountAmount: 0,
         duration: "",
     };
+    const router = useRouter();
     const [isMount, setIsMount] = useState(false);
     const [datebook, setdatebook] = useState(defaultDateBook);
     const [dataorder, setdataorder] = useState(defaultOrder);
@@ -57,7 +61,7 @@ const CheckOut = () => {
                 const fetchCalculation = async () => {
                     try {
                         const response = await calculateBooking({
-                            bookingType: 0,
+                            bookingType: TYPE_BOOKING.hourly,
                             checkIn: dateFrom.toISOString(),
                             checkOut: dateTo.toISOString(),
                             roomId: orderData.item._id,
@@ -127,8 +131,12 @@ const CheckOut = () => {
 
     return isMount && (
         <div className="w-[80%] mx-auto bg-white">
-            <div className="p-4 border-b flex items-center cursor-pointer">
-                <CloseTwoToneIcon className="h-6 w-6 text-gray-700" />
+            <div
+                onClick={()=>{
+                    router.back()
+                }}
+                className="p-4 border-b flex items-center cursor-pointer group">
+                <ChevronLeftIcon className="h-6 w-6 text-gray-700 group-hover:translate-x-[-5px] transition-all duration-300" />
                 <h1 className="text-lg font-medium ml-2">Xác nhận & Thanh toán</h1>
             </div>
             <div className="flex flex-col md:flex-row">
@@ -207,13 +215,19 @@ const CheckOut = () => {
                             <div>
                                 <div className="text-base text-gray-700">Nhận phòng</div>
                                 <div className="text-base font-medium">
-                                    {/* {format(new Date(dataorder.checkins), "HH:mm")} •{" "}
-                                    {format(new Date(dataorder.checkins), 'dd/MM/yyyy')} */}
+                                    {dataorder.checkins
+                                        ? format(new Date(dataorder.checkins), "HH:mm") + " • " +
+                                        format(new Date(dataorder.checkins), 'dd/MM/yyyy')
+                                        : "--:--"
+                                    }
                                 </div>
                                 <div className="text-base text-gray-700 mt-2">Trả phòng</div>
                                 <div className="text-base font-medium">
-                                    {/* {format(new Date(dataorder.checkouts), "HH:mm")} •{" "}
-                                    {format(new Date(dataorder.checkouts), 'dd/MM/yyyy')} */}
+                                    {dataorder.checkouts
+                                        ? format(new Date(dataorder.checkouts), "HH:mm") + " • " +
+                                        format(new Date(dataorder.checkouts), 'dd/MM/yyyy')
+                                        : "--:--"
+                                    }
                                 </div>
                             </div>
                         </div>

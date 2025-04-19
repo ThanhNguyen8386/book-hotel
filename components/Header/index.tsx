@@ -135,7 +135,7 @@ const Header = (props: Props) => {
   const handleSearch = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!inputValue[0].startDate || !inputValue[0].endDate) {
+    if (!inputValue[0][selectedType].startDate || !inputValue[0][selectedType].endDate) {
       toastr.info("Vui lòng chọn thời gian trả phòng!");
       return;
     }
@@ -165,8 +165,8 @@ const Header = (props: Props) => {
         ).toISOString(),
       };
     } else {
-      const dateCheckin = new Date(inputValue[0].startDate);
-      const dateCheckout = new Date(inputValue[0].endDate);
+      const dateCheckin = new Date(inputValue[0][selectedType].startDate);
+      const dateCheckout = new Date(inputValue[0][selectedType].endDate);
 
       // tìm kiếm phòng qua đêm, theo ngày mặc định thời gian checkin là 14h và checkout là 12h trưa hôm sau.
       query = {
@@ -212,7 +212,7 @@ const Header = (props: Props) => {
               </div>
               <div className="flex items-center">
                 <span className="text-sm font-medium text-gray-700">
-                  {format(inputValue[0].startDate, 'dd/MM')}-{format(inputValue[0].endDate, 'dd/MM')}
+                  {format(inputValue[0][selectedType].startDate, 'dd/MM')}-{format(inputValue[0][selectedType].endDate, 'dd/MM')}
                 </span>
               </div>
             </div>
@@ -256,7 +256,7 @@ const Header = (props: Props) => {
                   <label className="text-xs font-medium text-gray-500 mb-0.5">
                     Nhận phòng
                   </label>
-                  <span className="font-medium text-gray-800">{format(inputValue[0].startDate, "HH:mm, dd/MM/yyyy")}</span>
+                  <span className="font-medium text-gray-800">{format(inputValue[0][selectedType].startDate, "HH:mm, dd/MM/yyyy")}</span>
                 </div>
               </div>
             </div>
@@ -267,7 +267,7 @@ const Header = (props: Props) => {
                   <label className="text-xs font-medium text-gray-500 mb-0.5">
                     Trả phòng
                   </label>
-                  <span className="font-medium text-gray-800">{format(inputValue[0].endDate, "HH:mm, dd/MM/yyyy")}</span>
+                  <span className="font-medium text-gray-800">{format(inputValue[0][selectedType].endDate, "HH:mm, dd/MM/yyyy")}</span>
                 </div>
               </div>
             </div>

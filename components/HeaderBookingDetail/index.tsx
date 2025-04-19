@@ -158,7 +158,7 @@ const HeaderBookingDetail = (props: Props) => {
                                         </div>
                                         {isMounted ? (
                                             <div className="text-gray-700">
-                                                <p className='text-xl'>{format(inputValue[0].startDate, "HH:mm, dd/MM/yyyy")}</p>
+                                                <p className='text-xl'>{format(inputValue[0][selectedType].startDate, "HH:mm, dd/MM/yyyy")}</p>
                                             </div>
                                         ) : (
                                             <div className="outline-none text-black">--/--/----</div>
@@ -175,7 +175,7 @@ const HeaderBookingDetail = (props: Props) => {
                                         </div>
                                         {isMounted ? (
                                             <div className="text-gray-700">
-                                                <p className='text-xl'>{format(inputValue[0].endDate, "HH:mm, dd/MM/yyyy")}</p>
+                                                <p className='text-xl'>{format(inputValue[0][selectedType].endDate, "HH:mm, dd/MM/yyyy")}</p>
                                             </div>
                                         ) : (
                                             <div className="outline-none text-black">--/--/----</div>

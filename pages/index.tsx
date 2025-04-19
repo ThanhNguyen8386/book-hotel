@@ -120,7 +120,7 @@ const Home = () => {
   };
 
   const hanldeTimeToSearch = () => {
-    if (!inputValue[0].endDate || !inputValue[0].startDate) {
+    if (!inputValue[0][selectedType].endDate || !inputValue[0][selectedType].startDate) {
       toastr.info("Vui lòng chọn thời gian trả phòng!");
       return;
     }
@@ -150,8 +150,8 @@ const Home = () => {
         ).toISOString(),
       };
     } else {
-      const dateCheckin = new Date(inputValue[0].startDate);
-      const dateCheckout = new Date(inputValue[0].endDate);
+      const dateCheckin = new Date(inputValue[0][selectedType].startDate);
+      const dateCheckout = new Date(inputValue[0][selectedType].endDate);
 
       // tìm kiếm phòng qua đêm, theo ngày mặc định thời gian checkin là 14h và checkout là 12h trưa hôm sau.
       query = {
@@ -236,7 +236,7 @@ const Home = () => {
                   <label className="text-xs font-medium text-gray-500 mb-0.5">
                     Nhận phòng
                   </label>
-                  <span className="font-medium text-gray-800">{format(inputValue[0].startDate, "HH:mm, dd/MM/yyyy")}</span>
+                  <span className="font-medium text-gray-800">{format(inputValue[0][selectedType].startDate, "HH:mm, dd/MM/yyyy")}</span>
                 </div>
               </div>
             </div>
@@ -247,7 +247,7 @@ const Home = () => {
                   <label className="text-xs font-medium text-gray-500 mb-0.5">
                     Trả phòng
                   </label>
-                  <span className="font-medium text-gray-800">{format(inputValue[0].endDate, "HH:mm, dd/MM/yyyy")}</span>
+                  <span className="font-medium text-gray-800">{format(inputValue[0][selectedType].endDate, "HH:mm, dd/MM/yyyy")}</span>
                 </div>
               </div>
             </div>

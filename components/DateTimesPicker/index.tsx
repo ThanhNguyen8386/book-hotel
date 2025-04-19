@@ -19,7 +19,8 @@ const DateTimesPicker = () => {
   const swiperRefHour = useRef(null);
   const {
     inputValue,
-    handleInputChange
+    handleInputChange,
+    selectedType
   } = useLayout();
   const [selectedTime, setSelectedTime] = useState("");
   const [selectedHours, setSelectedHours] = useState(2);
@@ -27,10 +28,10 @@ const DateTimesPicker = () => {
   const hoursOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
   const checkoutTime = (() => {
-    if (!inputValue[0]?.startDate || !selectedTime) return "Chưa chọn thời gian";
+    if (!inputValue[0][selectedType]?.startDate || !selectedTime) return "Chưa chọn thời gian";
 
     const [hours, minutes] = selectedTime.split(":").map(Number); // Lấy giờ và phút
-    const startDate = new Date(inputValue[0].startDate); // Tạo bản sao để tránh sửa dữ liệu gốc
+    const startDate = new Date(inputValue[0][selectedType].startDate); // Tạo bản sao để tránh sửa dữ liệu gốc
 
     startDate.setHours(hours, minutes, 0, 0); // Cập nhật giờ, phút
 
@@ -57,13 +58,12 @@ const DateTimesPicker = () => {
   }, [])
 
   useEffect(() => {
-    const timeSlots = generateTimeSlot(inputValue[0].startDate);
+    const timeSlots = generateTimeSlot(inputValue[0][selectedType].startDate);
     setSelectedTime(timeSlots[0])
   }, [])
-  console.log(inputValue);
 
   const applyChange = (date: any) => {
-    
+
     const [hours, minutes] = selectedTime.split(":").map(Number); // Lấy giờ và phút
     const startDate = new Date(date); // Tạo bản sao để tránh sửa dữ liệu gốc
 
@@ -71,9 +71,12 @@ const DateTimesPicker = () => {
 
     handleInputChange([
       {
-        startDate: date,
-        endDate: addHours(startDate, selectedHours),
-        key: 'selection',
+        ...inputValue[0],
+        [selectedType]: {
+          startDate: date,
+          endDate: addHours(startDate, selectedHours),
+          key: 'selection',
+        }
       },
     ])
   }
@@ -84,7 +87,7 @@ const DateTimesPicker = () => {
         <h3 className="font-semibold mb-2 text-lg">Chọn ngày</h3>
         <div className="custom-calendar-container">
           <Calendar
-            date={inputValue[0].startDate}
+            date={inputValue[0][selectedType].startDate}
             onChange={date => {
               applyChange(date)
             }}
@@ -131,13 +134,13 @@ const DateTimesPicker = () => {
               watchSlidesProgress={true}
             >
               {
-                generateTimeSlot(inputValue[0].startDate).map((i: any, index: any) => {
+                generateTimeSlot(inputValue[0][selectedType].startDate).map((i: any, index: any) => {
                   return (
                     <SwiperSlide key={index}>
                       <button
                         className={`px-4 py-2 rounded-lg border text-sm font-medium transition-all ${selectedTime === i ? "bg-orange-500 text-white" : "bg-gray-100 hover:bg-gray-200"}`}
                         onClick={() => {
-                          applyChange(inputValue[0].startDate)
+                          applyChange(inputValue[0][selectedType].startDate)
                           setSelectedTime(i)
                         }}
                       >

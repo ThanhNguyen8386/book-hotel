@@ -9,16 +9,20 @@ const DateRangPicker = (props) => {
     const { style } = props;
     const {
         inputValue,
-        handleInputChange
+        handleInputChange,
+        selectedType
     } = useLayout();
 
     const handleSelect = (ranges: any) => {
         const selected = ranges.selection;
         handleInputChange([
             {
-                startDate: set(selected.startDate, { hours: 14 }),
-                endDate: set(selected.endDate, { hours: 12 }),
-                key: 'selection',
+                ...inputValue[0],
+                [selectedType]: {
+                    startDate: set(selected.startDate, { hours: 14 }),
+                    endDate: set(selected.endDate, { hours: 12 }),
+                    key: 'selection',
+                }
             },
         ]);
     };
@@ -27,7 +31,7 @@ const DateRangPicker = (props) => {
         <div className={style}>
             <div className="bg-white shadow-xl rounded-lg p-4 border">
                 <DateRange
-                    ranges={inputValue}
+                    ranges={[inputValue[0][selectedType]]}
                     onChange={handleSelect}
                     moveRangeOnFirstSelection={false}
                     months={2}

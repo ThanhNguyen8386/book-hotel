@@ -54,7 +54,6 @@ const Checkout = (props: any, ref: any) => {
     const handleClickOpen = () => {
         setOpen(true);
     };
-    console.log(defaultDateBook);
 
     const startDate = new Date(dataDate[0].startDate);
     const endDate = new Date(dataDate[0].endDate);
