@@ -12,7 +12,7 @@ import { UserType } from "../../../types/user";
 import useComment from "../../../hook/use-comment";
 import { CommentType, CommentType2 } from "../../../types/comment";
 import { useRouter } from "next/router";
-import { API_URL } from "../../../constants";
+import { API_URL, TYPE_BOOKING } from "../../../constants";
 import { fetcher } from "../../../api/instance";
 import useSWR from "swr";
 import RoomDetailLayout from "../../../components/Layout/RoomDetailLayout";
@@ -99,8 +99,8 @@ const BookingDetail = () => {
   const load = async () => {
     try {
       await getRoomAvailabe({
-        dateFrom: new Date(inputValue[0].startDate).toISOString(),
-        dateTo: new Date(inputValue[0].endDate).toISOString(),
+        dateFrom: new Date(inputValue[0][selectedType].startDate).toISOString(),
+        dateTo: new Date(inputValue[0][selectedType].endDate).toISOString(),
         categoryId: product._id
       })
         .then((res) => {
@@ -194,21 +194,41 @@ const BookingDetail = () => {
     reset2();
   };
 
-  const startDate = new Date(inputValue[0].startDate);
-  const endDate = new Date(inputValue[0].endDate);
-  const diffInSeconds = Math.ceil(differenceInSeconds(endDate, startDate) / 60 / 60 / 24);
+  const calculateDateBook = (pricePerUnit: number) => {
+    let duration = 0;
+    let originalPrice = 0;
+    let durationText = '';
+    const startDate = new Date(inputValue[0][selectedType].startDate).getTime();
+    const endDate = new Date(inputValue[0][selectedType].endDate).getTime();
+    const durationMs = endDate - startDate
+    
+    if (selectedType === 'hourly') {
+      duration = Math.ceil(durationMs / (1000 * 60 * 60)); // Tính số giờ, làm tròn lên
+      originalPrice = duration * pricePerUnit;
+      durationText = `${duration} giờ`;
+    }
+    else if (selectedType === 'daily') {
+      duration = Math.ceil(durationMs / (1000 * 60 * 60 * 24)); // Tính số ngày, làm tròn lên
+      originalPrice = duration * pricePerUnit;
+      durationText = `${duration} ngày`;
+    }
+    else if (selectedType == 'overnight') {
+      duration = 1; // Cố định 1 ngày cho qua đêm
+      originalPrice = pricePerUnit;
+      durationText = '1 đêm';
+    }
 
+    return (
+      <div className="flex items-end">
+        <p className="text-gray-800 font-semibold text-2xl">{
+          formatCurrency(originalPrice)
+        }</p>
+        <span className="text-orange-500">/{durationText}</span>
+      </div>
+    );
+  }
   const actionOpenDialog = {
-    checkout: (item: any, type: any) => {
-      const _item = {
-        ...item,
-        address: product.address,
-        // item.price.find((item:any) => item.brand === 'daily').value
-        total: diffInSeconds * item.price.find((item: any) => item.brand === selectedType).value
-      }
-      refCheckout.current.checkout(_item, type)
-    },
-    update: (item: any, type: any) => {
+    comment: (item: any, type: any) => {
       refCheckout.current.comment(item, type)
     }
   }
@@ -414,12 +434,7 @@ const BookingDetail = () => {
                                   Giá phòng
                                 </h3>
                                 <div className="flex items-baseline gap-1 justify-end">
-                                  <div className="flex items-end">
-                                    <p className="text-gray-800 font-semibold text-2xl">{
-                                      formatCurrency(item.price.find((item: any) => item.brand === selectedType).value * diffInSeconds)
-                                    }</p>
-                                    <span className="text-orange-500">/{diffInSeconds}</span>
-                                  </div>
+                                  {calculateDateBook(item.price.find((item: any) => item.brand === selectedType).value)}
                                   <span className="text-sm font-normal text-gray-500">
                                     {item.hourRate}
                                   </span>
@@ -429,8 +444,9 @@ const BookingDetail = () => {
                                 onClick={() => {
                                   // actionOpenDialog.checkout(item, "CHECKOUT")
                                   localStorage.setItem('dataOrder', JSON.stringify({
-                                    item,
-                                    inputValue
+                                    item: item,
+                                    inputValue: inputValue[0][selectedType],
+                                    type: selectedType
                                   }))
                                   router.push("/checkout")
                                 }}

@@ -1,5 +1,5 @@
 import { createContext, useState, useContext } from "react";
-import { addDays, set } from 'date-fns';
+import { addDays, addHours, set, setHours, startOfHour } from 'date-fns';
 import { TYPE_BOOKING } from "../constants";
 
 const LayoutContext = createContext("");
@@ -8,18 +8,18 @@ export const LayoutProvider = ({ children }: any) => {
   const [inputValue, setInputValue] = useState([
     {
       [TYPE_BOOKING.hourly]: {
-        startDate: new Date(),
-        endDate: addDays(new Date(), 1),
+        startDate: startOfHour(addHours(new Date(), 1)),
+        endDate: addDays(startOfHour(addHours(new Date(), 1)), 1),
         key: 'selection',
       },
       [TYPE_BOOKING.daily]: {
-        startDate: new Date(),
-        endDate: addDays(new Date(), 1),
+        startDate: set(new Date(), { hours: 14, minutes: 0, seconds: 0 }),
+        endDate: set(addDays(new Date(), 1), { hours: 12, minutes: 0, seconds: 0 }),
         key: 'selection',
       },
       [TYPE_BOOKING.overNight]: {
-        startDate: new Date(),
-        endDate: addDays(new Date(), 1),
+        startDate: set(new Date(), { hours: 22, minutes: 0, seconds: 0 }),
+        endDate: set(addDays(new Date(), 1), { hours: 12, minutes: 0, seconds: 0 }),
         key: 'selection',
       }
     },

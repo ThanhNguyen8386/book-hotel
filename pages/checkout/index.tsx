@@ -54,14 +54,14 @@ const CheckOut = () => {
             const currentUser = JSON.parse(localStorage.getItem('user'));
             if (raw) {
                 const orderData = JSON.parse(raw);
-                const dateFrom = new Date(orderData.inputValue[0].startDate);
-                const dateTo = new Date(orderData.inputValue[0].endDate);
+                const dateFrom = new Date(orderData.inputValue.startDate);
+                const dateTo = new Date(orderData.inputValue.endDate);
                 const diffInHours = Math.ceil(differenceInSeconds(dateTo, dateFrom) / 60 / 60);
                 // Gọi API calculate
                 const fetchCalculation = async () => {
                     try {
                         const response = await calculateBooking({
-                            bookingType: TYPE_BOOKING.hourly,
+                            bookingType: orderData.type,
                             checkIn: dateFrom.toISOString(),
                             checkOut: dateTo.toISOString(),
                             roomId: orderData.item._id,
@@ -106,23 +106,20 @@ const CheckOut = () => {
     const submit = async () => {
         const _dataDate = { ...datebook };
         const _dataOrder = { ...dataorder };
-
         await creat(_dataDate)
             .then(async (res) => {
                 const newdataOrder = {
                     ..._dataOrder,
                     status: res.data._id,
                 };
-                await creatOrder(newdataOrder);
+                await creatOrder(newdataOrder).then((res) => {
+                    router.push('/checkout/booking-status/' + res.data._id);
+                });
             })
             .catch((res) => {
                 console.log(res);
             });
     };
-
-    const startDate = new Date(datebook?.dateFrom);
-    const endDate = new Date(datebook?.dateTo);
-    const diffInSecondsCalc = Math.ceil(differenceInSeconds(endDate, startDate) / 60 / 60 / 24);
 
     const formatCurrency = (currency: number) => {
         const tempCurrency = +currency >= 0 ? currency : 0;
@@ -132,7 +129,7 @@ const CheckOut = () => {
     return isMount && (
         <div className="w-[80%] mx-auto bg-white">
             <div
-                onClick={()=>{
+                onClick={() => {
                     router.back()
                 }}
                 className="p-4 border-b flex items-center cursor-pointer group">
