@@ -56,7 +56,6 @@ const CheckOut = () => {
                 const orderData = JSON.parse(raw);
                 const dateFrom = new Date(orderData.inputValue.startDate);
                 const dateTo = new Date(orderData.inputValue.endDate);
-                const diffInHours = Math.ceil(differenceInSeconds(dateTo, dateFrom) / 60 / 60);
                 // Gọi API calculate
                 const fetchCalculation = async () => {
                     try {
@@ -99,6 +98,9 @@ const CheckOut = () => {
                 fetchCalculation();
                 setUser(currentUser);
                 localStorage.removeItem('dataOrder');
+            }
+            else {
+                router.back();
             }
         }
     }, [isMount]);

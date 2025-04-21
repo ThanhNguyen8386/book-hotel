@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import {  Chip } from '@mui/material'
+import { Chip } from '@mui/material'
 import { useRouter } from 'next/router'
 import React, { useEffect, useState } from 'react'
 import ProfileLayout from '../../../components/Layout/ProfileLayout'
@@ -177,7 +177,12 @@ const Orderlisst = (props: Props) => {
                                             label="Chi tiết"
                                             size="small"
                                             variant="outlined"
-                                            onClick={() => actionCrud.updateOrder(item, "UPDATE")}
+                                            onClick={() => {
+                                                // actionCrud.updateOrder(item, "UPDATE")
+                                                router.push({
+                                                    pathname: `/profile/order/${item._id}`
+                                                })
+                                            }}
                                         />
                                     </div>
                                 </div>
