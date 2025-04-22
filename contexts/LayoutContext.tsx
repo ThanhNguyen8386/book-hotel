@@ -9,7 +9,7 @@ export const LayoutProvider = ({ children }: any) => {
     {
       [TYPE_BOOKING.hourly]: {
         startDate: startOfHour(addHours(new Date(), 1)),
-        endDate: addDays(startOfHour(addHours(new Date(), 1)), 1),
+        endDate: startOfHour(addHours(new Date(), 2)),
         key: 'selection',
       },
       [TYPE_BOOKING.daily]: {

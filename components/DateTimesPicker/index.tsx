@@ -5,7 +5,6 @@ import AccessTimeTwoToneIcon from '@mui/icons-material/AccessTimeTwoTone';
 import CalendarMonthTwoToneIcon from '@mui/icons-material/CalendarMonthTwoTone';
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
-import "./custom-datepicker.module.css"
 import { useLayout } from "../../contexts/LayoutContext";
 import 'swiper/css';
 import 'swiper/css/free-mode';
@@ -62,23 +61,23 @@ const DateTimesPicker = () => {
     setSelectedTime(timeSlots[0])
   }, [])
 
-  const applyChange = (date: any) => {
-
+  const applyChange = (date: any, selectedTime: any, selectedHours: any) => {
     const [hours, minutes] = selectedTime.split(":").map(Number); // Lấy giờ và phút
     const startDate = new Date(date); // Tạo bản sao để tránh sửa dữ liệu gốc
-
     startDate.setHours(hours, minutes, 0, 0); // Cập nhật giờ, phút
 
     handleInputChange([
       {
         ...inputValue[0],
         [selectedType]: {
-          startDate: date,
+          startDate: startDate,
           endDate: addHours(startDate, selectedHours),
           key: 'selection',
         }
       },
     ])
+    setSelectedHours(selectedHours)
+    setSelectedTime(selectedTime)
   }
 
   return isMounted && (
@@ -89,7 +88,7 @@ const DateTimesPicker = () => {
           <Calendar
             date={inputValue[0][selectedType].startDate}
             onChange={date => {
-              applyChange(date)
+              applyChange(date, selectedTime, selectedHours)
             }}
             color="#f97316"
             className="custom-datepicker"
@@ -140,8 +139,7 @@ const DateTimesPicker = () => {
                       <button
                         className={`px-4 py-2 rounded-lg border text-sm font-medium transition-all ${selectedTime === i ? "bg-orange-500 text-white" : "bg-gray-100 hover:bg-gray-200"}`}
                         onClick={() => {
-                          applyChange(inputValue[0][selectedType].startDate)
-                          setSelectedTime(i)
+                          applyChange(inputValue[0][selectedType].startDate, i, selectedHours)
                         }}
                       >
                         {i}
@@ -186,7 +184,9 @@ const DateTimesPicker = () => {
                     <SwiperSlide key={index}>
                       <button
                         className={`px-4 py-2 rounded-lg border text-sm font-medium transition-all ${selectedHours === i ? "bg-orange-500 text-white" : "bg-gray-100 hover:bg-gray-200"}`}
-                        onClick={() => setSelectedHours(i)}
+                        onClick={() => {
+                          applyChange(inputValue[0][selectedType].startDate, selectedTime, i)
+                        }}
                       >
                         {i} giờ
                       </button>
