@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { forwardRef, useEffect, useState } from "react";
 import SiteLayout from "../../components/Layout";
 import InfoTwoToneIcon from '@mui/icons-material/InfoTwoTone';
 import CloseTwoToneIcon from '@mui/icons-material/CloseTwoTone';
@@ -6,10 +6,12 @@ import ChevronRightTwoToneIcon from '@mui/icons-material/ChevronRightTwoTone';
 import Image from "next/image";
 import { creat } from "../../api/bookedDate";
 import { calculateBooking, creatOrder } from "../../api/order";
-import { differenceInSeconds, format } from 'date-fns';
-import { TYPE_BOOKING } from "../../constants";
+import { format } from 'date-fns';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { useRouter } from "next/router";
+import { Card, Dialog, Slide } from "@mui/material";
+import { getAvailableVouchers } from "../../api/voucher2";
+import { RadioButtonUnchecked } from "@mui/icons-material";
 
 const CheckOut = () => {
     const defaultDateBook = {
@@ -42,11 +44,25 @@ const CheckOut = () => {
     const [isMount, setIsMount] = useState(false);
     const [datebook, setdatebook] = useState(defaultDateBook);
     const [dataorder, setdataorder] = useState(defaultOrder);
+    const [dataVoucher, setdataVoucher] = useState([]);
     const [user, setUser] = useState({});
+    const [open, setOpen] = useState(false);
 
     useEffect(() => {
         setIsMount(true);
     }, []);
+
+    useEffect(() => {
+        if (open) {
+            const load = async () => {
+                await getAvailableVouchers({ roomId: dataorder.room, checkIn: datebook.dateFrom, checkOut: datebook.dateTo })
+                    .then((res: any) => {
+                        setdataVoucher(res.data);
+                    })
+            }
+            load()
+        }
+    }, [open]);
 
     useEffect(() => {
         if (isMount) {
@@ -100,7 +116,7 @@ const CheckOut = () => {
                 localStorage.removeItem('dataOrder');
             }
             else {
-                router.back();
+                // router.back();
             }
         }
     }, [isMount]);
@@ -128,8 +144,17 @@ const CheckOut = () => {
         return new Intl.NumberFormat("de-DE", { style: "currency", currency: "VND" }).format(tempCurrency);
     };
 
+    const handleClickOpen = () => {
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+        setdataVoucher([]);
+    };
+
     return isMount && (
-        <div className="w-[80%] mx-auto bg-white">
+        <div className="w-[70%] mx-auto bg-white">
             <div
                 onClick={() => {
                     router.back()
@@ -343,7 +368,9 @@ const CheckOut = () => {
                     <div className="p-6 border-b">
                         <div className="flex justify-between items-center">
                             <h2 className="text-base font-medium">Ưu đãi</h2>
-                            <div className="flex items-center text-orange-500">
+                            <div
+                                onClick={handleClickOpen}
+                                className="flex items-center text-orange-500 cursor-pointer">
                                 <span>Chọn ưu đãi</span>
                                 <ChevronRightTwoToneIcon className="h-5 w-5 ml-1" />
                             </div>
@@ -361,7 +388,46 @@ const CheckOut = () => {
                     </div>
                 </div>
             </div>
-        </div>
+            <Dialog
+                open={open}
+                keepMounted
+                onClose={handleClose}
+                maxWidth="sm"
+                fullWidth
+                aria-describedby="alert-dialog-slide-description"
+            >
+                <div className="px-4 py-8">
+                    <div className="flex justify-between items-center mb-4">
+                        <div className="ml-2">
+                            <h1 className="text-2xl font-semibold ">Chọn ưu đãi</h1>
+                        </div>
+                        <div
+                            onClick={() => handleClose}
+                            className="flex items-center cursor-pointer group">
+                            <CloseTwoToneIcon className="h-6 w-6 text-gray-700 group-hover:scale-125 transition-all duration-300" />
+                        </div>
+                    </div>
+                    {dataVoucher && dataVoucher.length > 0 ? dataVoucher.map((item: any, index: number) => (
+                        <div key={index} className="flex flex-col items-center px-4 bg-white rounded-lg shadow-[0_10px_20px_rgba(153,_153,_153,_0.5)] md:flex-row md:max-w-xl">
+                            <Image
+                                className="object-cover rounded-xl"
+                                src={item.image}
+                                alt=""
+                                width={200}
+                                height={200}
+                                priority
+                            />
+                            <div className="flex flex-col justify-between px-4 leading-normal">
+                                <h5 className="mb-2 text-xl font-semibold tracking-tight">{item.name}</h5>
+                                <p className="mb-3 font-normal"></p>
+                            </div>
+
+                        </div>
+                    ))
+                        : ""}
+                </div>
+            </Dialog >
+        </div >
     );
 };
 

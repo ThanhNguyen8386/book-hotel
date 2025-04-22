@@ -91,6 +91,7 @@ const DateTimesPicker = () => {
               applyChange(date, selectedTime, selectedHours)
             }}
             color="#f97316"
+            minDate={new Date()}
             className="custom-datepicker"
             showMonthAndYearPickers={false}
             weekdayDisplayFormat="EEEEE"
