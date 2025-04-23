@@ -39,7 +39,7 @@ export const checkStatusRoom = (data: { checkin: Date, checkout: Date, room: str
   return instance.post(url, data);
 }
 
-export const calculateBooking = (data: { checkIn: string, checkOut: string, roomId: string, bookingType: any, voucher: string }): Promise<{ isRoomEmpty: boolean }> => {
+export const calculateBooking = (data: { userId: string, checkIn: string, checkOut: string, roomId: string, bookingType: any, voucherCode: string }): Promise<{ isRoomEmpty: boolean }> => {
   const url = "calculateBooking";
   return instance.post(url, data);
 }

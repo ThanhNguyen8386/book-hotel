@@ -6,12 +6,14 @@ import ChevronRightTwoToneIcon from '@mui/icons-material/ChevronRightTwoTone';
 import Image from "next/image";
 import { creat } from "../../api/bookedDate";
 import { calculateBooking, creatOrder } from "../../api/order";
-import { format } from 'date-fns';
+import { differenceInDays, format } from 'date-fns';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { useRouter } from "next/router";
-import { Card, Dialog, Slide } from "@mui/material";
+import { Dialog, DialogActions, DialogContent, DialogTitle, Radio } from "@mui/material";
 import { getAvailableVouchers } from "../../api/voucher2";
-import { RadioButtonUnchecked } from "@mui/icons-material";
+import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined';
+import { orange } from "@mui/material/colors";
+import { formatCurrency } from "../../contexts/ulti";
 
 const CheckOut = () => {
     const defaultDateBook = {
@@ -39,11 +41,21 @@ const CheckOut = () => {
         originalPrice: 0,
         discountAmount: 0,
         duration: "",
+        voucherCode: ""
     };
+    const defaultQuery = {
+        bookingType: "",
+        checkIn: "",
+        checkOut: "",
+        roomId: "",
+        voucherCode: "",
+        userId: ""
+    }
     const router = useRouter();
     const [isMount, setIsMount] = useState(false);
     const [datebook, setdatebook] = useState(defaultDateBook);
     const [dataorder, setdataorder] = useState(defaultOrder);
+    const [dataQuery, setdatQuery] = useState(defaultQuery);
     const [dataVoucher, setdataVoucher] = useState([]);
     const [user, setUser] = useState({});
     const [open, setOpen] = useState(false);
@@ -64,6 +76,39 @@ const CheckOut = () => {
         }
     }, [open]);
 
+    const fetchCalculation = async () => {
+        try {
+            const response = await calculateBooking(dataQuery)
+            const { room, bookingDetails, user } = response.data;
+            setdataorder({
+                ...dataorder,
+                room: room.roomId,
+                roomName: room.name,
+                address: room.address,
+                image: room.image,
+                user: user.userId,
+                email: user.email,
+                name: user.name,
+                phone: user.phone,
+                checkins: new Date(bookingDetails.checkIn).toISOString(),
+                checkouts: new Date(bookingDetails.checkOut).toISOString(),
+                total: bookingDetails.totalPrice,
+                bookingType: room.bookingType,
+                pricePerUnit: room.pricePerUnit,
+                originalPrice: bookingDetails.originalPrice,
+                discountAmount: bookingDetails.discountAmount,
+                duration: bookingDetails.duration,
+            });
+            setdatebook({
+                room: room.roomId,
+                dateFrom: new Date(bookingDetails.checkIn).toISOString(),
+                dateTo: new Date(bookingDetails.checkOut).toISOString(),
+            });
+        } catch (error) {
+            console.error('Error fetching calculation:', error);
+        }
+    };
+
     useEffect(() => {
         if (isMount) {
             const raw = localStorage.getItem('dataOrder');
@@ -72,54 +117,24 @@ const CheckOut = () => {
                 const orderData = JSON.parse(raw);
                 const dateFrom = new Date(orderData.inputValue.startDate);
                 const dateTo = new Date(orderData.inputValue.endDate);
-                // Gọi API calculate
-                const fetchCalculation = async () => {
-                    try {
-                        const response = await calculateBooking({
-                            bookingType: orderData.type,
-                            checkIn: dateFrom.toISOString(),
-                            checkOut: dateTo.toISOString(),
-                            roomId: orderData.item._id,
-                            voucher: "10", // Giả sử voucher mặc định 10%, có thể thay đổi
-                        })
-                        const { room, bookingDetails } = response.data;
-                        setdataorder({
-                            ...dataorder,
-                            room: orderData.item._id,
-                            roomName: room.name,
-                            address: room.address,
-                            image: room.image ? [room.image] : orderData.item.image,
-                            user: currentUser._id,
-                            email: currentUser.email,
-                            name: currentUser.name,
-                            phone: currentUser.phone,
-                            checkins: dateFrom.toISOString(),
-                            checkouts: dateTo.toISOString(),
-                            total: bookingDetails.totalPrice,
-                            bookingType: room.bookingType,
-                            pricePerUnit: room.pricePerUnit,
-                            originalPrice: bookingDetails.originalPrice,
-                            discountAmount: bookingDetails.discountAmount,
-                            duration: bookingDetails.duration,
-                        });
-                        setdatebook({
-                            room: orderData.item._id,
-                            dateFrom: dateFrom.toISOString(),
-                            dateTo: dateTo.toISOString(),
-                        });
-                    } catch (error) {
-                        console.error('Error fetching calculation:', error);
-                    }
-                };
-                fetchCalculation();
+                const query = {
+                    bookingType: orderData.type,
+                    checkIn: dateFrom.toISOString(),
+                    checkOut: dateTo.toISOString(),
+                    roomId: orderData.item._id,
+                    voucherCode: "",
+                    userId: currentUser._id,
+                }
+                setdatQuery(query);
                 setUser(currentUser);
                 localStorage.removeItem('dataOrder');
             }
-            else {
-                // router.back();
-            }
         }
     }, [isMount]);
+
+    useEffect(() => {
+        fetchCalculation();
+    }, [dataQuery]);
 
     const submit = async () => {
         const _dataDate = { ...datebook };
@@ -139,18 +154,12 @@ const CheckOut = () => {
             });
     };
 
-    const formatCurrency = (currency: number) => {
-        const tempCurrency = +currency >= 0 ? currency : 0;
-        return new Intl.NumberFormat("de-DE", { style: "currency", currency: "VND" }).format(tempCurrency);
-    };
-
     const handleClickOpen = () => {
         setOpen(true);
     };
 
     const handleClose = () => {
         setOpen(false);
-        setdataVoucher([]);
     };
 
     return isMount && (
@@ -171,7 +180,7 @@ const CheckOut = () => {
                             <div>
                                 {dataorder.image && (
                                     <Image
-                                        src={dataorder.image[0]}
+                                        src={dataorder.image}
                                         alt={dataorder.roomName}
                                         className="rounded-md"
                                         width={100}
@@ -329,7 +338,7 @@ const CheckOut = () => {
                                     <div className="w-3 h-3 rounded-full"></div>
                                 </div>
                                 <div className="flex items-center">
-                                    <div className="w-8 h-8 bg-blue-500 rounded flex items-center justify-center mr-3">
+                                    <div className="w-8 h-8 bg-orange-500 rounded flex items-center justify-center mr-3">
                                         <span className="text-white text-sm">Z</span>
                                     </div>
                                     <span className="text-base">Ví ZaloPay</span>
@@ -368,12 +377,26 @@ const CheckOut = () => {
                     <div className="p-6 border-b">
                         <div className="flex justify-between items-center">
                             <h2 className="text-base font-medium">Ưu đãi</h2>
-                            <div
-                                onClick={handleClickOpen}
-                                className="flex items-center text-orange-500 cursor-pointer">
-                                <span>Chọn ưu đãi</span>
-                                <ChevronRightTwoToneIcon className="h-5 w-5 ml-1" />
-                            </div>
+                            {dataorder.voucherCode ?
+                                <div className="flex items-center bg-orange-100 p-1 rounded-lg items-center">
+                                    <span className="text-orange-500">{dataorder.voucherCode}</span>
+                                    <CloseTwoToneIcon
+                                        onClick={() => {
+                                            const _dataOrder = { ...dataorder };
+                                            const _dataQuery = { ...dataQuery };
+                                            _dataOrder.voucherCode = "";
+                                            _dataQuery.voucherCode = "";
+                                            setdatQuery(_dataQuery);
+                                            setdataorder(_dataOrder);
+                                        }}
+                                        className="h-5 w-5 text-gray-700 ml-1 cursor-pointer" />
+                                </div> :
+                                <div
+                                    onClick={handleClickOpen}
+                                    className="flex items-center text-orange-500 cursor-pointer">
+                                    <span>Chọn ưu đãi</span>
+                                    <ChevronRightTwoToneIcon className="h-5 w-5 ml-1" />
+                                </div>}
                         </div>
                     </div>
                     <div className="p-6 flex justify-between items-center">
@@ -394,38 +417,117 @@ const CheckOut = () => {
                 onClose={handleClose}
                 maxWidth="sm"
                 fullWidth
+                scroll="paper"
                 aria-describedby="alert-dialog-slide-description"
             >
-                <div className="px-4 py-8">
-                    <div className="flex justify-between items-center mb-4">
+                <DialogTitle >
+                    <div className="flex justify-between items-center">
                         <div className="ml-2">
                             <h1 className="text-2xl font-semibold ">Chọn ưu đãi</h1>
                         </div>
                         <div
-                            onClick={() => handleClose}
+                            onClick={() => { handleClose() }}
                             className="flex items-center cursor-pointer group">
                             <CloseTwoToneIcon className="h-6 w-6 text-gray-700 group-hover:scale-125 transition-all duration-300" />
                         </div>
                     </div>
-                    {dataVoucher && dataVoucher.length > 0 ? dataVoucher.map((item: any, index: number) => (
-                        <div key={index} className="flex flex-col items-center px-4 bg-white rounded-lg shadow-[0_10px_20px_rgba(153,_153,_153,_0.5)] md:flex-row md:max-w-xl">
-                            <Image
-                                className="object-cover rounded-xl"
-                                src={item.image}
-                                alt=""
-                                width={200}
-                                height={200}
-                                priority
-                            />
-                            <div className="flex flex-col justify-between px-4 leading-normal">
-                                <h5 className="mb-2 text-xl font-semibold tracking-tight">{item.name}</h5>
-                                <p className="mb-3 font-normal"></p>
-                            </div>
-
-                        </div>
-                    ))
-                        : ""}
-                </div>
+                </DialogTitle>
+                {dataVoucher.length > 0 ?
+                    <>
+                        <DialogContent >
+                            {dataVoucher && dataVoucher.length > 0 ? dataVoucher.map((item: any, index: number) => (
+                                <div key={index} className="mb-4 group relative flex w-full overflow-hidden rounded-lg border border-orange-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md">
+                                    {/* Left section */}
+                                    <div className="relative flex flex-col justify-center p-3 bg-orange-50 border-r border-dashed border-orange-200">
+                                        <div className="text-orange-500 font-normal">{item.code}</div>
+                                        <div className="text-xs text-orange-400">Maximum {item.discountValue} {item.discountType == "percentage" ? '%' : 'VND'}</div>
+                                        {/* Top notch */}
+                                        <div className="absolute -right-1.5 -top-2 h-3 w-3 rounded-full bg-gray-50"></div>
+                                        {/* Middle notches */}
+                                        <div className="absolute -right-1.5 top-[25%] -translate-y-1/2 h-3 w-3 rounded-full bg-gray-50"></div>
+                                        <div className="absolute -right-1.5 top-1/2 -translate-y-1/2 h-3 w-3 rounded-full bg-gray-50"></div>
+                                        <div className="absolute -right-1.5 top-[75%] -translate-y-1/2 h-3 w-3 rounded-full bg-gray-50"></div>
+                                        {/* Bottom notch */}
+                                        <div className="absolute -right-1.5 -bottom-2 h-3 w-3 rounded-full bg-gray-50"></div>
+                                    </div>
+                                    {/* Right section */}
+                                    <div className="relative flex flex-1 flex-col p-3">
+                                        {/* Top notch */}
+                                        <div className="absolute -left-1.5 -top-2 h-3 w-3 rounded-full bg-gray-50"></div>
+                                        {/* Middle notches */}
+                                        <div className="absolute -left-1.5 top-[25%] -translate-y-1/2 h-3 w-3 rounded-full bg-gray-50"></div>
+                                        <div className="absolute -left-1.5 top-1/2 -translate-y-1/2 h-3 w-3 rounded-full bg-gray-50"></div>
+                                        <div className="absolute -left-1.5 top-[75%] -translate-y-1/2 h-3 w-3 rounded-full bg-gray-50"></div>
+                                        {/* Bottom notch */}
+                                        <div className="absolute -left-1.5 -bottom-2 h-3 w-3 rounded-full bg-gray-50"></div>
+                                        <div className="flex justify-between items-start">
+                                            <div className="text-orange-600 font-medium text-base mb-0.5">
+                                                {item.discountValue} {item.discountType == "percentage" ? '%' : 'VND'}
+                                            </div>
+                                            <Radio
+                                                checked={item.code == dataorder.voucherCode}
+                                                onChange={() => {
+                                                    const _dataOrder = { ...dataorder };
+                                                    const _dataQuery = { ...dataQuery };
+                                                    _dataOrder.voucherCode = item.code;
+                                                    _dataQuery.voucherCode = item.code;
+                                                    setdatQuery(_dataQuery);
+                                                    setdataorder(_dataOrder);
+                                                }}
+                                                value={dataorder.voucherCode}
+                                                name="radio-buttons"
+                                                sx={{
+                                                    // color: orange[800],
+                                                    '&.Mui-checked': {
+                                                        color: orange[600],
+                                                    },
+                                                }}
+                                                inputProps={{ 'aria-label': 'B' }}
+                                            />
+                                        </div>
+                                        <div className="space-y-0.5">
+                                            <div className="text-xs text-orange-500">{item.name}</div>
+                                            <div className={`text-xs ${differenceInDays(new Date(item.endDate), new Date()) >= 2 ? "text-green-500" : "text-red-500"}`}>
+                                                Hết hạn trong {differenceInDays(new Date(item.endDate), new Date())} ngày
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center justify-between mt-2">
+                                            <button className="text-xs text-orange-400 flex items-center transition-colors duration-200">
+                                                <LocalOfferOutlinedIcon />
+                                                <span>Condition</span>
+                                            </button>
+                                            <button className="bg-orange-500 text-white px-4 py-1 rounded text-xs font-normal transition-all duration-200 hover:bg-orange-600">
+                                                Lưu
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))
+                                : ""}
+                        </DialogContent>
+                        <DialogActions>
+                            <button
+                                onClick={() => {
+                                    handleClose();
+                                    fetchCalculation();
+                                }}
+                                className="bg-orange-500 w-full text-white py-2 rounded text-md font-normal transition-all duration-200 hover:bg-orange-600">
+                                Áp dụng
+                            </button>
+                        </DialogActions>
+                    </>
+                    :
+                    <div className="h-screen flex flex-col items-center justify-center">
+                        <Image
+                            src="https://res.cloudinary.com/djsbi0bma/image/upload/v1745420275/datn/i41sovy2rhrqffipbvzx.svg"
+                            alt="no-data"
+                            width={200}
+                            height={200}
+                            className="mx-auto"
+                        />
+                        <p className="text-xl font-medium">Tiếc quá, bạn chưa có ưu đãi nào</p>
+                    </div>
+                }
             </Dialog >
         </div >
     );
