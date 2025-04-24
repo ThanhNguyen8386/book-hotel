@@ -6,11 +6,14 @@ import ProfileLayout from '../../../components/Layout/ProfileLayout'
 import dayjs from 'dayjs'
 import Order_detail from './Order_detail'
 import useSWR from 'swr'
-import { API_URL } from '../../../constants'
+import { API_URL, TYPE_BOOKING } from '../../../constants'
 import { fetcher } from '../../../api/instance'
 import { Hotel, WatchLater, LocationOn } from '@mui/icons-material';
 import Image from 'next/image'
-import useFavoriteRoom from '../../../hook/favoriteRoom'
+import HourglassFullTwoToneIcon from '@mui/icons-material/HourglassFullTwoTone';
+import DarkModeTwoToneIcon from '@mui/icons-material/DarkModeTwoTone';
+import CalendarMonthTwoToneIcon from '@mui/icons-material/CalendarMonthTwoTone';
+import { format } from 'date-fns'
 
 type Props = {}
 
@@ -103,7 +106,7 @@ const Orderlisst = (props: Props) => {
     };
     return (
         <div className="w-full pl-4">
-            <div className="border-b border-gray-100">
+            <div className="">
                 <div className="">
                     <div>
                         <h2 className="text-4xl pb-[32px] font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
@@ -145,11 +148,33 @@ const Orderlisst = (props: Props) => {
 
                                     <div className="flex-1 space-y-1 text-sm">
                                         <div className="flex items-center gap-1 text-purple-600">
-                                            <WatchLater fontSize="small" />
-                                            <span className="font-medium">Qua đêm</span>
+                                            {[
+                                                { label: 'Theo giờ', value: TYPE_BOOKING.hourly, icon: <HourglassFullTwoToneIcon fontSize="small" /> },
+                                                { label: 'Qua đêm', value: TYPE_BOOKING.overNight, icon: <DarkModeTwoToneIcon fontSize="small" /> },
+                                                { label: 'Theo ngày', value: TYPE_BOOKING.daily, icon: <CalendarMonthTwoToneIcon fontSize="small" /> },
+                                            ].map(({ label, value, icon }) => {
+                                                if (item.bookingType == value) return (
+                                                    <span key={value}>
+                                                        {icon}
+                                                        <span className="font-medium">{label}</span>
+                                                    </span>
+                                                )
+
+                                            })}
                                             <span className="mx-1 text-gray-400">|</span>
                                             <span>
-                                                {dayjs(item?.checkins).format("HH:mm DD/MM/YYYY")} - {dayjs(item?.checkouts).format("HH:mm DD/MM/YYYY")}
+                                                {/* {dayjs(item?.checkins).format("HH:mm DD/MM/YYYY")} - {dayjs(item?.checkouts).format("HH:mm DD/MM/YYYY")} */}
+                                                {item.checkins
+                                                    ? format(new Date(item.checkins), 'HH:mm,dd/MM/yyyy')
+                                                    : "--:--"
+                                                }
+                                                {
+                                                    " - "
+                                                }
+                                                {item.checkouts
+                                                    ? format(new Date(item.checkouts), 'HH:mm,dd/MM/yyyy')
+                                                    : "--:--"
+                                                }
                                             </span>
                                         </div>
 
@@ -189,7 +214,13 @@ const Orderlisst = (props: Props) => {
 
                                 {/* Thời gian huỷ */}
                                 <p className="text-xs text-gray-600">
-                                    Đã huỷ đặt phòng vào <span className="text-black font-semibold">15:24, 12/04/2025</span>
+                                    {item.statusorder == 4 && (
+                                        <p>
+                                            Đã huỷ đặt phòng vào <span className="text-black font-semibold">
+                                                {format(new Date(item.updatedAt), 'HH:mm,dd/MM/yyyy')}
+                                            </span>
+                                        </p>
+                                    )}
                                 </p>
                             </div>
                         )

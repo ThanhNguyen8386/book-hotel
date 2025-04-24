@@ -9,7 +9,7 @@ import ExpandMoreTwoToneIcon from '@mui/icons-material/ExpandMoreTwoTone';
 import ProfileLayout from '../../../../components/Layout/ProfileLayout';
 import { useRouter } from 'next/router';
 import { detail } from '../../../../api/order';
-import { detailCategory, getone } from '../../../../api/category';
+import { detailCategory } from '../../../../api/category';
 import { format } from 'date-fns';
 import { formatCurrency, methodPay } from '../../../../contexts/ulti';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
@@ -34,8 +34,12 @@ const HotelBookingConfirmation = () => {
         methodpay: 0,
         address: "",
         categoryName: "",
+        originalPrice: 0,
+        discountAmount: 0,
+        duration: ""
     }
     const [data, setData] = useState(defaultData);
+    const [isOpen, setIsOpen] = useState(false);
     const router = useRouter();
     const load = async () => {
         const { slug } = router.query;
@@ -69,7 +73,7 @@ const HotelBookingConfirmation = () => {
                     <ChevronLeftIcon className="h-6 w-6 text-gray-700 group-hover:translate-x-[-5px] transition-all duration-300" />
                     <h1 className="text-lg font-medium ml-2">Đặt phòng của tôi</h1>
                 </div>
-                <h2 className="text-4xl pb-[32px] font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">Lựa chọn của bạn</h2>
+                <h2 className="text-lg font-medium my-4">Lựa chọn của bạn</h2>
                 <div className="flex gap-4">
                     <img
                         src="https://uploadthingy.s3.us-west-1.amazonaws.com/meLe6KsQ3KGxJrHXB5BQiN/image.png"
@@ -142,7 +146,7 @@ const HotelBookingConfirmation = () => {
                     <h2 className="text-lg font-medium">Chi tiết thanh toán</h2>
                     <div className="flex items-center text-orange-500">
                         <HomeTwoToneIcon />
-                        <span className="ml-1">{methodPay(data?.methodpay)}</span>
+                        <span className="ml-1">{methodPay(data?.methodpay.toString())}</span>
                     </div>
                 </div>
                 <div className="border-b pb-3">
@@ -150,14 +154,31 @@ const HotelBookingConfirmation = () => {
                         <div className="flex items-center">
                             <CreditCardTwoToneIcon />
                             <span className="ml-2">Tiền phòng</span>
-                            <ExpandMoreTwoToneIcon className="ml-1" />
+                            <ExpandMoreTwoToneIcon
+                                className={`ml-1 cursor-pointer transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
+                                onClick={() => setIsOpen(!isOpen)}
+                            />
                         </div>
                         <div>
-                            <span className="line-through text-gray-500 mr-2">600.000₫</span>
-                            <span className="font-medium">480.000₫</span>
+                            {data.discountAmount > 0 && (
+                                <span className="line-through text-gray-500 mr-2">{formatCurrency(data?.originalPrice)}</span>
+                            )}
+                            <span className="font-medium">{formatCurrency(data?.total)}</span>
                         </div>
                     </div>
+
+                    {/* Nội dung mở rộng */}
+                    {isOpen && (
+                        <div className="mt-3 text-sm text-gray-600 pl-7">
+                            <p>Chi tiết giá:</p>
+                            <ul className="list-disc ml-4">
+                                <li>Giá phòng: {formatCurrency(data?.originalPrice)} ({data?.duration})</li>
+                                <li>Giảm giá: {formatCurrency(data?.discountAmount)}</li>
+                            </ul>
+                        </div>
+                    )}
                 </div>
+
                 <div className="pt-3">
                     <div className="flex justify-between items-center">
                         <div className="font-medium">Tổng thanh toán</div>
