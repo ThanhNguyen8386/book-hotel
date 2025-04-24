@@ -59,6 +59,7 @@ const CheckOut = () => {
     const [dataVoucher, setdataVoucher] = useState([]);
     const [user, setUser] = useState({});
     const [open, setOpen] = useState(false);
+    const [selectedVoucherCode, setSelectedVoucherCode] = useState("");
 
     useEffect(() => {
         setIsMount(true);
@@ -76,9 +77,9 @@ const CheckOut = () => {
         }
     }, [open]);
 
-    const fetchCalculation = async () => {
+    const fetchCalculation = async (query:any) => {
         try {
-            const response = await calculateBooking(dataQuery)
+            const response = await calculateBooking(query)
             const { room, bookingDetails, user } = response.data;
             setdataorder({
                 ...dataorder,
@@ -98,6 +99,7 @@ const CheckOut = () => {
                 originalPrice: bookingDetails.originalPrice,
                 discountAmount: bookingDetails.discountAmount,
                 duration: bookingDetails.duration,
+                voucherCode: bookingDetails.voucher ? bookingDetails.voucher.code : "",
             });
             setdatebook({
                 room: room.roomId,
@@ -125,16 +127,13 @@ const CheckOut = () => {
                     voucherCode: "",
                     userId: currentUser._id,
                 }
+                fetchCalculation(query);
                 setdatQuery(query);
                 setUser(currentUser);
                 localStorage.removeItem('dataOrder');
             }
         }
     }, [isMount]);
-
-    useEffect(() => {
-        fetchCalculation();
-    }, [dataQuery]);
 
     const submit = async () => {
         const _dataDate = { ...datebook };
@@ -382,12 +381,18 @@ const CheckOut = () => {
                                     <span className="text-orange-500">{dataorder.voucherCode}</span>
                                     <CloseTwoToneIcon
                                         onClick={() => {
+                                            setSelectedVoucherCode("");
+                                            const query = {
+                                                ...dataQuery,
+                                                voucherCode: ""
+                                            }
                                             const _dataOrder = { ...dataorder };
                                             const _dataQuery = { ...dataQuery };
                                             _dataOrder.voucherCode = "";
                                             _dataQuery.voucherCode = "";
                                             setdatQuery(_dataQuery);
                                             setdataorder(_dataOrder);
+                                            fetchCalculation(query);
                                         }}
                                         className="h-5 w-5 text-gray-700 ml-1 cursor-pointer" />
                                 </div> :
@@ -465,14 +470,9 @@ const CheckOut = () => {
                                                 {item.discountValue} {item.discountType == "percentage" ? '%' : 'VND'}
                                             </div>
                                             <Radio
-                                                checked={item.code == dataorder.voucherCode}
+                                                checked={item.code == selectedVoucherCode}
                                                 onChange={() => {
-                                                    const _dataOrder = { ...dataorder };
-                                                    const _dataQuery = { ...dataQuery };
-                                                    _dataOrder.voucherCode = item.code;
-                                                    _dataQuery.voucherCode = item.code;
-                                                    setdatQuery(_dataQuery);
-                                                    setdataorder(_dataOrder);
+                                                    setSelectedVoucherCode(item.code)
                                                 }}
                                                 value={dataorder.voucherCode}
                                                 name="radio-buttons"
@@ -508,8 +508,18 @@ const CheckOut = () => {
                         <DialogActions>
                             <button
                                 onClick={() => {
+                                    const query = {
+                                        ...dataQuery,
+                                        voucherCode: selectedVoucherCode
+                                    }
+                                    const _dataOrder = { ...dataorder };
+                                    const _dataQuery = { ...dataQuery };
+                                    _dataOrder.voucherCode = selectedVoucherCode;
+                                    _dataQuery.voucherCode = selectedVoucherCode;
+                                    setdatQuery(_dataQuery);
+                                    setdataorder(_dataOrder);
+                                    fetchCalculation(query);
                                     handleClose();
-                                    fetchCalculation();
                                 }}
                                 className="bg-orange-500 w-full text-white py-2 rounded text-md font-normal transition-all duration-200 hover:bg-orange-600">
                                 Áp dụng
