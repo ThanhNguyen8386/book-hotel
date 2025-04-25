@@ -2,7 +2,7 @@ import React, { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "rea
 import ActionAreaCard from "../components/Card";
 import Link from "next/link";
 // import DateFnsUtils from "@material-ui/pickers/adapter/date-fns"; // choose your lib
-import { Button, Popover, Skeleton, Typography } from "@mui/material";
+import { Popover, Skeleton } from "@mui/material";
 import dayjs, { Dayjs } from "dayjs";
 import SiteLayout from "../components/Layout";
 import { useRouter } from "next/router";
@@ -28,11 +28,8 @@ const Home = () => {
   const router = useRouter();
   const {
     inputValue,
-    handleInputChange,
-    updateBooking,
     selectedType,
-    setSelectedType,
-    roomName
+    setSelectedType
   } = useLayout();
 
   const defaultSelectedDate = useMemo(() => {

@@ -121,7 +121,7 @@ const Orderlisst = (props: Props) => {
             <Order_detail ref={refDetail} />
             <div className="overflow-auto pr-2 space-y-4" style={{ maxHeight: 'calc(100vh - 300px)' }}>
                 {
-                    rows && rows?.map((item: any, index: any) => {
+                    rows && rows.length > 0 ? rows?.map((item: any, index: any) => {
                         return (
                             <div key={index} className="border rounded-xl p-4 space-y-3 my-4">
                                 {/* Mã đặt phòng */}
@@ -225,6 +225,18 @@ const Orderlisst = (props: Props) => {
                             </div>
                         )
                     })
+                        : (
+                            <div className="flex flex-col items-center justify-center">
+                                <Image
+                                    src="https://res.cloudinary.com/djsbi0bma/image/upload/v1745420275/datn/i41sovy2rhrqffipbvzx.svg"
+                                    alt="no-data"
+                                    width={200}
+                                    height={200}
+                                    className="mx-auto"
+                                />
+                                <p className="text-xl font-medium">bạn chưa có đặt phòng nào</p>
+                            </div>
+                        )
                 }
             </div>
         </div>

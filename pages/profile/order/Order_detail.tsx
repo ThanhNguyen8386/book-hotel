@@ -112,7 +112,6 @@ const Order_detail = (props: any, ref: any) => {
     }
 
     const onsubmit = async () => {
-
         const newdata = { ...data, statusorder: 4 };
         // tăng số lượng voucher khi hủy phòng.
         if (newdata.voucher) {

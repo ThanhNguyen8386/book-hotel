@@ -9,6 +9,7 @@ import ConfirmationNumberTwoToneIcon from '@mui/icons-material/ConfirmationNumbe
 import FavoriteTwoToneIcon from '@mui/icons-material/FavoriteTwoTone';
 import HistoryTwoToneIcon from '@mui/icons-material/HistoryTwoTone';
 import AccountBoxTwoToneIcon from '@mui/icons-material/AccountBoxTwoTone';
+import LogoutTwoToneIcon from '@mui/icons-material/LogoutTwoTone';
 
 const ProfileLayout = ({ children }: ProfileLayoutProps) => {
   const [user, setUser] = useState<any>({})
@@ -47,9 +48,9 @@ const ProfileLayout = ({ children }: ProfileLayoutProps) => {
       <PrivateRouter acceptRole={[USER_ROLE, RECEPTIONIST_ROLE]}>
         <div className='flex justify-center'>
           <div className="account_body container justify-center my-[40px] flex flex-row px-[96px] mb:flex mbs:inline ">
-            <div className="account_sidebar flex flex-col w-[370px] h-fit border border-gray-20 rounded-3xl p-[24px] pb-[70px] mr-[32px] mb:flex mbs:mx-auto">
+            <div className="account_sidebar sticky top-[100px] flex flex-col w-[400px] h-fit border border-gray-20 rounded-3xl p-[24px] pb-[70px] mr-[32px] mb:flex mbs:mx-auto">
               <div className="account_info px-[16px] py-[24px]">
-                <div className='contents'><img width={50} className="rounded-full mx-auto h-[100px] w-[100px] object-cover border-current" src={user?.avatar || "https://go2joy.vn/images/icons/user-placeholder.svg"} alt="" /></div>
+                <div className='contents'><img width={50} className="rounded-full mx-auto h-[100px] w-[100px] object-cover border-orange-500 p-[2px] border border-dashed" src={user?.avatar || "https://go2joy.vn/images/icons/user-placeholder.svg"} alt="" /></div>
                 <div className='text-center font-medium text-2xl'>{user?.phone}</div>
               </div>
               <div className=" cursor-pointer account__sidebar--link flex flex-row hover:bg-gray-200 hover:text-amber-500 px-[24px] py-[10px]">
@@ -84,15 +85,20 @@ const ProfileLayout = ({ children }: ProfileLayoutProps) => {
                 </a>
               </div>
               <hr className='my-[16px]' />
-              <div className="account__sidebar--link flex flex-row hover:bg-gray-200 hover:text-amber-500 px-[24px] py-[10px]"><a href='#' className=' flex flex-row justify-center'><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-[20px] h-[20px] block m-auto inline">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
-              </svg>
-                <span onClick={() => {
+              <div
+                onClick={() => {
                   setStatus(false)
                   localStorage.removeItem('user')
                   router.push('/')
-                }} className='pl-[10px] font-medium text-lg'>
-                  Đăng Xuất</span></a></div>
+                }}
+                className="account__sidebar--link flex flex-row hover:bg-gray-200 hover:text-amber-500 px-[24px] py-[10px] cursor-pointer">
+                <p className='flex flex-row justify-center'>
+                  <LogoutTwoToneIcon />
+                  <span className='pl-[10px] font-medium text-lg'>
+                    Đăng Xuất
+                  </span>
+                </p>
+              </div>
 
             </div>
             {children}
