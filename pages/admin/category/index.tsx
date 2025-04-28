@@ -12,26 +12,41 @@ import Head from 'next/head';
 import Swal from 'sweetalert2'
 import ShowForPermission from '../../../components/Private/showForPermission';
 import LinearProgress from '@mui/material/LinearProgress';
+import SearchTwoToneIcon from '@mui/icons-material/SearchTwoTone';
+import { useRouter } from 'next/router';
+import { categoryPagination } from '../../../api/category';
+
 function CategoryAdmin() {
-    const e = useCategory();
-    const [loading, setLoading] = React.useState(true)
-    const [rows, setRows] = React.useState<any>([{ _id: 1, name: null }]);
-    const refDetail = React.useRef<any>();
-    const [openDialog, setOpenDialog] = React.useState(false)
+    const router = useRouter()
     const defaultData = {
         "status": false,
         "address": null,
         "image": null,
         "name": null
     }
+    const defaultFilterCondition = {
+        page: 1,
+        size: 10,
+        search: ""
+    }
+    const [filterCondition, setFilterCondition] = React.useState(defaultFilterCondition);
+    const e = useCategory();
+    const [loading, setLoading] = React.useState(true)
+    const [rows, setRows] = React.useState<any>([{ _id: 1, name: null }]);
+    const refDetail = React.useRef<any>();
+    const [openDialog, setOpenDialog] = React.useState(false)
     const [categoryData, setCategoryData] = React.useState(defaultData)
 
+    const load = async () => {
+        const _filterCondition = { ...filterCondition };
+        const result = await categoryPagination(_filterCondition);
+        setRows(result.data.data);
+        setLoading(false)
+    }
+
     React.useEffect(() => {
-        if (e.data) {
-            setRows(e.data)
-            setLoading(false)
-        }
-    }, [e.data])
+        load()
+    }, [])
 
     const actionCrud = {
         create: (item: any, type: any) => {
@@ -64,6 +79,7 @@ function CategoryAdmin() {
         }
     }
     const handleClose = () => {
+        load()
         setOpenDialog(false);
         setCategoryData(defaultData);
     };
@@ -103,11 +119,24 @@ function CategoryAdmin() {
             {loading ? <LinearProgress className='fixed top-[65px] z-50 w-full' /> : <></>}
 
             <ShowForPermission>
-                <Button variant='text' sx={{ color: "orange" }} onClick={() => actionCrud.create(1, "CREATE")}>
+                <Button variant='text' sx={{ color: "orange" }} onClick={() => {
+                    // actionCrud.create(1, "CREATE")
+                    router.push("/admin/category/add")
+                }}>
                     <AddIcon /> Thêm mới
                 </Button>
             </ShowForPermission>
-            <Category_admin_detail ref={refDetail} />
+            <Category_admin_detail ref={refDetail} afterSubmit={load} />
+            <div className="bg-white border-b border-gray-200 h-12 flex items-center px-4">
+                <div className="flex items-center bg-gray-100 rounded-md px-2 py-1 w-96 mx-auto">
+                    <SearchTwoToneIcon className="h-4 w-4 text-gray-500" />
+                    <input
+                        type="text"
+                        placeholder="conceals.management.com"
+                        className="bg-transparent border-0 outline-none px-2 w-full text-sm"
+                    />
+                </div>
+            </div>
             <div className="flex-col flex">
                 <DataGrid
                     rows={rows}

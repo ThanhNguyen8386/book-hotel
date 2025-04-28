@@ -220,7 +220,7 @@ const HotelBookingConfirmation = () => {
                         </div>
                         <div>
                             {data.discountAmount > 0 && (
-                                <span className="line-through text-gray-500 mr-2">{formatCurrency(data?.originalPrice)}</span>
+                                <span className="line-through text-red-500 mr-2">{formatCurrency(data?.originalPrice)}</span>
                             )}
                             <span className="font-medium">{formatCurrency(data?.total)}</span>
                         </div>
@@ -228,10 +228,10 @@ const HotelBookingConfirmation = () => {
 
                     {/* Nội dung mở rộng */}
                     {isOpen && (
-                        <div className="mt-3 text-sm text-gray-600 pl-7">
+                        <div className="mt-3 text-gray-600 pl-7 grid justify-end">
                             <p>Chi tiết giá:</p>
                             <ul className="list-disc ml-4">
-                                <li>Giá phòng: {formatCurrency(data?.originalPrice)} ({data?.duration})</li>
+                                <li>Giá phòng ({data?.duration}): {formatCurrency(data?.originalPrice)}</li>
                                 <li>Giảm giá: {formatCurrency(data?.discountAmount)}</li>
                             </ul>
                         </div>
@@ -325,8 +325,8 @@ const HotelBookingConfirmation = () => {
                     <p>Bạn sẽ hủy phòng đã đặt</p>
                 </DialogTitle>
                 <DialogActions>
-                    <p className='cursor-pointer px-4 py-2 bg-green-500 text-white rounded-md' onClick={handleClose}>Hủy</p>
                     <p className='cursor-pointer px-4 py-2 bg-red-500 text-white rounded-md' onClick={submit}>Đồng ý</p>
+                    <p className='cursor-pointer px-4 py-2 bg-green-500 text-white rounded-md' onClick={handleClose}>Hủy</p>
                 </DialogActions>
             </Dialog>
         </div>

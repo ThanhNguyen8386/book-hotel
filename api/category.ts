@@ -27,3 +27,8 @@ export const update = (id: any, product: any) => {
   const url = `category/${id}/edit`;
   return instance.put(url, product);
 };
+
+export const categoryPagination = (params: any) => {
+  const url = `categoryPagination`;
+  return instance.get(url, {params: params});
+};

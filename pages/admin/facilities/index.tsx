@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import { DashboardLayout } from '../../../components/dashboard-layout'
 import { Button, TablePagination, Tooltip } from '@mui/material'
 import Link from 'next/link'
@@ -9,13 +9,14 @@ import useFacilities from '../../../hook/facilities';
 import Swal from 'sweetalert2'
 import ShowForPermission from '../../../components/Private/showForPermission';
 import Head from 'next/head';
+import Facilities_admin_detail from './Facilities_admin_detail';
 type Props = {}
 
 const Utilities = (props: Props) => {
     const { data, error, dele } = useFacilities("")
     const [page, setPage] = React.useState(2);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
-
+    const refDetail = useRef();
     const handleChangePage = (event: any, newPage: any) => {
         setPage(newPage);
     };
@@ -50,95 +51,134 @@ const Utilities = (props: Props) => {
         })
     }
 
+    const actionCrud = {
+        create: (item: any, type: any) => {
+            refDetail.current.create(item, type)
+        },
+        update: (item: any, type: any) => {
+            refDetail.current.update(item, type)
+        },
+        remove: (item: any) => {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result: any) => {
+                if (result.isConfirmed) {
+                    e.dele(item)
+                        .then(() => {
+                            Swal.fire(
+                                'Deleted!',
+                                'Your file has been deleted.',
+                                'success'
+                            )
+                        })
+                }
+            })
+        }
+    }
+
     return (
         <div>
-            <div>
-                <div className="container w-[100%] p-2">
-                    <Head>
-                        <title>Tiện ích</title>
-                    </Head>
-                    <div className="">
-                        <ShowForPermission>
-                            <Link href={'/admin/utilities/add'}>
-                                <button type="button" className="text-white bg-[#111827] hover:bg-[#1118276b] focus:outline-none focus:ring-4 focus:ring-[#111827] font-medium rounded-xl text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:focus:ring-[#111827]">
-                                    Thêm tiện ích mới <AddIcon />
-                                </button>
-                            </Link>
-                        </ShowForPermission>
+            <Head>
+                <title>Tiện ích</title>
+            </Head>
+            <Facilities_admin_detail ref={refDetail} />
+            <div className="container w-[100%] p-2">
+                <div className="">
+                    <ShowForPermission>
+                        {/* <Link href={'/admin/facilities/add'}> */}
+                        <button
+                            onClick={() => actionCrud.create(1, "CREATE")}
+                            type="button"
+                            className="text-white bg-[#111827] hover:bg-[#1118276b] focus:outline-none focus:ring-4 focus:ring-[#111827] font-medium rounded-xl text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:focus:ring-[#111827]">
+                            Thêm tiện ích mới
+                            <AddIcon />
+                        </button>
+                        {/* </Link> */}
+                    </ShowForPermission>
 
-                        <div className="inline-block sm:min-w-full w-[900px] shadow-xl rounded-xl h-[600px] relative border">
-                            <div className="h-full overflow-y-auto overflow-x-auto pb-[50px]">
-                                <table className="table-auto w-full border">
-                                    <thead className='sticky top-0 shadow z-50'>
-                                        <tr>
+                    <div className="inline-block sm:min-w-full w-[900px] shadow-xl rounded-xl h-[600px] relative border">
+                        <div className="h-full overflow-y-auto overflow-x-auto pb-[50px]">
+                            <table className="table-auto w-full border">
+                                <thead className='sticky top-0 shadow z-50'>
+                                    <tr>
+                                        <th scope="col" className="text-xs px-5 py-3 bg-white border-b border-gray-200 text-[#333] text-left uppercase">
+                                            #
+                                        </th>
+                                        <th scope="col" className="text-xs px-5 py-3 bg-white border-b border-gray-200 text-[#333] text-left uppercase">
+                                            Name
+                                        </th>
+
+                                        <ShowForPermission>
                                             <th scope="col" className="text-xs px-5 py-3 bg-white border-b border-gray-200 text-[#333] text-left uppercase">
-                                                #
                                             </th>
-                                            <th scope="col" className="text-xs px-5 py-3 bg-white border-b border-gray-200 text-[#333] text-left uppercase">
-                                                Name
-                                            </th>
-                                            
+                                        </ShowForPermission>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {data?.map((item: any, index: any) => (
+                                        <tr key={item._id} className="cursor-pointer select-none">
+                                            <td className="px-5 py-2 border-b border-gray-200 bg-white text-sm">
+                                                <p className="text-gray-900 whitespace-no-wrap">
+                                                    {index + 1}
+                                                </p>
+                                            </td>
+                                            <td className="px-5 py-2 border-b border-gray-200 bg-white text-sm">
+                                                <div className="flex items-center">
+                                                    <div className="ml-3">
+                                                        <p className="text-gray-900 whitespace-no-wrap">
+                                                            {item.name}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </td>
+
                                             <ShowForPermission>
-                                                <th scope="col" className="text-xs px-5 py-3 bg-white border-b border-gray-200 text-[#333] text-left uppercase">
-                                                </th>
+                                                <td className="px-5 py-2 border-b border-gray-200 bg-white text-sm">
+                                                    {/* <Link href={`/admin/facilities/${item._id}`}> */}
+                                                    <Tooltip title={`Chỉnh sửa ${item.name}`}>
+                                                        <Button
+                                                            className='text-[#111827]'
+                                                            variant="text"
+                                                            startIcon={<EditIcon />}
+                                                            onClick={() => { actionCrud.update(item, "UPDATE") }}
+                                                        >
+                                                            Edit
+                                                        </Button>
+                                                    </Tooltip>
+                                                    {/* </Link> */}
+                                                    <Tooltip title={`Xóa ${item.name}`}>
+                                                        <Button onClick={() => { remove(item._id) }} className='text-[red]' variant="text" startIcon={<DeleteIcon />}>
+                                                            Delete
+                                                        </Button>
+                                                    </Tooltip>
+                                                </td>
                                             </ShowForPermission>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        {data?.map((item: any, index: any) => (
-                                            <tr key={item._id} className="cursor-pointer select-none">
-                                                <td className="px-5 py-2 border-b border-gray-200 bg-white text-sm">
-                                                    <p className="text-gray-900 whitespace-no-wrap">
-                                                        {index + 1}
-                                                    </p>
-                                                </td>
-                                                <td className="px-5 py-2 border-b border-gray-200 bg-white text-sm">
-                                                    <div className="flex items-center">
-                                                        <div className="ml-3">
-                                                            <p className="text-gray-900 whitespace-no-wrap">
-                                                                {item.name}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </td>
-
-                                                <ShowForPermission>
-                                                    <td className="px-5 py-2 border-b border-gray-200 bg-white text-sm">
-                                                        <Link href={`/admin/utilities/${item._id}`}>
-                                                            <Tooltip title={`Chỉnh sửa ${item.name}`}>
-                                                                <Button className='text-[#111827]' variant="text" startIcon={<EditIcon />}>
-                                                                    Edit
-                                                                </Button>
-                                                            </Tooltip>
-                                                        </Link>
-                                                        <Tooltip title={`Xóa ${item.name}`}>
-                                                            <Button onClick={() => { remove(item._id) }} className='text-[red]' variant="text" startIcon={<DeleteIcon />}>
-                                                                Delete
-                                                            </Button>
-                                                        </Tooltip>
-                                                    </td>
-                                                </ShowForPermission>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div className="absolute bottom-0 bg-white w-full border-t border">
-                                <TablePagination
-                                    className=''
-                                    component="div"
-                                    count={100}
-                                    page={page}
-                                    onPageChange={handleChangePage}
-                                    rowsPerPage={rowsPerPage}
-                                    onRowsPerPageChange={handleChangeRowsPerPage}
-                                />
-                            </div>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div className="absolute bottom-0 bg-white w-full border-t border">
+                            <TablePagination
+                                className=''
+                                component="div"
+                                count={100}
+                                page={page}
+                                onPageChange={handleChangePage}
+                                rowsPerPage={rowsPerPage}
+                                onRowsPerPageChange={handleChangeRowsPerPage}
+                            />
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     )
 }
 

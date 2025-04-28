@@ -46,6 +46,7 @@ export default function CustomCalendar() {
                 ranges={[inputValue[0][selectedType]]}
                 locale={vi}
                 months={1}
+                minDate={new Date()}
                 direction="vertical"
                 showMonthArrow={true}
                 rangeColors={['#ff5a1f']}
