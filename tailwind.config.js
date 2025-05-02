@@ -45,6 +45,9 @@ module.exports = {
           '100%': { opacity: 1, transform: 'translateY(0px) scale(1)' },
         },
       },
+      fontFamily: {
+        work: ['"Work Sans"', 'sans-serif'],
+      },
       animation: {
         wiggle: 'wiggle 1s ease-in-out',
         grow: 'grow 1s ease',
