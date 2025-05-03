@@ -25,3 +25,8 @@ export const removefac = (_id: number) => {
     const url = `facilities/${_id}/delete`;
     return instance.delete(url)
 }
+
+export const detail = (_id: number) => {
+    const url = `categoryDetail/${_id}`;
+    return instance.get(url)
+}

@@ -139,7 +139,7 @@ const Orderlisst = (props: Props) => {
                                 {/* Nội dung chính */}
                                 <div className="bg-gray-50 rounded-lg p-3 flex gap-3 items-start">
                                     <Image
-                                        src={item.room && item?.room.image[0]}
+                                        src={item.room && item?.room?.image[0]}
                                         alt="Phòng"
                                         width={100}
                                         height={80}

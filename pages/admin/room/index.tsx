@@ -161,7 +161,9 @@ const ProductsAdmin = (props: Props) => {
                     <Button
                         variant='text'
                         sx={{ color: "orange" }}
-                        onClick={() => actionCrud.create(1, "CREATE")}
+                        onClick={() => {
+                            router.push("/admin/room/add")
+                        }}
                     >
                         <AddIcon /> Thêm mới
                     </Button>

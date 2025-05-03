@@ -9,9 +9,14 @@ import { Alert, FormControl, InputLabel, MenuItem, Select, TextField } from '@mu
 import useCategory from '../../../hook/useCategory'
 import toastr from "toastr";
 import "toastr/build/toastr.min.css";
-import styles from './ImageUploader.module.css';
+import styles from './add/ImageUploader.module.css';
 import useProducts from '../../../hook/use-product';
 import Image from 'next/image';
+import CustomTextField from '../../../components/CustomTextField';
+import CustomSelect from '../../../components/CustomSelect';
+import CustomNumberInput from '../../../components/CustomNumberInput';
+import CustomAccordion from '../../../components/CustomAccordion';
+import AddIcon from '@mui/icons-material/Add';
 
 function Room_admin_detail(props: any, ref: any) {
     var _ = require('lodash');
@@ -55,9 +60,9 @@ function Room_admin_detail(props: any, ref: any) {
     };
 
     const prepareToPreview = (e: any) => {
-        const dayPrice = e.price.find((item:any) => item.brand === 'daily').value;
-        const nightPrice = e.price.find((item:any) => item.brand === 'overnight').value;
-        const hourPrice = e.price.find((item:any) => item.brand === 'hourly').value;
+        const dayPrice = e.price.find((item: any) => item.brand === 'daily').value;
+        const nightPrice = e.price.find((item: any) => item.brand === 'overnight').value;
+        const hourPrice = e.price.find((item: any) => item.brand === 'hourly').value;
         const imgUrl = Array(9).fill(null);
         if (e.image) {
             for (let i = 0; i < 9; i++) {
@@ -383,24 +388,15 @@ function Room_admin_detail(props: any, ref: any) {
                                 <div className="overflow-hidden">
                                     <form className='p-4'>
                                         <div className='pb-4'>
-                                            <div className="pb-4">
-                                                <TextField
-                                                    variant="standard"
-                                                    fullWidth
-                                                    error={errors.name}
-                                                    id="outlined-basic"
-                                                    label="Tên phòng"
-                                                    value={defaultCategory.name}
-                                                    onChange={(e) => {
-                                                        applyChange("name", e.target.value)
-                                                    }}
-                                                />
-                                                {Object.keys(errors).length !== 0 && (
-                                                    <div>
-                                                        {errors.name && <p className='text-red-600'>Tên không được bỏ trống</p>}
-                                                    </div>
-                                                )}
-                                            </div>
+                                            <CustomTextField
+                                                label="Tên Phòng"
+                                                name="overview"
+                                                placeholder="Tên phòng"
+                                                value={defaultCategory.name}
+                                                onChange={(e) => applyChange("name", e.target.value)}
+                                                error={!!errors.name}
+                                                helperText={errors.name ? "Tên phòng không được bỏ trống" : ""}
+                                            />
 
                                             <div className='py-4'>
                                                 <div className="grid grid-cols-4 gap-4">
@@ -450,6 +446,14 @@ function Room_admin_detail(props: any, ref: any) {
                                                     ))}
                                                 </div>
                                             </div>
+                                            {/* <CustomNumberInput
+                                                label="Giá phòng"
+                                                value={defaultCategory.dayPrice}
+                                                onChange={(val) => applyChange('dayPrice', val)}
+                                                error={!!errors.dayPrice}
+                                                helperText={errors.dayPrice}
+                                                placeholder="Nhập giá"
+                                            /> */}
 
                                             <div className=' py-4'>
                                                 <div className="flex justify-between justify-items-stretch">
@@ -514,30 +518,60 @@ function Room_admin_detail(props: any, ref: any) {
                                             </div>
 
                                             <div className="pb-4">
-                                                <FormControl fullWidth>
-                                                    <InputLabel id="demo-simple-select-label">Chọn một loại phòng</InputLabel>
-                                                    <Select
-                                                        labelId="demo-simple-select-label"
-                                                        id="demo-simple-select"
-                                                        value={defaultCategory.category}
-                                                        label="Chọn một loại phòng"
-                                                        variant="standard"
-                                                        onChange={(e) => {
-                                                            applyChange("category", e.target.value)
-                                                        }}
-                                                    >
-                                                        {category.data?.map((item: any, index: any) => {
+                                                <CustomSelect
+                                                    value={defaultCategory.category}
+                                                    onChange={(e: any) => applyChange("category", e.target.value)}
+                                                    label="Danh mục khách sạn"
+                                                    options={category.data}
+                                                    error={!!errors.category}
+                                                    helperText={errors.category ? "Danh mục khách sạn không được bỏ trống" : ""}
+                                                />
+                                            </div>
+
+                                            <div className="border-t border-gray-200 pt-4">
+                                                <CustomAccordion title="Tiện ích" defaultExpanded>
+                                                    <div className="flex flex-wrap gap-4">
+                                                        {/* {category.facilities.map((facility, index) => {
+                                                            const isSelected = category.facilities.some((f) => f.name === facility.name);
                                                             return (
-                                                                <MenuItem key={index} MenuItem value={item._id} > {item?.name}</MenuItem>
-                                                            )
-                                                        })}
-                                                    </Select>
-                                                    {Object.keys(errors).length !== 0 && (
-                                                        <div>
-                                                            {errors.category && <p className='text-red-600'>Loại phòng không được bỏ trống</p>}
+                                                                <div
+                                                                    key={index}
+                                                                    onMouseDown={(e) => e.currentTarget.classList.add('scale-95')}
+                                                                    onMouseUp={(e) => e.currentTarget.classList.remove('scale-95')}
+                                                                    onMouseLeave={(e) => e.currentTarget.classList.remove('scale-95')}
+                                                                    className={`p-4 border rounded-md relative group cursor-pointer transition duration-200 ${isSelected ? "bg-green-100 border-green-400" : "hover:bg-gray-50"
+                                                                        }`}
+                                                                    onClick={() => {
+                                                                        if (isSelected) {
+                                                                            setCategory({
+                                                                                ...category,
+                                                                                facilities: category.facilities.filter((f) => f.name !== facility.name),
+                                                                            });
+                                                                        } else {
+                                                                            setCategory({
+                                                                                ...category,
+                                                                                facilities: [...category.facilities, facility],
+                                                                            });
+                                                                        }
+                                                                    }}
+                                                                >
+                                                                    <span className="material-icons mr-2">{facility.icon}</span>
+                                                                    <p>{facility.name}</p>
+                                                                </div>
+                                                            );
+                                                        })} */}
+                                                        <div
+                                                            onClick={handleClickOpen}
+                                                            onMouseDown={(e) => e.currentTarget.classList.add('scale-95')}
+                                                            onMouseUp={(e) => e.currentTarget.classList.remove('scale-95')}
+                                                            onMouseLeave={(e) => e.currentTarget.classList.remove('scale-95')}
+                                                            className="p-4 border rounded-md cursor-pointer hover:bg-gray-100 transition-transform"
+                                                        >
+                                                            <AddIcon />
+                                                            <p>Thêm tiện ích</p>
                                                         </div>
-                                                    )}
-                                                </FormControl>
+                                                    </div>
+                                                </CustomAccordion>
                                             </div>
 
                                             <div className="pb-4">
