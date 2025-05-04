@@ -1,7 +1,7 @@
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import CampaignTwoToneIcon from '@mui/icons-material/CampaignTwoTone';
 import { DashboardLayout } from '../../../../components/dashboard-layout';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { CircularProgress, Dialog, Switch } from '@mui/material';
 import CustomAccordion from '../../../../components/CustomAccordion';
@@ -76,6 +76,12 @@ export default function AddCategory() {
             }
         }
     };
+
+    useEffect(() => {
+        if (data) {
+            setCategory(data);
+        }
+    }, [data])
 
     React.useEffect(() => {
         if (open) {
@@ -318,45 +324,11 @@ export default function AddCategory() {
                             <div className="border-t border-gray-200 pt-4">
                                 <CustomAccordion title="Danh sách phòng" defaultExpanded>
                                     <div className="flex flex-wrap gap-4">
-                                        {category.facilities.map((facility, index) => {
-                                            const isSelected = category.facilities.some((f) => f.name === facility.name);
-                                            return (
-                                                <div
-                                                    key={index}
-                                                    onMouseDown={(e) => e.currentTarget.classList.add('scale-95')}
-                                                    onMouseUp={(e) => e.currentTarget.classList.remove('scale-95')}
-                                                    onMouseLeave={(e) => e.currentTarget.classList.remove('scale-95')}
-                                                    className={`p-4 border rounded-md relative group cursor-pointer transition duration-200 ${isSelected ? "bg-green-100 border-green-400" : "hover:bg-gray-50"
-                                                        }`}
-                                                    onClick={() => {
-                                                        if (isSelected) {
-                                                            setCategory({
-                                                                ...category,
-                                                                facilities: category.facilities.filter((f) => f.name !== facility.name),
-                                                            });
-                                                        } else {
-                                                            setCategory({
-                                                                ...category,
-                                                                facilities: [...category.facilities, facility],
-                                                            });
-                                                        }
-                                                    }}
-                                                >
-                                                    <span className="material-icons mr-2">{facility.icon}</span>
-                                                    <p>{facility.name}</p>
-                                                </div>
-                                            );
+                                        {category.rooms.map((item, index) => {
+                                            return <div key={index} className="">
+                                                <p>{item.name}</p>
+                                            </div>
                                         })}
-                                        <div
-                                            onClick={handleClickOpen}
-                                            onMouseDown={(e) => e.currentTarget.classList.add('scale-95')}
-                                            onMouseUp={(e) => e.currentTarget.classList.remove('scale-95')}
-                                            onMouseLeave={(e) => e.currentTarget.classList.remove('scale-95')}
-                                            className="p-4 border rounded-md cursor-pointer hover:bg-gray-100 transition-transform"
-                                        >
-                                            <AddIcon />
-                                            <p>Thêm tiện ích</p>
-                                        </div>
                                     </div>
                                 </CustomAccordion>
                             </div>

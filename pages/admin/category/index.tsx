@@ -184,7 +184,10 @@ function CategoryAdmin() {
                                                 </IconButton>
                                             </Tooltip>}
                                             label="Edit"
-                                            onClick={() => actionCrud.update(params.row, params)} />
+                                            onClick={() => {
+                                                // actionCrud.update(params.row, params)}
+                                                return router.push(`/admin/category/${params.row._id}`)
+                                            }} />
                                     </ShowForPermission>
                                     // <ShowForPermission key={2}>
                                     //     <GridActionsCellItem
