@@ -3,7 +3,7 @@ import CampaignTwoToneIcon from '@mui/icons-material/CampaignTwoTone';
 import { DashboardLayout } from '../../../../components/dashboard-layout';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { CircularProgress, Dialog, Switch } from '@mui/material';
+import { Chip, CircularProgress, Dialog, Switch } from '@mui/material';
 import CustomAccordion from '../../../../components/CustomAccordion';
 import CustomSelect from '../../../../components/CustomSelect';
 import AddIcon from '@mui/icons-material/Add';
@@ -11,6 +11,7 @@ import { listfac } from '../../../../api/facilities';
 import AlertMessage from '../../../../components/AlertMessage';
 import useCategory from '../../../../hook/useCategory';
 import CustomTextField from '../../../../components/CustomTextField';
+import ModeEditTwoToneIcon from '@mui/icons-material/ModeEditTwoTone';
 
 const sections = [
     { id: "basic-info", label: "Thông tin cơ bản" },
@@ -33,7 +34,14 @@ export default function AddCategory() {
         name: "",
         status: true,
         address: "",
-        rooms: [],
+        rooms: [
+            {
+                name: "",
+                description: "",
+                image: [],
+                listFacility: []
+            }
+        ],
         facilities: [],
         introduction: "",
         type: ""
@@ -190,7 +198,7 @@ export default function AddCategory() {
                                 </p>
                                 <div>
                                     <div className="text-sm text-gray-500">Trở lại</div>
-                                    <div className="text-lg font-medium">Thêm nhà nghỉ mới</div>
+                                    <div className="text-lg font-medium">Sửa khách sạn</div>
                                 </div>
                             </div>
                             <button
@@ -323,10 +331,41 @@ export default function AddCategory() {
 
                             <div className="border-t border-gray-200 pt-4">
                                 <CustomAccordion title="Danh sách phòng" defaultExpanded>
-                                    <div className="flex flex-wrap gap-4">
+                                    <div
+                                        onClick={handleClickOpen}
+                                        onMouseDown={(e) => e.currentTarget.classList.add('scale-95')}
+                                        onMouseUp={(e) => e.currentTarget.classList.remove('scale-95')}
+                                        onMouseLeave={(e) => e.currentTarget.classList.remove('scale-95')}
+                                        className="p-4 border rounded-md cursor-pointer hover:bg-gray-100 transition-transform"
+                                    >
+                                        <AddIcon />
+                                        <p>Thêm phòng</p>
+                                    </div>
+                                    <div className="w-full">
                                         {category.rooms.map((item, index) => {
                                             return <div key={index} className="">
-                                                <p>{item.name}</p>
+                                                <div className="flex flex-col h-full my-4 items-center bg-white border border-gray-200 rounded-lg shadow-sm md:flex-row hover:bg-gray-100">
+                                                    <img
+                                                        className="object-cover w-full rounded-t-lg h-96 md:h-auto md:w-48 md:rounded-none md:rounded-s-lg"
+                                                        src={item.image[0]}
+                                                        alt=""
+                                                    />
+                                                    <div className="flex flex-col justify-between p-4 leading-normal">
+                                                        <div className="flex items-center justify-between w-full">
+                                                            <h5 className="text-2xl font-bold tracking-tight text-gray-900">{item.name}</h5>
+                                                            <ModeEditTwoToneIcon />
+                                                        </div>
+                                                        <p className="mb-3 font-normal text-gray-700 dark:text-gray-400">{item.description}</p>
+                                                        <div className="flex">
+                                                            {item?.listFacility?.map((facility, index) => {
+                                                                return (
+                                                                    <Chip key={index} label={facility.name} variant="outlined" onDelete={handleClickOpen} />
+                                                                )
+                                                            })}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
                                             </div>
                                         })}
                                     </div>
@@ -357,7 +396,7 @@ export default function AddCategory() {
                                     } else {
                                         setCategory({
                                             ...category,
-                                            facilities: [...category.facilities, facility],
+                                            facilities: [...category.facilities, facility as never],
                                         });
                                     }
                                 }}
