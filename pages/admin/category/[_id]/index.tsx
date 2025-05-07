@@ -3,7 +3,7 @@ import CampaignTwoToneIcon from '@mui/icons-material/CampaignTwoTone';
 import { DashboardLayout } from '../../../../components/dashboard-layout';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { Chip, CircularProgress, Dialog, Switch } from '@mui/material';
+import { Button, Chip, CircularProgress, Dialog, Stack, Switch, TextField } from '@mui/material';
 import CustomAccordion from '../../../../components/CustomAccordion';
 import CustomSelect from '../../../../components/CustomSelect';
 import AddIcon from '@mui/icons-material/Add';
@@ -12,6 +12,7 @@ import AlertMessage from '../../../../components/AlertMessage';
 import useCategory from '../../../../hook/useCategory';
 import CustomTextField from '../../../../components/CustomTextField';
 import ModeEditTwoToneIcon from '@mui/icons-material/ModeEditTwoTone';
+import BaseDialog from '../../../../components/BaseDialog';
 
 const sections = [
     { id: "basic-info", label: "Thông tin cơ bản" },
@@ -28,6 +29,7 @@ export default function AddCategory() {
     const [facilities, setFacilities] = React.useState<any[]>([]);
     const controllerRef = React.useRef<AbortController | null>(null);
     const [showAlert, setShowAlert] = useState(false);
+    const [dialogType, setDialogType] = useState<'facilities' | 'addRoom' | null>(null);
     const { create, edit, data } = useCategory()
 
     const defaultCategory = {
@@ -61,9 +63,11 @@ export default function AddCategory() {
     const [errors, setErrors] = React.useState(defaultErrors);
     const [saving, setSaving] = React.useState(false);
 
-    const handleClickOpen = () => {
+    const handleClickOpen = (type: 'facilities' | 'addRoom') => {
+        setDialogType(type);
         setOpen(true);
     };
+
 
     const handleClose = () => {
         setOpen(false);
@@ -156,12 +160,14 @@ export default function AddCategory() {
         e.preventDefault()
         const _defaultCategory = { ...category };
         const isValid = validate([], _defaultCategory);
+        console.log(_defaultCategory);
+
         if (isValid.length == 0) {
             try {
-                create(_defaultCategory).then(() => {
+                edit(_defaultCategory).then(() => {
                     <AlertMessage
                         type="success" // hoặc 'error', 'info', 'warning'
-                        message="Hủy phòng thành công!"
+                        message="Chỉnh sửa khách sạn thành công!"
                         show={showAlert}
                         onClose={() => setShowAlert(false)}
                         duration={5000}
@@ -316,7 +322,7 @@ export default function AddCategory() {
                                             );
                                         })}
                                         <div
-                                            onClick={handleClickOpen}
+                                            onClick={() => handleClickOpen('facilities')}
                                             onMouseDown={(e) => e.currentTarget.classList.add('scale-95')}
                                             onMouseUp={(e) => e.currentTarget.classList.remove('scale-95')}
                                             onMouseLeave={(e) => e.currentTarget.classList.remove('scale-95')}
@@ -332,7 +338,7 @@ export default function AddCategory() {
                             <div className="border-t border-gray-200 pt-4">
                                 <CustomAccordion title="Danh sách phòng" defaultExpanded>
                                     <div
-                                        onClick={handleClickOpen}
+                                        onClick={() => handleClickOpen('addRoom')}
                                         onMouseDown={(e) => e.currentTarget.classList.add('scale-95')}
                                         onMouseUp={(e) => e.currentTarget.classList.remove('scale-95')}
                                         onMouseLeave={(e) => e.currentTarget.classList.remove('scale-95')}
@@ -359,7 +365,7 @@ export default function AddCategory() {
                                                         <div className="flex">
                                                             {item?.listFacility?.map((facility, index) => {
                                                                 return (
-                                                                    <Chip key={index} label={facility.name} variant="outlined" onDelete={handleClickOpen} />
+                                                                    <Chip key={index} label={facility.name} variant="outlined" onDelete={() => handleClickOpen('facilities')} />
                                                                 )
                                                             })}
                                                         </div>
@@ -375,47 +381,94 @@ export default function AddCategory() {
                     </div>
                 </div>
             </div>
-            <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
-                <div className="flex items-center gap-4 p-4 border-b border-gray-200 flex-wrap">
-                    {facilities?.map((facility: any, index: number) => {
-                        const isSelected = category.facilities.some((f) => f.name === facility.name);
-                        return (
-                            <div
-                                key={index}
-                                onMouseDown={(e) => e.currentTarget.classList.add('scale-95')}
-                                onMouseUp={(e) => e.currentTarget.classList.remove('scale-95')}
-                                onMouseLeave={(e) => e.currentTarget.classList.remove('scale-95')}
-                                className={`p-4 border rounded-md relative group cursor-pointer transition duration-200 ${isSelected ? "bg-green-100 border-green-400" : "hover:bg-gray-50"
-                                    }`}
-                                onClick={() => {
-                                    if (isSelected) {
-                                        setCategory({
-                                            ...category,
-                                            facilities: category.facilities.filter((f) => f.name !== facility.name),
-                                        });
-                                    } else {
-                                        setCategory({
-                                            ...category,
-                                            facilities: [...category.facilities, facility as never],
-                                        });
-                                    }
-                                }}
-                            >
-                                <span className="material-icons mr-2">{facility.icon}</span>
-                                <p>{facility.name}</p>
-                            </div>
-                        );
-                    })}
-                </div>
-                <div className="flex justify-end px-4 py-2 border-t">
+            <BaseDialog
+                open={open}
+                onClose={handleClose}
+                title={dialogType === 'facilities' ? 'Chọn tiện ích' : 'Thêm phòng'}
+                maxWidth="md"
+                fullWidth
+                actions={
                     <button
                         onClick={handleClose}
                         className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md"
                     >
                         Xong
                     </button>
-                </div>
-            </Dialog>
+                }
+            >
+                {dialogType === 'facilities' && (
+                    <div className="flex items-center gap-4 p-4 border-gray-200 flex-wrap">
+                        {facilities?.map((facility: any, index: number) => {
+                            const isSelected = category.facilities.some((f) => f.name === facility.name);
+                            return (
+                                <div
+                                    key={index}
+                                    onMouseDown={(e) => e.currentTarget.classList.add('scale-95')}
+                                    onMouseUp={(e) => e.currentTarget.classList.remove('scale-95')}
+                                    onMouseLeave={(e) => e.currentTarget.classList.remove('scale-95')}
+                                    className={`p-4 border rounded-md relative group cursor-pointer transition duration-200 ${isSelected ? "bg-green-100 border-green-400" : "hover:bg-gray-50"
+                                        }`}
+                                    onClick={() => {
+                                        if (isSelected) {
+                                            setCategory({
+                                                ...category,
+                                                facilities: category.facilities.filter((f) => f.name !== facility.name),
+                                            });
+                                        } else {
+                                            setCategory({
+                                                ...category,
+                                                facilities: [...category.facilities, facility as never],
+                                            });
+                                        }
+                                    }}
+                                >
+                                    <span className="material-icons mr-2">{facility.icon}</span>
+                                    <p>{facility.name}</p>
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
+
+                {dialogType === 'addRoom' && (
+                    <div className="space-y-4 p-4">
+                        <TextField
+                            label="Tên phòng"
+                            fullWidth
+                            variant="outlined"
+                            onChange={() => { }}
+                        />
+                        <TextField
+                            label="Giá theo ngày"
+                            fullWidth
+                            variant="outlined"
+                            type="number"
+                            onChange={() => { }}
+                        />
+                        <TextField
+                            label="Giá theo giờ"
+                            fullWidth
+                            variant="outlined"
+                            type="number"
+                            onChange={() => { }}
+                        />
+                        <TextField
+                            label="Giá qua đêm"
+                            fullWidth
+                            variant="outlined"
+                            type="number"
+                            onChange={() => { }}
+                        />
+                        <TextField
+                            label="Ảnh (URL)"
+                            fullWidth
+                            variant="outlined"
+                            onChange={() => { }}
+                        />
+                    </div>
+                )}
+            </BaseDialog>
+
         </div>
     );
 }

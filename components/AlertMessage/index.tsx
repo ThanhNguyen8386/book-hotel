@@ -37,7 +37,7 @@ const AlertSnackbar: React.FC<AlertSnackbarProps> = ({
       open={open}
       autoHideDuration={duration}
       onClose={handleClose}
-      anchorOrigin={{ vertical: 'top', horizontal: 'center' }} // 👈 vị trí
+      anchorOrigin={{ vertical: 'top', horizontal: 'center' }} 
     >
       <MuiAlert
         elevation={6}

@@ -8,7 +8,6 @@ import { fetcher } from '../api/instance';
 const useCategory = () => {
     const router = useRouter();
     const { _id } = router.query
-    console.log(_id);
     
     // const fetcher = (url: any) => axios.get(url).then(res => res.data)
     const { mutate, data, error } = useSWR(_id ? `${API_URL}/categoryDetail/${_id}` : `${API_URL}/categories`, fetcher)
