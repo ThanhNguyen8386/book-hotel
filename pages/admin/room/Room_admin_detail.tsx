@@ -5,22 +5,19 @@ import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import CloseIcon from '@mui/icons-material/Close';
-import { Alert, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
-import useCategory from '../../../hook/useCategory'
+import { Alert } from '@mui/material';
 import toastr from "toastr";
 import "toastr/build/toastr.min.css";
 import styles from './add/ImageUploader.module.css';
 import useProducts from '../../../hook/use-product';
 import Image from 'next/image';
 import CustomTextField from '../../../components/CustomTextField';
-import CustomSelect from '../../../components/CustomSelect';
-import CustomNumberInput from '../../../components/CustomNumberInput';
 import CustomAccordion from '../../../components/CustomAccordion';
 import AddIcon from '@mui/icons-material/Add';
+import CurrencyInput from '../../../components/CustomNumberInput';
 
 function Room_admin_detail(props: any, ref: any) {
     var _ = require('lodash');
-    const category = useCategory()
     const [previewImages, setPreviewImages] = React.useState(Array(9).fill(null));
     const [loading, setLoading] = React.useState(true)
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -33,7 +30,11 @@ function Room_admin_detail(props: any, ref: any) {
         hourPrice: "",
         image: "",
         category: "",
-        description: ""
+        description: "",
+        categoryOptions: {
+            _id: "",
+            name: ""
+        }
     }
     const [defaultCategory, setDefaultCategory] = React.useState(categoryDetail)
     const refMode = React.useRef(null);
@@ -57,6 +58,7 @@ function Room_admin_detail(props: any, ref: any) {
         setDefaultCategory(categoryDetail);
         setErrors(defaultErrors);
         setPreviewImages(Array(9).fill(null))
+        props.afterSubmit && props.afterSubmit
     };
 
     const prepareToPreview = (e: any) => {
@@ -85,6 +87,7 @@ function Room_admin_detail(props: any, ref: any) {
     React.useImperativeHandle(ref, () => ({
         create: (item: any, type: any) => {
             refMode.current = type
+            setDefaultCategory({ ...defaultCategory, categoryOptions: { _id: item._id, name: item.name }, category: item._id })
             handleClickOpen()
         },
         update: (item: any, type: any) => {
@@ -135,20 +138,6 @@ function Room_admin_detail(props: any, ref: any) {
         let errorList = _.uniq(Object.values(result).filter((f) => f));
         return errorList;
     };
-
-    const handleKeyPress = (e: any) => {
-        if (!/[0-9]/.test(e.key)) {
-            if (e.keyCode !== 8) {
-                e.preventDefault();
-            }
-        }
-    };
-    function numberWithCommas(x: any) {
-        // if (x) {
-        //     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
-        // }
-        return x
-    }
     const applyChange = (prop: any, val: any) => {
         const _defaultCategory = { ...defaultCategory };
         switch (prop) {
@@ -159,12 +148,7 @@ function Room_admin_detail(props: any, ref: any) {
                 _defaultCategory.category = val;
                 break;
             case "dayPrice":
-                if (val?.length > 0 && /^[0-9]+$/.test(val)) {
-                    _defaultCategory.dayPrice = val;
-                }
-                else {
-                    _defaultCategory.dayPrice = "";
-                }
+                _defaultCategory.dayPrice = val;
                 break;
             default:
                 _defaultCategory[prop] = val;
@@ -387,19 +371,23 @@ function Room_admin_detail(props: any, ref: any) {
                             <div className="py-2 inline-block min-w-full sm:px-6 lg:px-8">
                                 <div className="overflow-hidden">
                                     <form className='p-4'>
-                                        <div className='pb-4'>
-                                            <CustomTextField
-                                                label="Tên Phòng"
-                                                name="overview"
-                                                placeholder="Tên phòng"
-                                                value={defaultCategory.name}
-                                                onChange={(e) => applyChange("name", e.target.value)}
-                                                error={!!errors.name}
-                                                helperText={errors.name ? "Tên phòng không được bỏ trống" : ""}
-                                            />
+                                        <div className='py-4 border-b border-gray-200'>
+                                            <h3 className="font-medium mb-4">Tên phòng</h3>
+                                            <div className="ml-2">
+                                                <CustomTextField
+                                                    label="Tên Phòng"
+                                                    name="overview"
+                                                    placeholder="Tên phòng"
+                                                    value={defaultCategory.name}
+                                                    onChange={(e) => applyChange("name", e.target.value)}
+                                                    error={!!errors.name}
+                                                    helperText={errors.name ? "Tên phòng không được bỏ trống" : ""}
+                                                />
+                                            </div>
 
-                                            <div className='py-4'>
-                                                <div className="grid grid-cols-4 gap-4">
+                                            <div className='py-4 border-b border-gray-200'>
+                                                <h3 className="font-medium mb-4">Ảnh phòng</h3>
+                                                <div className="grid grid-cols-4 gap-4 ml-2">
                                                     {Array(9).fill(0).map((_, index) => (
                                                         <div
                                                             key={index}
@@ -446,91 +434,56 @@ function Room_admin_detail(props: any, ref: any) {
                                                     ))}
                                                 </div>
                                             </div>
-                                            {/* <CustomNumberInput
-                                                label="Giá phòng"
-                                                value={defaultCategory.dayPrice}
-                                                onChange={(val) => applyChange('dayPrice', val)}
-                                                error={!!errors.dayPrice}
-                                                helperText={errors.dayPrice}
-                                                placeholder="Nhập giá"
-                                            /> */}
 
-                                            <div className=' py-4'>
-                                                <div className="flex justify-between justify-items-stretch">
-                                                    <div className="w-full">
-                                                        <TextField
-                                                            fullWidth
-                                                            error={errors.dayPrice}
-                                                            id="outlined-basic"
-                                                            label="Giá theo ngày"
-                                                            variant="standard"
-                                                            onKeyDown={handleKeyPress}
-                                                            value={numberWithCommas(defaultCategory.dayPrice)}
-                                                            onChange={(e) => {
-                                                                applyChange("dayPrice", e.target.value)
-                                                            }}
-                                                        />
-                                                        {Object.keys(errors).length !== 0 && (
-                                                            <div>
-                                                                {errors.dayPrice && <p className='text-red-600'>Giá theo ngày không được bỏ trống</p>}
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                    <div className="w-full">
-                                                        <TextField
-                                                            fullWidth
-                                                            error={errors.nightPrice}
-                                                            id="outlined-basic"
-                                                            label="Giá qua đêm"
-                                                            variant="standard"
-                                                            onKeyDown={handleKeyPress}
-                                                            value={numberWithCommas(defaultCategory.nightPrice)}
-                                                            onChange={(e) => {
-                                                                applyChange("nightPrice", e.target.value)
-                                                            }}
-                                                        />
-                                                        {Object.keys(errors).length !== 0 && (
-                                                            <div>
-                                                                {errors.nightPrice && <p className='text-red-600'>Giá qua đêm không được bỏ trống</p>}
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                    <div className="w-full">
-                                                        <TextField
-                                                            fullWidth
-                                                            error={errors.hourPrice}
-                                                            id="outlined-basic"
-                                                            label="Giá theo giờ"
-                                                            variant="standard"
-                                                            onKeyDown={handleKeyPress}
-                                                            value={numberWithCommas(defaultCategory.hourPrice)}
-                                                            onChange={(e) => {
-                                                                applyChange("hourPrice", e.target.value)
-                                                            }}
-                                                        />
-                                                        {Object.keys(errors).length !== 0 && (
-                                                            <div>
-                                                                {errors.hourPrice && <p className='text-red-600'>Giá theo giờ không được bỏ trống</p>}
-                                                            </div>
-                                                        )}
-                                                    </div>
+                                            <div className='py-4 border-b border-gray-200'>
+                                                <h3 className="font-medium mb-4">Giá phòng</h3>
+                                                <div className="ml-2">
+                                                    <CurrencyInput
+                                                        label="Giá theo ngày"
+                                                        name="dayPrice"
+                                                        value={defaultCategory.dayPrice}
+                                                        onChange={applyChange}
+                                                        error={errors.dayPrice}
+                                                        helperText={errors.dayPrice ? 'Vui lòng nhập giá hợp lệ' : ''}
+                                                    />
+                                                    <CurrencyInput
+                                                        label="Giá theo giờ"
+                                                        name="hourPrice"
+                                                        value={defaultCategory.hourPrice}
+                                                        onChange={applyChange}
+                                                        error={errors.hourPrice}
+                                                        helperText={errors.hourPrice ? 'Vui lòng nhập giá hợp lệ' : ''}
+                                                    />
+                                                    <CurrencyInput
+                                                        label="Giá qua đêm"
+                                                        name="nightPrice"
+                                                        value={defaultCategory.nightPrice}
+                                                        onChange={applyChange}
+                                                        error={errors.nightPrice}
+                                                        helperText={errors.nightPrice ? 'Vui lòng nhập giá hợp lệ' : ''}
+                                                    />
                                                 </div>
                                             </div>
 
-                                            <div className="pb-4">
-                                                <CustomSelect
-                                                    value={defaultCategory.category}
-                                                    onChange={(e: any) => applyChange("category", e.target.value)}
-                                                    label="Danh mục khách sạn"
-                                                    options={category.data}
-                                                    error={!!errors.category}
-                                                    helperText={errors.category ? "Danh mục khách sạn không được bỏ trống" : ""}
-                                                />
+                                            <div className="py-4 border-b border-gray-200">
+                                                <h3 className="font-medium mb-4">Danh mục khách sạn</h3>
+                                                <div className="mb-2 ml-2">
+                                                    <CustomTextField
+                                                        label="Danh mục khách sạn"
+                                                        name="category"
+                                                        disabled
+                                                        onChange={() => { }}
+                                                        placeholder="Danh mục khách sạn"
+                                                        value={defaultCategory.categoryOptions?.name}
+                                                        error={!!errors.category}
+                                                        helperText={errors.category ? "Tên phòng không được bỏ trống" : ""}
+                                                    />
+                                                </div>
                                             </div>
 
-                                            <div className="border-t border-gray-200 pt-4">
+                                            <div className="border-b border-gray-200 py-4">
                                                 <CustomAccordion title="Tiện ích" defaultExpanded>
-                                                    <div className="flex flex-wrap gap-4">
+                                                    <div className="flex flex-wrap gap-4 ml-2">
                                                         {/* {category.facilities.map((facility, index) => {
                                                             const isSelected = category.facilities.some((f) => f.name === facility.name);
                                                             return (
@@ -574,7 +527,8 @@ function Room_admin_detail(props: any, ref: any) {
                                                 </CustomAccordion>
                                             </div>
 
-                                            <div className="pb-4">
+                                            <div className="py-4 border-b border-gray-200">
+                                                <h3 className="font-medium mb-4">Mô tả phòng</h3>
                                                 <textarea
                                                     value={defaultCategory.description}
                                                     onChange={(e) => {
@@ -582,7 +536,7 @@ function Room_admin_detail(props: any, ref: any) {
                                                     }}
                                                     id="message"
                                                     rows={5}
-                                                    className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300" placeholder="Nhập mô tả..."></textarea>
+                                                    className="block ml-2 p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300" placeholder="Nhập mô tả..."></textarea>
                                                 {Object.keys(errors).length !== 0 && (
                                                     <div>
                                                         {errors.description && <p className='text-red-600'>Mô tả không được bỏ trống</p>}

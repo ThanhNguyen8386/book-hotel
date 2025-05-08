@@ -306,10 +306,12 @@ const Header = (props: Props) => {
               }}
 
             >
-              <MenuItem className='w-[100%]' onClick={handleClose2}>HappyWeekend Room</MenuItem>
-              <MenuItem onClick={handleClose2}>Tình yêu</MenuItem>
-              <MenuItem onClick={handleClose2}>Sang trọng</MenuItem>
-              <MenuItem onClick={handleClose2}>Du lịch</MenuItem>
+              <MenuItem className='w-[100%]' onClick={handleClose2}>
+              <p className="font-work">HappyWeekend Room</p>
+              </MenuItem>
+              <MenuItem onClick={handleClose2}><p className="font-work">Tình yêu</p></MenuItem>
+              <MenuItem onClick={handleClose2}><p className="font-work">Sang trọng</p></MenuItem>
+              <MenuItem onClick={handleClose2}><p className="font-work">Du lịch</p></MenuItem>
             </Menu>
           </div>
 

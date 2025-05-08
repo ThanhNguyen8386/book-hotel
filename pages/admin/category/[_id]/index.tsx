@@ -13,6 +13,7 @@ import useCategory from '../../../../hook/useCategory';
 import CustomTextField from '../../../../components/CustomTextField';
 import ModeEditTwoToneIcon from '@mui/icons-material/ModeEditTwoTone';
 import BaseDialog from '../../../../components/BaseDialog';
+import Room_admin_detail from '../../room/Room_admin_detail';
 
 const sections = [
     { id: "basic-info", label: "Thông tin cơ bản" },
@@ -30,7 +31,8 @@ export default function AddCategory() {
     const controllerRef = React.useRef<AbortController | null>(null);
     const [showAlert, setShowAlert] = useState(false);
     const [dialogType, setDialogType] = useState<'facilities' | 'addRoom' | null>(null);
-    const { create, edit, data } = useCategory()
+    const { create, edit, data, mutate } = useCategory()
+    const refDetail = React.useRef<any>();
 
     const defaultCategory = {
         name: "",
@@ -62,6 +64,15 @@ export default function AddCategory() {
     const [category, setCategory] = React.useState(defaultCategory);
     const [errors, setErrors] = React.useState(defaultErrors);
     const [saving, setSaving] = React.useState(false);
+
+    const actionCrud = {
+        create: (item: any, type: any) => {
+            refDetail.current.create(item, type)
+        },
+        update: (item: any, type: any) => {
+            refDetail.current.update(item, type)
+        }
+    }
 
     const handleClickOpen = (type: 'facilities' | 'addRoom') => {
         setDialogType(type);
@@ -338,7 +349,7 @@ export default function AddCategory() {
                             <div className="border-t border-gray-200 pt-4">
                                 <CustomAccordion title="Danh sách phòng" defaultExpanded>
                                     <div
-                                        onClick={() => handleClickOpen('addRoom')}
+                                        onClick={() => actionCrud.create(category, "CREATE")}
                                         onMouseDown={(e) => e.currentTarget.classList.add('scale-95')}
                                         onMouseUp={(e) => e.currentTarget.classList.remove('scale-95')}
                                         onMouseLeave={(e) => e.currentTarget.classList.remove('scale-95')}
@@ -468,7 +479,7 @@ export default function AddCategory() {
                     </div>
                 )}
             </BaseDialog>
-
+            <Room_admin_detail ref={refDetail} afterSubmit={mutate}/>
         </div>
     );
 }

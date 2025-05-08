@@ -41,7 +41,7 @@ export default function CustomSelect({
                         },
                     }}
                 >
-                    {options.map((opt) => (
+                    {options.length > 0 && options.map((opt) => (
                         <MenuItem
                             key={opt._id}
                             value={opt._id}

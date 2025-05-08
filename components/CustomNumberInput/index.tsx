@@ -1,94 +1,64 @@
-import React from 'react';
 import { TextField } from '@mui/material';
-import clsx from 'clsx';
 
-type Props = {
-    label?: string;
-    value: number | string;
-    onChange: (val: number) => void;
+interface CurrencyInputProps {
+    label: string;
+    name: string;
+    value: number;
+    onChange: (name: string, value: number) => void;
     error?: boolean;
     helperText?: string;
     placeholder?: string;
-    name?: string;
-    disabled?: boolean;
-    className?: string;
-    min?: number;
-    max?: number;
-};
+}
 
-const formatNumber = (value: number | string) => {
-    const num = Number(value);
-    return isNaN(num) ? '' : num.toLocaleString('vi-VN');
-};
+const formatCurrency = (value: number) =>
+    new Intl.NumberFormat('vi-VN').format(value);
 
-const parseNumber = (value: string) => {
-    const parsed = value.replace(/[^\d]/g, '');
-    return Number(parsed);
-};
-
-const CustomNumberInput: React.FC<Props> = ({
+export default function CurrencyInput({
     label,
+    name,
     value,
     onChange,
-    error = false,
-    helperText = '',
-    placeholder = '',
-    name,
-    disabled = false,
-    className = '',
-    min,
-    max,
-}) => {
-    const [displayValue, setDisplayValue] = React.useState(formatNumber(value));
-
-    React.useEffect(() => {
-        setDisplayValue(formatNumber(value));
-    }, [value]);
-
+    error,
+    helperText,
+    placeholder,
+}: CurrencyInputProps) {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const rawValue = e.target.value;
-        const parsed = parseNumber(rawValue);
-        if (!isNaN(parsed)) {
-            if ((min !== undefined && parsed < min) || (max !== undefined && parsed > max)) {
-                return;
-            }
-            onChange(parsed);
-        }
-        setDisplayValue(rawValue);
+        const raw = e.target.value.replaceAll('.', '').replace(/\D/g, '');
+        const numberValue = parseInt(raw || '0', 10);
+        onChange(name, numberValue);
     };
 
     return (
-        <div className={clsx('w-full', className)}>
-            {label && <label className="block text-sm font-semibold mb-1 text-gray-800">{label}</label>}
+        <div className="w-full space-y-1 font-sans">
+            <label className="block text-sm font-medium text-gray-800 font-sans">{label}</label>
             <TextField
-                variant="outlined"
+                name={name}
                 fullWidth
-                value={displayValue}
+                variant="outlined"
+                value={value === 0 ? '' : formatCurrency(value)}
                 onChange={handleChange}
+                placeholder={placeholder}
                 error={error}
                 helperText={helperText}
-                placeholder={placeholder}
-                name={name}
-                disabled={disabled}
-                inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-                InputLabelProps={{ shrink: false }}
+                inputProps={{
+                    inputMode: 'numeric',
+                    className: 'py-2 text-sm font-work', 
+                }}
+                className="rounded-md [&>div]:rounded-md font-work"
                 sx={{
                     '& .MuiOutlinedInput-root': {
-                        borderRadius: '0.5rem', // bo tròn giống ảnh
-                        backgroundColor: 'white',
-                        paddingRight: 1,
-                        paddingLeft: 1,
+                        fontFamily: 'Work Sans, sans-serif',
+                        fontSize: '0.875rem',
+                        minHeight: '40px', 
+                        '&.Mui-focused fieldset': {
+                            borderColor: '#000',
+                        },
                     },
                     '& .MuiInputBase-input': {
                         padding: '10px 12px',
-                    },
-                    '& .MuiFormHelperText-root': {
-                        marginLeft: 0,
                     },
                 }}
             />
         </div>
     );
-};
-
-export default CustomNumberInput;
+}
