@@ -15,6 +15,7 @@ import CustomTextField from '../../../components/CustomTextField';
 import CustomAccordion from '../../../components/CustomAccordion';
 import AddIcon from '@mui/icons-material/Add';
 import CurrencyInput from '../../../components/CustomNumberInput';
+import { listFacilityByCategory } from '../../../api/facilities';
 
 function Room_admin_detail(props: any, ref: any) {
     var _ = require('lodash');
@@ -23,6 +24,7 @@ function Room_admin_detail(props: any, ref: any) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const fileInputRefs = Array(9).fill(0).map(() => React.useRef(null));
     const [open, setOpen] = React.useState(false);
+    const [listFacility, setListFacility] = React.useState([]);
     const categoryDetail = {
         name: "",
         dayPrice: "",
@@ -31,10 +33,8 @@ function Room_admin_detail(props: any, ref: any) {
         image: "",
         category: "",
         description: "",
-        categoryOptions: {
-            _id: "",
-            name: ""
-        }
+        categoryName: "",
+        facilities: []
     }
     const [defaultCategory, setDefaultCategory] = React.useState(categoryDetail)
     const refMode = React.useRef(null);
@@ -46,9 +46,15 @@ function Room_admin_detail(props: any, ref: any) {
         hourPrice: false,
         image: false,
         category: false,
-        description: false
+        description: false,
+        facilities: false
     };
     const [errors, setErrors] = React.useState(defaultErrors);
+    const load = async () => {
+        await listFacilityByCategory(defaultCategory.category).then((res) => {
+            console.log(res);
+        })
+    }
     const handleClickOpen = () => {
         setOpen(true);
     };
@@ -85,9 +91,16 @@ function Room_admin_detail(props: any, ref: any) {
     }
 
     React.useImperativeHandle(ref, () => ({
-        create: (item: any, type: any) => {
+        create: async (item: any, type: any) => {
             refMode.current = type
-            setDefaultCategory({ ...defaultCategory, categoryOptions: { _id: item._id, name: item.name }, category: item._id })
+            await listFacilityByCategory(item._id).then(({ data }) => {
+                setDefaultCategory({
+                    ...defaultCategory,
+                    categoryName: data.category.name,
+                    category: data.category._id,
+                })
+                setListFacility(data.facilities);
+            })
             handleClickOpen()
         },
         update: (item: any, type: any) => {
@@ -96,6 +109,10 @@ function Room_admin_detail(props: any, ref: any) {
             handleClickOpen()
         }
     }))
+
+    // React.useEffect(() => {
+    //     load()
+    // }, [])
 
     const validate = (props: any, _planTask: any) => {
         const _defaultCategory = { ..._planTask };
@@ -164,12 +181,16 @@ function Room_admin_detail(props: any, ref: any) {
                 imgUrl.push(item.url);
             });
         }
+        const _facilities = data.facilities.map((item: any) => {
+            return item._id
+        })
         const newdata: any = {
             ...data,
             category: data.category,
             description: data.description,
             name: data.name,
             status: true,
+            facilities: _facilities,
             price: [
                 {
                     brand: "daily",
@@ -348,7 +369,11 @@ function Room_admin_detail(props: any, ref: any) {
                 maxWidth="md"
                 fullWidth
                 open={open}
-                onClose={handleClose}
+                onClose={(event, reason) => {
+                    if (reason !== 'backdropClick') {
+                        handleClose();
+                    }
+                }}
             >
                 <AppBar sx={{ position: 'sticky', display: 'flex', flex: 'justify-between' }}>
                     <Toolbar>
@@ -474,7 +499,7 @@ function Room_admin_detail(props: any, ref: any) {
                                                         disabled
                                                         onChange={() => { }}
                                                         placeholder="Danh mục khách sạn"
-                                                        value={defaultCategory.categoryOptions?.name}
+                                                        value={defaultCategory.categoryName}
                                                         error={!!errors.category}
                                                         helperText={errors.category ? "Tên phòng không được bỏ trống" : ""}
                                                     />
@@ -484,8 +509,8 @@ function Room_admin_detail(props: any, ref: any) {
                                             <div className="border-b border-gray-200 py-4">
                                                 <CustomAccordion title="Tiện ích" defaultExpanded>
                                                     <div className="flex flex-wrap gap-4 ml-2">
-                                                        {/* {category.facilities.map((facility, index) => {
-                                                            const isSelected = category.facilities.some((f) => f.name === facility.name);
+                                                        {listFacility.map((facility, index) => {
+                                                            const isSelected = defaultCategory.facilities.some((f) => f.name === facility.name);
                                                             return (
                                                                 <div
                                                                     key={index}
@@ -496,14 +521,14 @@ function Room_admin_detail(props: any, ref: any) {
                                                                         }`}
                                                                     onClick={() => {
                                                                         if (isSelected) {
-                                                                            setCategory({
-                                                                                ...category,
-                                                                                facilities: category.facilities.filter((f) => f.name !== facility.name),
+                                                                            setDefaultCategory({
+                                                                                ...defaultCategory,
+                                                                                facilities: defaultCategory.facilities.filter((f) => f.name !== facility.name),
                                                                             });
                                                                         } else {
-                                                                            setCategory({
-                                                                                ...category,
-                                                                                facilities: [...category.facilities, facility],
+                                                                            setDefaultCategory({
+                                                                                ...defaultCategory,
+                                                                                facilities: [...defaultCategory.facilities, facility],
                                                                             });
                                                                         }
                                                                     }}
@@ -512,7 +537,7 @@ function Room_admin_detail(props: any, ref: any) {
                                                                     <p>{facility.name}</p>
                                                                 </div>
                                                             );
-                                                        })} */}
+                                                        })}
                                                         <div
                                                             onClick={handleClickOpen}
                                                             onMouseDown={(e) => e.currentTarget.classList.add('scale-95')}

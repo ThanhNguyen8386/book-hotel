@@ -30,3 +30,9 @@ export const detail = (_id: number) => {
     const url = `categoryDetail/${_id}`;
     return instance.get(url)
 }
+
+export const listFacilityByCategory = (_id: String) => {
+    const url = `facilities/${_id}/category`;
+    return instance.get(url)
+}
+

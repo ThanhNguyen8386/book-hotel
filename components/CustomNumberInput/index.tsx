@@ -29,8 +29,8 @@ export default function CurrencyInput({
     };
 
     return (
-        <div className="w-full space-y-1 font-sans">
-            <label className="block text-sm font-medium text-gray-800 font-sans">{label}</label>
+        <div className="w-full space-y-1 font-work">
+            <label className="block text-sm font-medium text-gray-800 font-work">{label}</label>
             <TextField
                 name={name}
                 fullWidth
