@@ -230,7 +230,7 @@ export default function AddCategory() {
                 </div>
                 <div className="bg-white rounded-lg shadow-sm p-6">
                     <div className="flex flex-col md:flex-row gap-8">
-                        <div className="w-full md:w-1/4 space-y-6">
+                        <div className="w-full md:w-1/4 space-y-6 sticky top-[100px] z-10">
                             <div className="flex items-start gap-2 mb-4">
                                 <CampaignTwoToneIcon className="text-gray-600" />
                                 <div>
@@ -361,16 +361,18 @@ export default function AddCategory() {
                                     <div className="w-full">
                                         {category.rooms.map((item, index) => {
                                             return <div key={index} className="">
-                                                <div className="flex flex-col h-full my-4 items-center bg-white border border-gray-200 rounded-lg shadow-sm md:flex-row hover:bg-gray-100">
+                                                <div className="flex flex-col h-full my-4 items-stretch bg-white border border-gray-200 rounded-lg shadow-sm md:flex-row hover:bg-gray-100 w-full">
                                                     <img
                                                         className="object-cover w-full rounded-t-lg h-96 md:h-auto md:w-48 md:rounded-none md:rounded-s-lg"
                                                         src={item.image[0]}
                                                         alt=""
                                                     />
-                                                    <div className="flex flex-col justify-between p-4 leading-normal">
+                                                    <div className="flex flex-col justify-between p-4 leading-normal w-full">
                                                         <div className="flex items-center justify-between w-full">
                                                             <h5 className="text-2xl font-bold tracking-tight text-gray-900">{item.name}</h5>
-                                                            <ModeEditTwoToneIcon />
+                                                            <p className='rounded-full hover:bg-gray-300 cursor-pointer duration-300 p-2'>
+                                                                <ModeEditTwoToneIcon />
+                                                            </p>
                                                         </div>
                                                         <p className="mb-3 font-normal text-gray-700 dark:text-gray-400">{item.description}</p>
                                                         <div className="flex">
@@ -479,7 +481,7 @@ export default function AddCategory() {
                     </div>
                 )}
             </BaseDialog>
-            <Room_admin_detail ref={refDetail} afterSubmit={mutate}/>
+            <Room_admin_detail ref={refDetail} afterSubmit={mutate} />
         </div>
     );
 }
