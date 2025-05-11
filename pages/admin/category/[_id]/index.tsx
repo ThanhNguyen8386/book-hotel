@@ -14,7 +14,11 @@ import CustomTextField from '../../../../components/CustomTextField';
 import ModeEditTwoToneIcon from '@mui/icons-material/ModeEditTwoTone';
 import BaseDialog from '../../../../components/BaseDialog';
 import Room_admin_detail from '../../room/Room_admin_detail';
+import dynamic from 'next/dynamic';
 
+const CKEditorClient = dynamic(() => import('../../../../components/CkEditor'), {
+    ssr: false,
+});
 const sections = [
     { id: "basic-info", label: "Thông tin cơ bản" },
     { id: "product-detail", label: "Chi tiết sản phẩm" },
@@ -43,22 +47,32 @@ export default function AddCategory() {
                 name: "",
                 description: "",
                 image: [],
-                listFacility: []
+                listFacility: [
+                    {
+                        name: "",
+                        icon: ""
+                    }
+                ]
             }
         ],
-        facilities: [],
+        facilities: [
+            {
+                name: "",
+                icon: ""
+            }
+        ],
         introduction: "",
         type: ""
     };
 
     const defaultErrors = {
-        name: "",
-        status: "",
-        address: "",
-        rooms: "",
-        facilities: "",
-        introduction: "",
-        type: ""
+        name: false,
+        status: false,
+        address: false,
+        rooms: false,
+        facilities: false,
+        introduction: false,
+        type: false
     };
 
     const [category, setCategory] = React.useState(defaultCategory);
@@ -105,6 +119,7 @@ export default function AddCategory() {
             setCategory(data);
         }
     }, [data])
+    console.log(category, "hihi");
 
     React.useEffect(() => {
         if (open) {
@@ -139,9 +154,28 @@ export default function AddCategory() {
     }, []);
 
     const applyChange = (prop: any, val: any) => {
-        const updated = { ...category, [prop]: val };
-        validate([prop], updated);
-        setCategory(updated);
+        const _defaultCategory = { ...category };
+        switch (prop) {
+            case "name":
+                _defaultCategory.name = val;
+                break;
+            case "status":
+                _defaultCategory.status = val;
+                break;
+            case "address":
+                _defaultCategory.address = val;
+                break;
+            case "introduction":
+                _defaultCategory.introduction = val;
+                break;
+            default:
+                (_defaultCategory as any)[prop] = val;
+        }
+        validate([prop], _defaultCategory)
+        setCategory((prev) => ({
+            ...(prev as any),
+            [prop]: val,
+        }));
     };
 
     const validate = (props: any[], _data: any) => {
@@ -157,7 +191,7 @@ export default function AddCategory() {
                 case "introduction":
                 case "type":
                 case "address":
-                    result[prop] = !_data[prop];
+                    result[prop as keyof typeof result] = !_data[prop];
                     break;
                 default:
                     break;
@@ -171,7 +205,6 @@ export default function AddCategory() {
         e.preventDefault()
         const _defaultCategory = { ...category };
         const isValid = validate([], _defaultCategory);
-        console.log(_defaultCategory);
 
         if (isValid.length == 0) {
             try {
@@ -282,13 +315,13 @@ export default function AddCategory() {
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-sm text-gray-500 mb-1">Tổng quan</label>
-                                <textarea
-                                    placeholder="Tổng quan"
-                                    className="w-full border border-gray-200 rounded-md px-3 py-2 h-24 resize-none"
+                                <CKEditorClient
                                     value={category.introduction}
-                                    onChange={(e) => applyChange("introduction", e.target.value)}
-                                ></textarea>
+                                    name="introduction"
+                                    onChange={applyChange}
+                                    error={errors.introduction}
+                                    helperText="Vui lòng nhập mô tả khách sạn"
+                                />
                             </div>
                             <div className="border-t border-gray-200 pt-4">
                                 <div className="flex items-center justify-between">
@@ -303,7 +336,7 @@ export default function AddCategory() {
                             <div className="border-t border-gray-200 pt-4">
                                 <CustomAccordion title="Tiện ích" defaultExpanded>
                                     <div className="flex flex-wrap gap-4">
-                                        {category.facilities.map((facility, index) => {
+                                        {category?.facilities?.map((facility, index) => {
                                             const isSelected = category.facilities.some((f) => f.name === facility.name);
                                             return (
                                                 <div
@@ -359,7 +392,7 @@ export default function AddCategory() {
                                         <p>Thêm phòng</p>
                                     </div>
                                     <div className="w-full">
-                                        {category.rooms.map((item, index) => {
+                                        {category?.rooms?.map((item, index) => {
                                             return <div key={index} className="">
                                                 <div className="flex flex-col h-full my-4 items-stretch bg-white border border-gray-200 rounded-lg shadow-sm md:flex-row hover:bg-gray-100 w-full">
                                                     <img

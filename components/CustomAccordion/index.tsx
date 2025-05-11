@@ -1,9 +1,10 @@
 import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import { ReactNode } from 'react'
 
-export default function CustomAccordion({ title = 'Danh sách phòng', children }: { children: React.ReactNode }, defaultExpanded = true) {
-    return (        
-        <Accordion defaultExpanded disableGutters elevation={0} className="shadow-none font-work">
+export default function CustomAccordion({ title = 'Danh sách phòng', children, defaultExpanded = true }: { title?: string, children: ReactNode, defaultExpanded?: boolean }) {
+    return (
+        <Accordion defaultExpanded={defaultExpanded} disableGutters elevation={0} className="shadow-none font-work">
             <AccordionSummary
                 expandIcon={<ExpandMoreIcon className="text-black" />}
                 className="px-0"

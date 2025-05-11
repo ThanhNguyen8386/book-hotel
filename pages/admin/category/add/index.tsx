@@ -11,6 +11,11 @@ import { listfac } from '../../../../api/facilities';
 import AlertMessage from '../../../../components/AlertMessage';
 import useCategory from '../../../../hook/useCategory';
 import CustomTextField from '../../../../components/CustomTextField';
+import dynamic from 'next/dynamic';
+
+const CKEditorClient = dynamic(() => import('../../../../components/CkEditor'), {
+    ssr: false,
+});
 
 const sections = [
     { id: "basic-info", label: "Thông tin cơ bản" },
@@ -251,13 +256,13 @@ export default function AddCategory() {
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-sm text-gray-500 mb-1">Tổng quan</label>
-                                <textarea
-                                    placeholder="Tổng quan"
-                                    className="w-full border border-gray-200 rounded-md px-3 py-2 h-24 resize-none"
+                                <CKEditorClient
                                     value={category.introduction}
-                                    onChange={(e) => applyChange("introduction", e.target.value)}
-                                ></textarea>
+                                    name="introduction"
+                                    onChange={applyChange}
+                                    error={errors.introduction}
+                                    helperText="Vui lòng nhập mô tả khách sạn"
+                                />
                             </div>
                             <div className="border-t border-gray-200 pt-4">
                                 <div className="flex items-center justify-between">

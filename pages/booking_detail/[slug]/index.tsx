@@ -32,8 +32,8 @@ import 'swiper/css/thumbs';
 import { Navigation, Pagination } from 'swiper/modules';
 import Image from 'next/image';
 import Checkout from "./Checkout";
-import { differenceInSeconds } from "date-fns";
 import { getRoomAvailabe } from "../../../api/rooms";
+import DOMPurify from 'dompurify';
 
 type Form = {
   name: string;
@@ -201,7 +201,7 @@ const BookingDetail = () => {
     const startDate = new Date(inputValue[0][selectedType].startDate).getTime();
     const endDate = new Date(inputValue[0][selectedType].endDate).getTime();
     const durationMs = endDate - startDate
-    
+
     if (selectedType === 'hourly') {
       duration = Math.ceil(durationMs / (1000 * 60 * 60)); // Tính số giờ, làm tròn lên
       originalPrice = duration * pricePerUnit;
@@ -336,6 +336,14 @@ const BookingDetail = () => {
           {/* giới thiệu */}
           <div ref={sectionRefs.rooms} className="my-8">
             <p className="font-semibold text-2xl mb-4">Tổng quan</p>
+            <div className="">
+              <p
+                className="prose "
+                dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(product?.introduction),
+                }}
+              />
+            </div>
           </div>
 
           {/* phòng */}

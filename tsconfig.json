@@ -13,10 +13,14 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
-    "incremental": true
+    "incremental": true,
+    "typeRoots": ["./types", "./node_modules/@types"]
   },
 
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "components/DatePicker/index.jsx", "components/Layout/components/admin/SideBarAdmin.js", "pages/introduce/index.tsx",  "pages/checkout/booking-status/[slug]"],
 
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules",
+    "**/node_modules/*"
+  ]
 }
