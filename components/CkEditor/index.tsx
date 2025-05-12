@@ -3,6 +3,7 @@
 import React from 'react';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import dynamic from 'next/dynamic';
 
 interface TextEditorFieldProps {
     value: string;
@@ -13,7 +14,7 @@ interface TextEditorFieldProps {
     helperText?: string;
 }
 
-export default function TextEditorField({
+ function TextEditorField({
     value,
     name,
     label = 'Nội dung',
@@ -48,3 +49,5 @@ export default function TextEditorField({
         </div>
     );
 }
+
+export default dynamic(() => Promise.resolve(TextEditorField), { ssr: false });

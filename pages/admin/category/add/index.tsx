@@ -15,6 +15,7 @@ import dynamic from 'next/dynamic';
 
 const CKEditorClient = dynamic(() => import('../../../../components/CkEditor'), {
     ssr: false,
+    loading: () => <p>Đang tải trình soạn thảo...</p>
 });
 
 const sections = [
