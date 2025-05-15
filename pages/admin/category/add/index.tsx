@@ -173,13 +173,6 @@ export default function AddCategory() {
 
     return (
         <div className="flex-1 flex flex-col overflow-hidden">
-            <AlertMessage
-                type="success" // hoặc 'error', 'info', 'warning'
-                message="Thêm Khách sạn thành công!"
-                show={showAlert}
-                onClose={() => setShowAlert(false)}
-                duration={5000}
-            />
             <div className="flex-1 overflow-auto p-6">
                 <div className='sticky top-0 z-10 border-b border-gray-200'>
                     <div className='sticky top-0 z-10 border-b border-gray-200'>
