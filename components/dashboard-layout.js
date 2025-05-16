@@ -9,13 +9,17 @@ import { RECEPTIONIST_ROLE } from '../constants';
 
 const DashboardLayoutRoot = styled('div')(({ theme }) => ({
   display: 'flex',
+  flexDirection: 'column',
   flex: '1 1 auto',
   maxWidth: '100%',
+  height: '100vh', // <-- quan trọng
+  overflow: 'hidden', // <-- ngăn scroll body
   paddingTop: 64,
   [theme.breakpoints.up('lg')]: {
     paddingLeft: 280
   }
 }));
+
 
 export const DashboardLayout = (props) => {
   const { children } = props;
@@ -24,13 +28,14 @@ export const DashboardLayout = (props) => {
   return (
     <PrivateRouter acceptRole={[RECEPTIONIST_ROLE]}>
       <ThemeProvider theme={theme}>
-        <DashboardLayoutRoot className='bg-[#eee]'>
+        <DashboardLayoutRoot className='bg-[#eee] h-screen'>
           <Box
             sx={{
               display: 'flex',
-              flex: '1 1 auto',
               flexDirection: 'column',
-              width: '100%'
+              flex: '1 1 auto',
+              height: '100%', // <-- thêm dòng này
+              width: '100%',
             }}
           >
             {children}
