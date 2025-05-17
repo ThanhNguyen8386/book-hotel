@@ -34,7 +34,13 @@ function CategoryAdmin() {
     const [filterCondition, setFilterCondition] = React.useState(defaultFilterCondition);
     const e = useCategory();
     const [loading, setLoading] = React.useState(true)
-    const [rows, setRows] = React.useState<any>([{ _id: 1, name: null }]);
+    const [rows, setRows] = React.useState<any>({
+        data: [{ _id: 1, name: null }],
+        currentPage: 1,
+        pageSize: 10,
+        totalItems: 100,
+        totalPages: 2
+    });
     const refDetail = React.useRef<any>();
     const [openDialog, setOpenDialog] = React.useState(false)
     const [categoryData, setCategoryData] = React.useState(defaultData)
@@ -42,9 +48,16 @@ function CategoryAdmin() {
     const load = async () => {
         const _filterCondition = { ...filterCondition };
         const result = await categoryPagination(_filterCondition);
-        setRows(result.data.data);
+        setRows({
+            data: result.data,
+            currentPage: result.data.pagination.currentPage,
+            pageSize: result.data.pagination.pageSize,
+            totalItems: result.data.pagination.totalItems,
+            totalPages: result.data.pagination.totalPages
+        });
         setLoading(false)
     }
+    console.log(rows, "hihi");
 
     React.useEffect(() => {
         load()
@@ -140,14 +153,18 @@ function CategoryAdmin() {
             <div className="flex-1 overflow-hidden bg-white">
                 <AdminTable
                     loading={loading}
-                    data={rows}
-                    page={filterCondition.page}
-                    rowsPerPage={filterCondition.size}
-                    onPageChange={(page) => {
-                        setFilterCondition({ ...filterCondition, page });
+                    data={rows.data.data}
+                    page={rows.currentPage-1}
+                    rowsPerPage={rows.pageSize}
+                    rowsPerPageOptions={[10, 20, 50]}
+                    count={rows.totalItems}
+                    onPageChange={(newPage) => {
+                        setFilterCondition({ ...filterCondition, page: newPage + 1 });
+                        load(); // gọi API mới
                     }}
-                    onRowsPerPageChange={(size) => {
-                        setFilterCondition({ ...filterCondition, size });
+                    onRowsPerPageChange={(newSize) => {
+                        setFilterCondition({ page: 1, size: newSize });
+                        load(); // gọi API mới
                     }}
                     getRowKey={(item) => item._id}
                     columns={[
@@ -169,8 +186,6 @@ function CategoryAdmin() {
                             key: "price",
                             header: "Giá bán lẻ",
                             render: (params: any) => {
-                                console.log(params);
-
                                 const arrPrice = params.price?.map((item: any, index: any) => item.value);
                                 const arrPriceLenght = arrPrice?.length;
 
