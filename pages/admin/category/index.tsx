@@ -17,6 +17,7 @@ import { useRouter } from 'next/router';
 import { categoryPagination } from '../../../api/category';
 import AdminTable from '../../../components/AdminTable';
 import { format } from 'date-fns';
+import { debounce } from "lodash";
 
 function CategoryAdmin() {
     const router = useRouter()
@@ -46,18 +47,94 @@ function CategoryAdmin() {
     const [categoryData, setCategoryData] = React.useState(defaultData)
 
     const load = async () => {
-        const _filterCondition = { ...filterCondition };
-        const result = await categoryPagination(_filterCondition);
-        setRows({
-            data: result.data,
-            currentPage: result.data.pagination.currentPage,
-            pageSize: result.data.pagination.pageSize,
-            totalItems: result.data.pagination.totalItems,
-            totalPages: result.data.pagination.totalPages
-        });
+        setLoading(true);
+        const params = {
+            page: 1,
+            size: 10,
+            search: ""
+        }
+        const _rows = { ...rows };
+        await categoryPagination(params)
+            .then(({ data }) => {
+                _rows.data = data.data;
+                _rows.currentPage = data.pagination.currentPage;
+                _rows.pageSize = data.pagination.pageSize;
+                _rows.totalItems = data.pagination.totalItems;
+                _rows.totalPages = data.pagination.totalPages;
+                setRows(_rows);
+            })
         setLoading(false)
     }
-    console.log(rows, "hihi");
+
+    const filter = async (filterCondition: any) => {
+        setLoading(true);
+        const params = {
+            page: filterCondition.page || 1,
+            size: filterCondition.size || 10,
+            search:
+                filterCondition.search !== null && filterCondition.search !== undefined
+                    ? filterCondition.search
+                    : filterCondition.search || "",
+        }
+        const _rows = { ...rows };
+        try {
+            await categoryPagination(params)
+                .then(({ data }) => {
+                    _rows.data = data.data;
+                    _rows.currentPage = data.pagination.currentPage;
+                    _rows.pageSize = data.pagination.pageSize;
+                    _rows.totalItems = data.pagination.totalItems;
+                    _rows.totalPages = data.pagination.totalPages;
+                    setRows(_rows);
+                    setLoading(false)
+                })
+        } catch (error) {
+            console.log(error);
+
+        }
+    }
+
+    const debouncedFilter = React.useMemo(() =>
+        debounce((fc) => {
+            filter(fc);
+        }, 500),
+        [], []);
+
+    React.useEffect(() => {
+        return () => {
+            debouncedFilter.cancel();
+        };
+    }, []);
+
+    const applyChangeFilter = (prop: String, val: String) => {
+        let _filterCondition = { ...filterCondition };
+        if (prop) {
+            switch (prop) {
+                case "search":
+                    _filterCondition[prop] = val;
+                    break;
+                default:
+                    _filterCondition[prop] = val;
+                    break;
+            }
+            setFilterCondition(_filterCondition);
+
+            if (prop === "search") {
+                debouncedFilter(_filterCondition); // debounce cho search
+            } else {
+                filter(_filterCondition); // gọi trực tiếp cho các prop khác
+            }
+        }
+    };
+
+    const onPage = (e: any) => {
+        const _filterCondition = { ...filterCondition };
+        _filterCondition.page = e.page;
+        _filterCondition.size = e.size;
+        setFilterCondition(_filterCondition);
+        filter(_filterCondition);
+    }
+
 
     React.useEffect(() => {
         load()
@@ -124,11 +201,12 @@ function CategoryAdmin() {
         const _categoryData = { ...userData, status }
         setCategoryData(_categoryData);
     }
+
     return (
         <div className='flex flex-col h-full overflow-hidden' style={{ width: '100%', padding: "15px" }}>
             <Head>
                 <title>
-                    Customers
+                    Quản lí khách sạn
                 </title>
             </Head>
             <ShowForPermission>
@@ -143,28 +221,47 @@ function CategoryAdmin() {
             <div className="bg-white border-b border-gray-200 h-12 flex items-center px-4">
                 <div className="flex items-center bg-gray-100 rounded-md px-2 py-1 w-96 mx-auto">
                     <SearchTwoToneIcon className="h-4 w-4 text-gray-500" />
-                    <input
-                        type="text"
-                        placeholder="conceals.management.com"
-                        className="bg-transparent border-0 outline-none px-2 w-full text-sm"
-                    />
+                    <div className="relative w-full">
+                        <input
+                            value={filterCondition.search}
+                            onChange={(e) => applyChangeFilter("search", e.target.value)}
+                            type="text"
+                            placeholder="Tìm kiếm khách sạn..."
+                            className="bg-transparent border-0 outline-none px-2 w-full text-sm"
+
+                        />
+                        {filterCondition.search && (
+                            <button
+                                type="button"
+                                onClick={() => applyChangeFilter("search", "")}
+                                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                            >
+                                ✕
+                            </button>
+                        )}
+                    </div>
+
                 </div>
             </div>
             <div className="flex-1 overflow-hidden bg-white">
                 <AdminTable
                     loading={loading}
-                    data={rows.data.data}
-                    page={rows.currentPage-1}
+                    data={rows.data}
+                    page={rows.currentPage - 1}
                     rowsPerPage={rows.pageSize}
                     rowsPerPageOptions={[10, 20, 50]}
                     count={rows.totalItems}
                     onPageChange={(newPage) => {
-                        setFilterCondition({ ...filterCondition, page: newPage + 1 });
-                        load(); // gọi API mới
+                        onPage({
+                            page: newPage + 1,
+                            size: rows.pageSize,
+                        })
                     }}
                     onRowsPerPageChange={(newSize) => {
-                        setFilterCondition({ page: 1, size: newSize });
-                        load(); // gọi API mới
+                        onPage({
+                            size: newSize.target.value,
+                            page: rows.currentPage,
+                        })
                     }}
                     getRowKey={(item) => item._id}
                     columns={[
@@ -211,31 +308,38 @@ function CategoryAdmin() {
                                 return format(new Date(item.updatedAt), 'HH:mm, dd/MM/yyyy')
                             }
                         },
-                        // {
-                        //     key: "status",
-                        //     header: "Trạng thái",
-                        //     render: (item) => (
-                        //         <span className={`px-2 py-1 rounded text-xs font-medium ${item.status.includes("vô hiệu") ? "bg-red-100 text-red-600" : "bg-green-100 text-green-600"}`}>
-                        //             {item.status}
-                        //         </span>
-                        //     ),
-                        // },
-                        // {
-                        //     key: "actions",
-                        //     header: "Hành động",
-                        //     render: () => (
-                        //         <div className="flex gap-2 text-blue-600 text-sm underline">
-                        //             <Switch
-                        //                 checked={true}
-                        //                 color='success'
-                        //                 onChange={(e) => {
-                        //                     setOpenDialog(true)
-                        //                     handleCheckStatus(e, {status: false });
-                        //                 }} />
-                        //             <button>Sao chép</button>
-                        //         </div>
-                        //     ),
-                        // },
+                        {
+                            key: "status",
+                            header: "Trạng thái",
+                            render: (item) => (
+                                <div className="flex gap-2 text-blue-600 text-sm underline">
+                                    <Switch
+                                        checked={item.status}
+                                        color='success'
+                                        onChange={(e) => {
+                                            setOpenDialog(true)
+                                            handleCheckStatus(e, item);
+                                        }}
+                                    />
+                                </div>
+                            ),
+                        },
+                        {
+                            key: "actions",
+                            header: "Hành động",
+                            render: (item) => (
+                                <ShowForPermission key={1}>
+                                    <div className="flex flex-col items-center">
+                                        <EditIcon
+                                            onClick={() => {
+                                                // actionCrud.update(params.row, params)}
+                                                return router.push(`/admin/category/${item._id}`)
+                                            }}
+                                        />
+                                    </div>
+                                </ShowForPermission>
+                            ),
+                        },
                     ]}
                 />
             </div>

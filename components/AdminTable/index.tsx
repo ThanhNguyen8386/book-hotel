@@ -2,12 +2,12 @@ import { LinearProgress, Skeleton, TablePagination } from "@mui/material";
 import React from "react";
 
 type Column<T> = {
-    key: keyof T | string;
-    header: string;
-    render?: (item: T) => React.ReactNode;
-    className?: string;
+  key: keyof T | string;
+  header: string;
+  render?: (item: T) => React.ReactNode;
+  className?: string;
+  align?: 'left' | 'center' | 'right';
 };
-
 
 type AdminTableProps<T> = {
   data: T[];
@@ -19,7 +19,7 @@ type AdminTableProps<T> = {
   count: number;
   rowsPerPageOptions?: number[];
   onPageChange: (page: number) => void;
-  onRowsPerPageChange: (size: number) => void;
+  onRowsPerPageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
 export default function AdminTable<T>({
@@ -38,12 +38,12 @@ export default function AdminTable<T>({
     onPageChange(newPage);
   };
 
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const newSize = parseInt(event.target.value, 10);
-    onRowsPerPageChange(newSize);
-    onPageChange(0);
+  const getAlignmentClass = (align: 'left' | 'center' | 'right' = 'left') => {
+    switch (align) {
+      case 'center': return 'text-center';
+      case 'right': return 'text-right';
+      default: return 'text-left';
+    }
   };
 
   return (
@@ -60,7 +60,7 @@ export default function AdminTable<T>({
               {columns.map((col, idx) => (
                 <th
                   key={idx}
-                  className={`text-left px-4 py-3 font-medium border-b ${col.className ?? ""}`}
+                  className={`${getAlignmentClass(col.align)} px-4 py-3 font-medium border-b ${col.className ?? ""}`}
                 >
                   {col.header}
                 </th>
@@ -70,31 +70,31 @@ export default function AdminTable<T>({
           <tbody className={loading ? "pointer-events-none" : ""}>
             {loading
               ? Array.from({ length: rowsPerPage }).map((_, idx) => (
-                  <tr key={idx} className="border-b">
-                    {columns.map((_, cIdx) => (
-                      <td key={cIdx} className="px-4 py-4">
-                        <Skeleton variant="text" height={24} />
-                      </td>
-                    ))}
-                  </tr>
-                ))
+                <tr key={idx} className="border-b">
+                  {columns.map((col, cIdx) => (
+                    <td key={cIdx} className={`${getAlignmentClass(col.align)} px-4 py-4`}>
+                      <Skeleton variant="text" height={24} />
+                    </td>
+                  ))}
+                </tr>
+              ))
               : data.map((item) => (
-                  <tr
-                    key={getRowKey(item)}
-                    className="border-b hover:bg-gray-50"
-                  >
-                    {columns.map((col, idx) => (
-                      <td
-                        key={idx}
-                        className={`px-4 py-4 align-top ${col.className ?? ""}`}
-                      >
-                        {col.render
-                          ? col.render(item)
-                          : (item as any)[col.key]}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
+                <tr
+                  key={getRowKey(item)}
+                  className="border-b hover:bg-gray-50"
+                >
+                  {columns.map((col, idx) => (
+                    <td
+                      key={idx}
+                      className={`${getAlignmentClass(col.align)} px-4 py-4 align-top ${col.className ?? ""}`}
+                    >
+                      {col.render
+                        ? col.render(item)
+                        : (item as any)[col.key]}
+                    </td>
+                  ))}
+                </tr>
+              ))}
           </tbody>
         </table>
       </div>
@@ -106,7 +106,7 @@ export default function AdminTable<T>({
             page={page}
             onPageChange={handleChangePage}
             rowsPerPage={rowsPerPage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
+            onRowsPerPageChange={onRowsPerPageChange}
             rowsPerPageOptions={rowsPerPageOptions}
             labelRowsPerPage="Số hàng mỗi trang"
           />
