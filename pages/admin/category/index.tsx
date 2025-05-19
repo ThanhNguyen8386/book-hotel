@@ -210,12 +210,19 @@ function CategoryAdmin() {
                 </title>
             </Head>
             <ShowForPermission>
-                <Button className='justify-start' variant='text' sx={{ color: "orange" }} onClick={() => {
-                    // actionCrud.create(1, "CREATE")
-                    router.push("/admin/category/add")
-                }}>
-                    <AddIcon /> Thêm mới
-                </Button>
+                <div className="flex justify-end mb-4">
+                    <Button
+                        variant="contained"
+                        size="small"
+                        startIcon={<AddIcon fontSize="small" />}
+                        className="!normal-case px-3 py-1 text-sm inline-flex items-center"
+                        onClick={() => {
+                            router.push("/admin/category/add")
+                        }}
+                    >
+                        Thêm mới
+                    </Button>
+                </div>
             </ShowForPermission>
             <Category_admin_detail ref={refDetail} afterSubmit={load} />
             <div className="bg-white border-b border-gray-200 h-12 flex items-center px-4">
