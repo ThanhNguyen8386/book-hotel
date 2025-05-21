@@ -1,7 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
 import * as React from 'react';
-import { DataGrid, GridActionsCellItem } from '@mui/x-data-grid';
-import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import Category_admin_detail from './Category_admin_detail';
@@ -11,13 +9,13 @@ import useCategory from '../../../hook/useCategory';
 import Head from 'next/head';
 import Swal from 'sweetalert2'
 import ShowForPermission from '../../../components/Private/showForPermission';
-import LinearProgress from '@mui/material/LinearProgress';
 import SearchTwoToneIcon from '@mui/icons-material/SearchTwoTone';
 import { useRouter } from 'next/router';
 import { categoryPagination } from '../../../api/category';
 import AdminTable from '../../../components/AdminTable';
 import { format } from 'date-fns';
 import { debounce } from "lodash";
+import CustomAccordion from '../../../components/CustomAccordion';
 
 function CategoryAdmin() {
     const router = useRouter()
@@ -171,7 +169,7 @@ function CategoryAdmin() {
         }
     }
     const handleClose = () => {
-        load()
+        filter(filterCondition);
         setOpenDialog(false);
         setCategoryData(defaultData);
     };
@@ -286,28 +284,6 @@ function CategoryAdmin() {
                             ),
                         },
                         { key: "address", header: "Địa chỉ" },
-                        {
-                            key: "price",
-                            header: "Giá bán lẻ",
-                            render: (params: any) => {
-                                const arrPrice = params.price?.map((item: any, index: any) => item.value);
-                                const arrPriceLenght = arrPrice?.length;
-
-                                for (let i = 0; i < arrPriceLenght - 1; i++) {
-                                    for (let j = 0; j < arrPriceLenght - i - 1; j++) {
-                                        if (arrPrice[j] > arrPrice[j + 1]) {
-                                            let temp = arrPrice[j];
-                                            arrPrice[j] = arrPrice[j + 1];
-                                            arrPrice[j + 1] = temp;
-                                        }
-                                    }
-                                }
-                                return (
-                                    arrPrice && <div><span className='font-bold text-xl'>{arrPrice[0]} - {arrPrice[arrPriceLenght - 1]}</span> VNĐ</div>
-                                );
-                            }
-                        },
-                        { key: "sales", header: "Doanh số" },
                         {
                             key: "updated",
                             header: "Cập nhật",

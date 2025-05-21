@@ -33,8 +33,11 @@ import { Navigation, Pagination } from 'swiper/modules';
 import Image from 'next/image';
 import Checkout from "./Checkout";
 import { getRoomAvailabe } from "../../../api/rooms";
-import DOMPurify from 'dompurify';
-
+import dynamic from "next/dynamic";
+const SafeHtmlWithDialog = dynamic(() => import('../../../components/SafeHtml'), {
+  ssr: false, // Tắt SSR
+  loading: () => <p>Đang tải...</p>, // Hiển thị khi component đang tải
+});
 type Form = {
   name: string;
   email: string;
@@ -337,11 +340,10 @@ const BookingDetail = () => {
           <div ref={sectionRefs.rooms} className="my-8">
             <p className="font-semibold text-2xl mb-4">Tổng quan</p>
             <div className="">
-              <p
-                className="prose "
-                dangerouslySetInnerHTML={{
-                  __html: DOMPurify.sanitize(product?.introduction),
-                }}
+              <SafeHtmlWithDialog
+                html={product?.introduction}
+                clampLines={3}
+                title="Mô tả khách sạn"
               />
             </div>
           </div>
@@ -475,9 +477,9 @@ const BookingDetail = () => {
           <div ref={sectionRefs.facilities} className=" my-8 mbs:mt-[20px] mb:mt-[50px]">
             <p className="font-semibold text-2xl mb-4">Tiện Ích</p>
             <div className="grid mb:grid-cols-3 mb:gap-10 mbs:gap-4 mb:mb-[50px] mbs:mb-[10px] mbs:grid-cols-1 ">
-              {facilities.map((item: any, index: number) => (
+              {product?.facilities?.map((item: any, index: number) => (
                 <div className="flex mb:ml-[70px] mb:mt-[30px] mbs:ml-[0px] mbs:mt-[10px]" key={index}>
-                  <img width={45} className="mr-[20px] sepia mbs:w-[30px] mb:w-[45px]" src={`${item.image}`} alt="" />
+                  <p>{item.icon}</p>
                   <p className="self-center text-[18px] text-gray-500 font-medium">{item.name}</p>
                 </div>
               ))}

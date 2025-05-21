@@ -36,6 +36,11 @@ const BaseDialog = ({
             onClose={onClose}
             fullWidth={fullWidth}
             maxWidth={maxWidth}
+            PaperProps={{
+                sx: {
+                    borderRadius: 3, // tương đương rounded-xl (~24px)
+                },
+            }}
         >
             {title && (
                 <DialogTitle
