@@ -5,6 +5,7 @@ import DOMPurify from "dompurify";
 import { Dialog, DialogTitle, DialogContent, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import dynamic from "next/dynamic";
+import clsx from "clsx";
 
 type Props = {
     html: string;
@@ -13,7 +14,7 @@ type Props = {
     clampLines?: number; // số dòng hiển thị trước khi cắt
 };
 
- function SafeHtmlWithDialog({
+function SafeHtmlWithDialog({
     html,
     className = "",
     title = "Xem chi tiết",
@@ -26,7 +27,15 @@ type Props = {
         <>
             <div className={`relative ${className}`}>
                 <div
-                    className={`text-sm text-gray-700 prose max-w-full line-clamp-${clampLines}`}
+                    className={clsx(
+                        "text-sm text-gray-700 max-w-none",
+                        clampLines === 1 && "line-clamp-1",
+                        clampLines === 2 && "line-clamp-2",
+                        clampLines === 3 && "line-clamp-3",
+                        clampLines === 4 && "line-clamp-4",
+                        clampLines === 5 && "line-clamp-5",
+                        clampLines === 6 && "line-clamp-6"
+                    )}
                     dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
                 />
                 <div className="text-right mt-1">

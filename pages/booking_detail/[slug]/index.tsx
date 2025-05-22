@@ -342,11 +342,12 @@ const BookingDetail = () => {
             <div className="">
               <SafeHtmlWithDialog
                 html={product?.introduction}
-                clampLines={3}
+                clampLines={6}
                 title="Mô tả khách sạn"
               />
             </div>
           </div>
+
 
           {/* phòng */}
           <div ref={sectionRefs.rooms} className="scroll-mt-[160px] my-8">
