@@ -12,6 +12,7 @@ import AlertMessage from '../../../../components/AlertMessage';
 import useCategory from '../../../../hook/useCategory';
 import CustomTextField from '../../../../components/CustomTextField';
 import dynamic from 'next/dynamic';
+import MapboxAddressPicker from '../../../../components/MapboxAddressPicker';
 
 const CKEditorClient = dynamic(() => import('../../../../components/CkEditor'), {
     ssr: false,
@@ -116,9 +117,28 @@ export default function AddCategory() {
     }, []);
 
     const applyChange = (prop: any, val: any) => {
-        const updated = { ...category, [prop]: val };
-        validate([prop], updated);
-        setCategory(updated);
+        const _defaultCategory = { ...category };
+        switch (prop) {
+            case "name":
+                _defaultCategory.name = val;
+                break;
+            case "status":
+                _defaultCategory.status = val;
+                break;
+            case "address":
+                _defaultCategory.address = val;
+                break;
+            case "introduction":
+                _defaultCategory.introduction = val;
+                break;
+            default:
+                (_defaultCategory as any)[prop] = val;
+        }
+        validate([prop], _defaultCategory)
+        setCategory((prev) => ({
+            ...(prev as any),
+            [prop]: val,
+        }));
     };
 
     const validate = (props: any[], _data: any) => {
@@ -247,6 +267,18 @@ export default function AddCategory() {
                                         error={!!errors.type}
                                         helperText={errors.type ? "Danh mục khách sạn không được bỏ trống" : ""}
                                     />
+
+                                    <MapboxAddressPicker
+                                        defaultAddress={category.address}
+                                        defaultLat={category.lat}
+                                        defaultLng={category.lng}
+                                        onSelect={({ address, lat, lng }) => {
+                                            applyChange("address", address);
+                                            applyChange("lat", lat);
+                                            applyChange("lng", lng);
+                                        }}
+                                    />
+
                                 </div>
                             </div>
                             <div>

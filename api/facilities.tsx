@@ -1,7 +1,7 @@
 import { facilities } from "../types/fac";
 import instance from "./instance";
 
-export const listfac = () => {
+export const listfac = (signal: AbortSignal) => {
     const url = `/facilities`;
     return instance.get(url)
 }

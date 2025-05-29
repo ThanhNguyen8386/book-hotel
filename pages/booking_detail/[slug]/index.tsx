@@ -232,7 +232,7 @@ const BookingDetail = () => {
   }
   const actionOpenDialog = {
     comment: (item: any, type: any) => {
-      refCheckout.current.comment(item, type)
+      refCheckout.current?.comment(item, type)
     }
   }
 

@@ -207,8 +207,9 @@ function CategoryAdmin() {
                     Quản lí khách sạn
                 </title>
             </Head>
-            <ShowForPermission>
-                <div className="flex justify-end mb-4">
+            <Category_admin_detail ref={refDetail} afterSubmit={load} />
+            <div className="bg-white border-b border-gray-200 h-12 flex items-center px-4">
+                <ShowForPermission>
                     <Button
                         variant="contained"
                         size="small"
@@ -217,13 +218,17 @@ function CategoryAdmin() {
                         onClick={() => {
                             router.push("/admin/category/add")
                         }}
+                        sx={{
+                            color: '#000',
+                            '&:hover': {
+                                backgroundColor: '#ffa500c7',
+                                transition: 'all 0.2s ease-in-out',
+                            },
+                        }}
                     >
                         Thêm mới
                     </Button>
-                </div>
-            </ShowForPermission>
-            <Category_admin_detail ref={refDetail} afterSubmit={load} />
-            <div className="bg-white border-b border-gray-200 h-12 flex items-center px-4">
+                </ShowForPermission>
                 <div className="flex items-center bg-gray-100 rounded-md px-2 py-1 w-96 mx-auto">
                     <SearchTwoToneIcon className="h-4 w-4 text-gray-500" />
                     <div className="relative w-full">
@@ -268,7 +273,7 @@ function CategoryAdmin() {
                             page: rows.currentPage,
                         })
                     }}
-                    getRowKey={(item) => item._id}
+                    getRowKey={(item: any) => item._id}
                     columns={[
                         {
                             key: "name",

@@ -11,7 +11,7 @@ import { FreeMode, Mousewheel, Navigation, Pagination, Thumbs } from 'swiper/mod
 import Image from 'next/image';
 import { Dialog, DialogContent } from '@material-ui/core';
 
-const Carousel = ({ images }: []) => {
+const Carousel = ({ images }: { images: string[] }) => {
     const [thumbsSwiper, setThumbsSwiper] = useState(null);
     const [thumbsSwiperDialog, setThumbsSwiperDialog] = useState(null);
     const [open, setOpen] = useState(false)
